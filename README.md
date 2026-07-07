@@ -32,6 +32,31 @@ OmniPitch 2026 is an unprecedented stadium management solution designed specific
 
 ## ⚡ Core Features
 
+### 🏗️ System Architecture
+```mermaid
+graph TD
+    subgraph "Frontend Engine (Vue 3 + Vite)"
+        UI[Glassmorphic UI Layer]
+        State[Pinia Telemetry State]
+        WebGL[Three.js Digital Twin]
+    end
+
+    subgraph "Google Cloud"
+        AI[Gemini 1.5/2.5 Flash]
+    end
+
+    subgraph "Simulated IoT Core"
+        Sensors[Gate & Temp Sensors]
+    end
+
+    Sensors -->|Live WebSocket Data| State
+    State -->|Reactive Updates| UI
+    State -->|Crowd Density| WebGL
+    State -->|Context Grounding| AI
+    UI <-->|Conversational Queries| AI
+    UI -->|Incident Image Uploads| AI
+```
+
 ### 🎮 Holographic 3D Digital Twin
 A fully procedural, highly optimized **Three.js** stadium running at 60FPS. 
 - **Live Match Simulation**: 22 AI-driven players featuring flocking behaviors and physics right on the pitch.
