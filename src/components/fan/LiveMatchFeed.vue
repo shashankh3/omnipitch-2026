@@ -74,7 +74,7 @@
                 <div v-if="currentSlide.isGoal" class="absolute bottom-10 left-3 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-[0_0_8px_rgba(220,38,38,0.8)] -rotate-3 animate-bounce">
                   GOAL!
                 </div>
-                <p class="text-white text-[11px] font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" v-html="currentSlide.text"></p>
+                <p class="text-white text-[11px] font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" v-html="DOMPurify.sanitize(currentSlide.text)"></p>
               </div>
             </div>
           </transition>
@@ -134,6 +134,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import DOMPurify from 'dompurify';
 import goalImg from '../../assets/soccer_goal_action.png';
 import fansImg from '../../assets/soccer_fans_cheering.png';
 import { getSimulatedMatchFeed } from '../../services/gemini';
@@ -149,8 +150,8 @@ const feedData = ref({
   upcomingMatch: { homeTeam: '', awayTeam: '', time: '' }
 });
 
-let minuteInterval: any;
-let slideInterval: any;
+let minuteInterval: ReturnType<typeof setInterval> | undefined;
+let slideInterval: ReturnType<typeof setInterval> | undefined;
 
 const currentSlide = computed(() => slides.value[slideIndex.value]);
 
@@ -179,7 +180,7 @@ const fetchFeed = async (forceRefetch = false) => {
 
     feedData.value = data;
     matchMinute.value = data.liveMatch.minute;
-    slides.value = data.liveMatch.slides.map((s: any, idx: number) => ({
+    slides.value = data.liveMatch.slides.map((s: { id: number; text: string; isGoal: boolean }, idx: number) => ({
       ...s,
       image: idx % 2 === 0 ? goalImg : fansImg,
       imageClass: idx % 2 === 0 ? 'object-[center_30%]' : 'object-center'

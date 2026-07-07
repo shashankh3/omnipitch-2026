@@ -1,6 +1,11 @@
 <template>
   <div class="h-full w-full bg-[#050510] overflow-hidden relative flex flex-col">
 
+    <!-- Accessibility Screen Reader Data -->
+    <div class="sr-only" aria-live="polite">
+      Live Stadium Status: {{ matchData.home }} vs {{ matchData.away }}, Score {{ matchData.homeScore }} to {{ matchData.awayScore }}, Minute {{ matchData.minute }}. 
+    </div>
+
     <!-- Scoreboard HUD - Top Center -->
     <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
       <div class="bg-[#0a0a1a]/90 backdrop-blur-xl border border-white/10 rounded-2xl px-8 py-3 flex items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
@@ -114,7 +119,7 @@ const loadMatchData = () => {
     } catch(e) {}
   }
 };
-let syncInterval: any;
+let syncInterval: ReturnType<typeof setInterval> | undefined;
 
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
