@@ -36,7 +36,7 @@ export async function getFanAssistance(
     return response.text();
   } catch (error) {
     console.error("Gemini Multi-turn Chat Fault:", error);
-    return "System latency detected. Please follow overhead structural physical signs.";
+    return "Oops! Our AI network is a bit crowded right now. 🏟️ Please give me a moment and try asking again, or refer to the stadium Jumbotrons for immediate directions!";
   }
 }
 
