@@ -21,8 +21,7 @@ import { useStadiumStore } from './store/useStadiumStore';
 
 const hasError = ref(false);
 
-// Global Error Boundary
-onErrorCaptured((err, instance, info) => {
+onErrorCaptured((err, _instance, info) => {
   console.error('OmniPitch Global Error Boundary Caught:', err, info);
   hasError.value = true;
   return false; // Prevent error from propagating further
