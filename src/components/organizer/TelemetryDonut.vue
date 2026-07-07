@@ -3,7 +3,7 @@
     <div class="w-full flex justify-between items-start z-10 mb-2">
       <div>
         <h3 class="font-black italic text-white text-xl tracking-tighter uppercase flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-[0_0_8px_rgba(255,107,0,0.8)]"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-[0_0_8px_rgba(255,107,0,0.8)]"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           {{ title }}
         </h3>
         <p v-if="subtitle" class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1 ml-6">{{ subtitle }}</p>
