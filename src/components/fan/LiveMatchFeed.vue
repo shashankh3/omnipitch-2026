@@ -12,39 +12,71 @@
     </div>
 
     <div class="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar">
-      <!-- Match 1 -->
-      <div class="p-3 border-b border-white/5 hover:bg-white/3 transition-colors cursor-pointer group">
-        <div class="flex justify-between items-center text-[10px] mb-2">
+      <!-- Match 1: LIVE with Slideshow & Boom Animation -->
+      <div class="p-3 border-b border-white/5 bg-white/5 cursor-pointer relative overflow-hidden group">
+        <div class="flex justify-between items-center text-[10px] mb-2 relative z-10">
           <div class="flex items-center gap-1.5 text-red-400 font-bold">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>72'</span>
+            <span class="tabular-nums">{{ matchMinute }}'</span>
           </div>
-          <span class="px-1.5 py-0.5 bg-red-500/15 text-red-400 rounded text-[9px] uppercase tracking-wider font-extrabold border border-red-500/20">Live</span>
+          <span class="px-1.5 py-0.5 bg-red-500 text-white rounded text-[9px] uppercase tracking-wider font-extrabold shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-pulse">Live</span>
         </div>
-        <div class="flex justify-between items-center mb-2.5">
+        
+        <div class="flex justify-between items-center mb-2.5 relative z-10">
           <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white text-xs block truncate">USA</span>
+            <span class="font-extrabold text-white text-xs block truncate drop-shadow-md">USA</span>
           </div>
-          <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg font-black text-base flex gap-1.5 tabular-nums text-white">
-            <span>2</span><span class="text-white/20">:</span><span>1</span>
+          <div class="bg-black/40 backdrop-blur-md border border-white/20 px-3 py-1 rounded-lg font-black text-lg flex gap-1.5 tabular-nums text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+            <span :class="{'text-emerald-400 scale-110 transition-transform': currentSlide.isGoal}">2</span>
+            <span class="text-white/30">:</span>
+            <span>1</span>
           </div>
           <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white text-xs block truncate">MEXICO</span>
+            <span class="font-extrabold text-white/80 text-xs block truncate drop-shadow-md">MEXICO</span>
           </div>
         </div>
-        <div class="relative h-24 rounded-lg overflow-hidden group-hover:shadow-md transition-shadow">
-          <img src="../../assets/soccer_goal_action.png" alt="USA scores a dramatic goal" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-2">
-            <p class="text-white text-[10px] font-semibold leading-tight drop-shadow-md">Pulisic scores a stunning header to take the lead!</p>
+
+        <!-- Slideshow Container -->
+        <div class="relative h-32 rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.5)] border border-white/10 bg-black">
+          <transition name="boom-slide" mode="out-in">
+            <div :key="currentSlide.id" class="absolute inset-0 w-full h-full">
+              <!-- Image with slow Ken Burns pan -->
+              <img 
+                :src="currentSlide.image" 
+                :alt="currentSlide.text" 
+                class="w-full h-full object-cover animate-ken-burns" 
+                :class="currentSlide.imageClass"
+              />
+              <!-- Flash overlay for goals -->
+              <div v-if="currentSlide.isGoal" class="absolute inset-0 bg-white opacity-0 animate-goal-flash"></div>
+              
+              <!-- Gradient & Text -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent flex flex-col justify-end p-3">
+                <div v-if="currentSlide.isGoal" class="absolute bottom-10 left-3 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-[0_0_8px_rgba(220,38,38,0.8)] -rotate-3 animate-bounce">
+                  GOAL!
+                </div>
+                <p class="text-white text-[11px] font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" v-html="currentSlide.text"></p>
+              </div>
+            </div>
+          </transition>
+
+          <!-- Slideshow Progress Indicators -->
+          <div class="absolute top-2 left-1/2 -translate-x-1/2 flex gap-1 z-20">
+            <div 
+              v-for="(_, index) in slides" 
+              :key="index"
+              class="h-1 rounded-full transition-all duration-300"
+              :class="index === slideIndex ? 'w-4 bg-white shadow-[0_0_5px_rgba(255,255,255,0.8)]' : 'w-1.5 bg-white/30'"
+            ></div>
           </div>
         </div>
       </div>
 
-      <!-- Match 2 -->
-      <div class="p-3 border-b border-white/5 hover:bg-white/3 transition-colors cursor-pointer group">
+      <!-- Match 2: Finished -->
+      <div class="p-3 border-b border-white/5 hover:bg-white/3 transition-colors cursor-pointer group opacity-70 hover:opacity-100">
         <div class="flex justify-between items-center text-[10px] mb-2">
-          <span class="text-white/30 font-bold">Final Whistle</span>
-          <span class="px-1.5 py-0.5 bg-white/5 text-white/30 rounded text-[9px] uppercase tracking-wider font-extrabold border border-white/10">FT</span>
+          <span class="text-white/40 font-bold">Final Whistle</span>
+          <span class="px-1.5 py-0.5 bg-white/10 text-white/50 rounded text-[9px] uppercase tracking-wider font-extrabold">FT</span>
         </div>
         <div class="flex justify-between items-center mb-2.5">
           <div class="text-center w-[35%]">
@@ -55,12 +87,6 @@
           </div>
           <div class="text-center w-[35%]">
             <span class="font-extrabold text-white/70 text-xs block truncate">CANADA</span>
-          </div>
-        </div>
-        <div class="relative h-24 rounded-lg overflow-hidden group-hover:shadow-md transition-shadow">
-          <img src="../../assets/soccer_fans_cheering.png" alt="Fans cheering wildly" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-2">
-            <p class="text-white/80 text-[10px] font-semibold leading-tight drop-shadow-md">Argentina fans erupt as Messi seals the victory.</p>
           </div>
         </div>
       </div>
@@ -88,5 +114,92 @@
 </template>
 
 <script setup lang="ts">
-// Static match feed for Fan Dashboard engagement
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import goalImg from '../../assets/soccer_goal_action.png';
+import fansImg from '../../assets/soccer_fans_cheering.png';
+
+const matchMinute = ref(72);
+const slideIndex = ref(0);
+let minuteInterval: any;
+let slideInterval: any;
+
+const slides = [
+  {
+    id: 1,
+    image: goalImg,
+    imageClass: 'object-center',
+    text: 'Pulisic receives the cross deep in the box...',
+    isGoal: false
+  },
+  {
+    id: 2,
+    image: goalImg,
+    imageClass: 'object-right scale-125 origin-right', // Zoom in on the action
+    text: '<span class="text-emerald-400 text-sm">STRIKE!</span> An absolute rocket into the top corner!',
+    isGoal: true
+  },
+  {
+    id: 3,
+    image: fansImg,
+    imageClass: 'object-center',
+    text: 'The American fans erupt as USA takes a dramatic 2-1 lead!',
+    isGoal: false
+  }
+];
+
+const currentSlide = computed(() => slides[slideIndex.value]);
+
+onMounted(() => {
+  // Cycle slides every 4 seconds
+  slideInterval = setInterval(() => {
+    slideIndex.value = (slideIndex.value + 1) % slides.length;
+  }, 4000);
+
+  // Slowly tick up the match minute
+  minuteInterval = setInterval(() => {
+    if (matchMinute.value < 90) matchMinute.value++;
+  }, 60000);
+});
+
+onUnmounted(() => {
+  clearInterval(slideInterval);
+  clearInterval(minuteInterval);
+});
 </script>
+
+<style scoped>
+/* Slideshow Transitions */
+.boom-slide-enter-active {
+  transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.boom-slide-leave-active {
+  transition: all 0.4s ease-in;
+}
+.boom-slide-enter-from {
+  opacity: 0;
+  transform: translateX(100%) scale(0.9) rotate(5deg);
+}
+.boom-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-100%) scale(0.9) rotate(-5deg);
+}
+
+/* Flash effect for the goal */
+@keyframes goal-flash {
+  0% { opacity: 0; transform: scale(1); }
+  10% { opacity: 0.8; transform: scale(1.1); box-shadow: inset 0 0 50px rgba(255,255,255,1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+.animate-goal-flash {
+  animation: goal-flash 1s ease-out forwards;
+}
+
+/* Ken Burns slow pan */
+@keyframes ken-burns {
+  0% { transform: scale(1.0); }
+  100% { transform: scale(1.15); }
+}
+.animate-ken-burns {
+  animation: ken-burns 6s linear forwards;
+}
+</style>
