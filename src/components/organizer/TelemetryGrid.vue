@@ -3,8 +3,8 @@
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col items-center text-center p-6 hover-lift relative overflow-hidden group">
       <div class="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <h3 class="text-xs text-zinc-400 font-bold mb-2 uppercase tracking-widest">WBGT Heat Safety</h3>
-      <div class="text-4xl font-black tracking-tighter" :class="wbgt > 90 ? 'text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'text-zinc-100'">
-        {{ wbgt.toFixed(1) }}°<span class="text-2xl text-zinc-500 font-bold">F</span>
+      <div class="text-4xl font-black tracking-tighter" :class="wbgt > 32 ? 'text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'text-zinc-100'">
+        {{ wbgt.toFixed(1) }}°<span class="text-2xl text-zinc-500 font-bold">C</span>
       </div>
     </div>
     
