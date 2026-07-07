@@ -13,7 +13,7 @@ export const useStadiumStore = defineStore('stadium', {
     
     telemetry: {
       timestamp: new Date().toISOString(),
-      wbgtTemperature: 94.6, // Hazardous heat state
+      wbgtTemperature: 34.8, // Hazardous heat state (Celsius)
       gateThroughput: { 'GateA': 450, 'GateB': 120, 'GateC': 890 }, // GateC bottleneck
       transitDelays: { 'Metro_Line1': 25, 'Bus_Express': 0 }, // Metro mechanical delay
       concessionInventory: { 'Water_Sec100': 15, 'Water_Sec120': 85 }, // Inventory exhaustion threat
@@ -34,7 +34,7 @@ export const useStadiumStore = defineStore('stadium', {
         location: { section: '112', gate: 'GateC', coordinates: [43.6821, -79.6122] },
         type: 'WEATHER_HAZARD',
         severity: 'HIGH',
-        description: 'Wet Bulb Globe Temperature exceeded 92°F in unshaded East Stand area. Extreme heat stroke risk.',
+        description: 'Wet Bulb Globe Temperature exceeded 33°C in unshaded East Stand area. Extreme heat stroke risk.',
         status: 'OPEN'
       },
       {

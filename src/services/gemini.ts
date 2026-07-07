@@ -22,7 +22,7 @@ export async function getFanAssistance(
     You must assist fans in their native language. Respond strictly in: ${userLang}.
     
     CRITICAL LIVE STADIUM STATUS TO GROUND YOUR ASSIST:
-    - Current Wet Bulb Globe Temperature (WBGT): ${telemetry.wbgtTemperature}°F (If >90°F, remind fans to stay hydrated and favor shaded paths).
+    - Current Wet Bulb Globe Temperature (WBGT): ${telemetry.wbgtTemperature}°C (If >32°C, remind fans to stay hydrated and favor shaded paths).
     - Gate Bottlenecks: ${JSON.stringify(telemetry.gateThroughput)}
     - Local Public Transit Delays: ${JSON.stringify(telemetry.transitDelays)}
     - Accessibility Constraints: User Step-Free Requirement is set to ${needsStepFree}. Keep routes matching this constraint.
