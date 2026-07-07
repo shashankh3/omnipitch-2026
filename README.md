@@ -4,6 +4,9 @@
 
 **The GenAI-Powered Digital Twin & Command Center for the FIFA World Cup 2026**
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Play_Now-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://omnipitch-2026-5ck6jr5lo-shashas-projects-88539e22.vercel.app/)
+<br>
+
 [![Vue 3](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vue.js&logoColor=4FC08D)](https://vuejs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Three.js](https://img.shields.io/badge/Three.js-black?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
