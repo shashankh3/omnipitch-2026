@@ -5,24 +5,24 @@
     <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
       <div class="bg-[#0a0a1a]/90 backdrop-blur-xl border border-white/10 rounded-2xl px-8 py-3 flex items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
         <div class="flex items-center gap-3">
-          <div class="w-6 h-4 rounded-sm bg-gradient-to-b from-red-500 to-red-700 shadow-sm"></div>
-          <span class="text-white font-black text-sm tracking-wide">USA</span>
+          <div class="w-6 h-4 rounded-sm shadow-sm" :style="{ backgroundColor: matchData.homeColor }"></div>
+          <span class="text-white font-black text-sm tracking-wide">{{ matchData.home }}</span>
         </div>
         <div class="flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-xl border border-white/10">
-          <span class="text-white font-black text-2xl tabular-nums">2</span>
+          <span class="text-white font-black text-2xl tabular-nums">{{ matchData.homeScore }}</span>
           <span class="text-white/30 font-light text-xl">:</span>
-          <span class="text-white font-black text-2xl tabular-nums">1</span>
+          <span class="text-white font-black text-2xl tabular-nums">{{ matchData.awayScore }}</span>
         </div>
         <div class="flex items-center gap-3">
-          <span class="text-white font-black text-sm tracking-wide">MEX</span>
-          <div class="w-6 h-4 rounded-sm bg-gradient-to-b from-emerald-600 to-emerald-800 shadow-sm"></div>
+          <span class="text-white font-black text-sm tracking-wide">{{ matchData.away }}</span>
+          <div class="w-6 h-4 rounded-sm shadow-sm" :style="{ backgroundColor: matchData.awayColor }"></div>
         </div>
         <div class="ml-2 flex items-center gap-1.5 border-l border-white/10 pl-4">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
           </span>
-          <span class="text-red-400 font-mono text-xs font-bold tracking-wider">72'</span>
+          <span class="text-red-400 font-mono text-xs font-bold tracking-wider">{{ matchData.minute }}'</span>
         </div>
       </div>
     </div>
@@ -74,8 +74,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import * as THREE from 'three';
+// @ts-ignore
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { useStadiumStore } from '../../store/useStadiumStore';
 
@@ -83,20 +84,44 @@ const canvasContainer = ref<HTMLDivElement | null>(null);
 const isLoading = ref(true);
 const store = useStadiumStore();
 
+const matchData = ref({
+  home: 'USA',
+  away: 'MEX',
+  homeScore: 2,
+  awayScore: 1,
+  minute: 72,
+  homeColor: '#ef4444',
+  awayColor: '#10b981'
+});
+
+const loadMatchData = () => {
+  const cached = localStorage.getItem('omnipitch_match_feed_v2');
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (parsed.data && parsed.data.liveMatch) {
+        const lm = parsed.data.liveMatch;
+        matchData.value = {
+          home: lm.homeTeam || 'USA',
+          away: lm.awayTeam || 'MEX',
+          homeScore: lm.homeScore || 0,
+          awayScore: lm.awayScore || 0,
+          minute: lm.minute || 0,
+          homeColor: lm.primaryColor || '#ef4444',
+          awayColor: lm.secondaryColor || '#10b981'
+        };
+      }
+    } catch(e) {}
+  }
+};
+let syncInterval: any;
+
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
 let controls: OrbitControls;
 let animationFrameId: number;
 const clock = new THREE.Clock();
-
-// Gate status helper for template
-const getGateClass = (gate: string) => {
-  const tp = store.telemetry.gateThroughput[`Gate${gate}`] || 0;
-  if (tp > 800) return 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.7)] animate-pulse';
-  if (tp > 500) return 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)]';
-  return 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]';
-};
 
 // ---------- Easing helpers ----------
 const easeOutQuad = (t: number) => t * (2 - t);
@@ -158,6 +183,7 @@ const createGateHUDTexture = (gateId: string, throughput: number) => {
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.minFilter = THREE.LinearFilter;
+  texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
 };
 
@@ -209,15 +235,16 @@ const createStandHUDTexture = (name: string, density: number) => {
       else if (val < 0.8) ctx.fillStyle = '#f97316'; // orange
       else ctx.fillStyle = '#ef4444'; // red
       
-      // Slight rounding on boxes
+      // Standard rect for maximum compatibility
       ctx.beginPath();
-      ctx.roundRect(startX + c * (boxSize + gap), startY + r * (boxSize + gap), boxSize, boxSize, 2);
+      ctx.rect(startX + c * (boxSize + gap), startY + r * (boxSize + gap), boxSize, boxSize);
       ctx.fill();
     }
   }
   
   const texture = new THREE.CanvasTexture(canvas);
   texture.minFilter = THREE.LinearFilter;
+  texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
 };
 
@@ -294,7 +321,8 @@ const setStandTargetColors = () => {
     // Update Holographic HUDs
     if (standHUDMaterials[section]) {
       const oldMap = standHUDMaterials[section].map;
-      standHUDMaterials[section].map = createStandHUDTexture(section, density);
+      const newMap = createStandHUDTexture(section, density);
+      standHUDMaterials[section].map = newMap;
       standHUDMaterials[section].needsUpdate = true;
       if (oldMap) oldMap.dispose();
     }
@@ -312,7 +340,8 @@ const setStandTargetColors = () => {
     // Update Gate HUDs
     if (gateHUDMaterials[gateId]) {
       const oldMap = gateHUDMaterials[gateId].map;
-      gateHUDMaterials[gateId].map = createGateHUDTexture(gateId, tp);
+      const newMap = createGateHUDTexture(gateId, tp);
+      gateHUDMaterials[gateId].map = newMap;
       gateHUDMaterials[gateId].needsUpdate = true;
       if (oldMap) oldMap.dispose();
     }
@@ -953,7 +982,7 @@ const updateBall = (dt: number) => {
   posAttr.needsUpdate = true;
 };
 
-const updateTeam = (mesh: THREE.InstancedMesh, teamData: Player[], opponentData: Player[], time: number, dt: number) => {
+const updateTeam = (mesh: THREE.InstancedMesh, teamData: Player[], time: number, dt: number) => {
   const distances = teamData.map((p, idx) => ({
     idx,
     dist: Math.hypot(ballData.x - p.x, ballData.z - p.z)
@@ -1022,8 +1051,8 @@ const animate = () => {
   updateStandColorsSmooth(dt);
   updateCrowd(dt, time);
   updateBall(dt);
-  updateTeam(redTeamMesh, redTeamData, blueTeamData, time, dt);
-  updateTeam(blueTeamMesh, blueTeamData, redTeamData, time, dt);
+  updateTeam(redTeamMesh, redTeamData, time, dt);
+  updateTeam(blueTeamMesh, blueTeamData, time, dt);
 
   renderer.render(scene, camera);
 };
@@ -1032,9 +1061,16 @@ watch(() => store.telemetry.crowdDensity, () => {
   setStandTargetColors();
 }, { deep: true });
 
-onMounted(() => { setTimeout(init3D, 100); });
+onMounted(() => {
+  loadMatchData();
+  syncInterval = setInterval(loadMatchData, 5000); // sync with cache every 5s
+
+  setTimeout(init3D, 100); 
+});
+
 onBeforeUnmount(() => {
   window.removeEventListener('resize', onWindowResize);
+  clearInterval(syncInterval);
   cancelAnimationFrame(animationFrameId);
   if (renderer) {
     renderer.dispose();

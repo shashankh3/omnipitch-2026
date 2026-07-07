@@ -1,5 +1,5 @@
 <template>
-  <div class="fan-dashboard flex flex-col h-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-[#050510] dark:text-white relative transition-colors duration-500">
+  <div class="fan-dashboard flex flex-col h-screen overflow-hidden bg-[#050510] text-white relative transition-colors duration-500">
 
     <!-- Heat Alert Banner -->
     <div v-if="telemetry.wbgtTemperature > 32" class="absolute top-20 left-1/2 -translate-x-1/2 z-50">
@@ -11,7 +11,7 @@
 
     <!-- Gate Status Panel - Bottom Right (shifted up to clear FAB) -->
     <div class="absolute bottom-28 right-6 z-20 pointer-events-none">
-      <div class="bg-white/80 dark:bg-[#0a0a1a]/80 backdrop-blur-xl border border-slate-200 dark:border-white/8 rounded-xl px-4 py-3 flex flex-col gap-2 shadow-lg">
+      <div class="bg-[#0a0a1a]/80 backdrop-blur-xl border border-white/8 rounded-xl px-4 py-3 flex flex-col gap-2 shadow-lg ea-tile">
         <div class="flex justify-between items-center mb-1">
           <span class="text-[9px] text-white/40 uppercase tracking-[0.2em] font-bold">Gate Throughput</span>
           <span v-if="fastestGate" class="text-[9px] text-emerald-400 font-bold tracking-wider bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
@@ -21,27 +21,29 @@
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-1.5" v-for="gate in ['A','B','C']" :key="gate">
             <div class="w-2.5 h-2.5 rounded-full" :class="getGateClass(gate)"></div>
-            <span class="text-slate-600 dark:text-white/50 text-[10px] font-medium">Gate {{ gate }}</span>
+            <span class="text-white/50 text-[10px] font-medium">Gate {{ gate }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Top Bar -->
-    <header class="absolute top-4 right-4 z-40 flex items-center gap-3">
-      <ThemeToggle />
-      <div class="bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 flex items-center gap-2">
-        <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"></div>
-        <span class="text-xs text-slate-700 dark:text-white/60 font-medium">Systems Online</span>
+    <header class="absolute top-6 right-6 z-40 flex items-center gap-4">
+      <div class="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl px-6 py-2.5 flex items-center gap-2 ea-tile shadow-lg">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse"></div>
+        <span class="text-sm text-white/70 font-bold uppercase tracking-widest">Systems Online</span>
       </div>
-      <button @click="logout" class="bg-white/50 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white/70 hover:text-slate-900 dark:hover:text-white rounded-xl px-4 py-2 text-xs font-medium transition-all duration-200">
-        Sign Out
-      </button>
+      <BaseButton variant="secondary" @click="logout" aria-label="Exit Fan Portal" class="!px-6 !py-2.5 !text-sm !font-bold !tracking-widest uppercase bg-white/5 text-white/70 border-white/20 hover:bg-white/20 hover:text-white transition-all rounded-xl shadow-lg ea-button">
+        DISCONNECT
+      </BaseButton>
     </header>
 
-    <!-- OmniPitch Brand Badge - Top Left -->
-    <div class="absolute top-4 left-4 z-40 pointer-events-none">
-      <OmniLogo subtitle="FIFA WC 2026" />
+    <!-- Massive EA Typography - Top Left -->
+    <div class="absolute top-6 left-6 z-40 pointer-events-none drop-shadow-2xl">
+      <h1 class="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none mb-1 opacity-90">
+        OMNI<span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">PITCH</span> <span class="text-[#ccff00]">26</span>
+      </h1>
+      <p class="text-[#ccff00] text-xs font-bold uppercase tracking-widest pl-1 opacity-90">Fan Experience</p>
     </div>
 
     <!-- 3D Stadium (Full Bleed) -->
@@ -50,14 +52,14 @@
     </main>
 
     <!-- Floating Match Feed -->
-    <div class="absolute top-16 left-4 z-40 hidden md:block">
+    <div class="absolute top-36 left-6 z-40 hidden md:block">
       <LiveMatchFeed />
     </div>
 
     <!-- AI Copilot FAB -->
     <div class="absolute bottom-8 right-8 z-40">
       <button
-        class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-[0_8px_24px_rgba(251,191,36,0.35)] hover:shadow-[0_12px_32px_rgba(251,191,36,0.5)] hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-amber-400/30 group"
+        class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-[0_8px_24px_rgba(251,191,36,0.35)] hover:shadow-[0_12px_32px_rgba(251,191,36,0.5)] outline-none focus:ring-4 focus:ring-amber-400/30 group ea-button"
         @click="isChatOpen = !isChatOpen"
         aria-label="Ask Stadium Copilot"
       >
@@ -98,13 +100,12 @@ import { useRouter } from 'vue-router';
 import FanMap from '../components/fan/FanMap.vue';
 import ConciergeChat from '../components/fan/ConciergeChat.vue';
 import LiveMatchFeed from '../components/fan/LiveMatchFeed.vue';
-import OmniLogo from '../components/common/OmniLogo.vue';
-import ThemeToggle from '../components/common/ThemeToggle.vue';
+import BaseButton from '../components/common/BaseButton.vue';
 import { useStadiumStore } from '../store/useStadiumStore';
 
 const router = useRouter();
 const store = useStadiumStore();
-const isChatOpen = ref(false);
+const isChatOpen = ref(true);
 
 const telemetry = computed(() => store.telemetry);
 
@@ -127,3 +128,23 @@ const logout = () => {
   router.push({ name: 'login' });
 };
 </script>
+
+<style scoped>
+/* Snappy EA Sports style transition */
+.ea-tile {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.ea-tile:hover {
+  transform: scale(1.02) translateY(-2px);
+}
+
+.ea-button {
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.ea-button:hover {
+  transform: scale(1.05);
+}
+.ea-button:active {
+  transform: scale(0.95);
+}
+</style>

@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -33,7 +33,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['close']);
 const modalRef = ref<HTMLElement | null>(null);
-let previousFocus: HTMLElement | null = null;
 
 const close = () => {
   emit('close');

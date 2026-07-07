@@ -21,6 +21,7 @@ describe('OmniPitch 2026 GenAI Grounding Test Suite', () => {
       timestamp: '2026-07-07T12:00:00Z',
       wbgtTemperature: 95.0,
       gateThroughput: { 'GateA': 100 },
+      crowdDensity: { 'GateA': 50 },
       transitDelays: { 'Metro': 0 },
       concessionInventory: {}
     };

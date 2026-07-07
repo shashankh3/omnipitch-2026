@@ -1,38 +1,39 @@
 <template>
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+  <div class="flex flex-col gap-4 h-full">
     
-    <!-- Left Column: Telemetry KPI Cards -->
-    <section class="flex flex-col gap-6 lg:col-span-1">
+    <!-- Top Row: Telemetry KPI Cards -->
+    <section class="w-full">
       <TelemetryGrid />
     </section>
     
-    <!-- Center Column: Metric progress bar breakdowns -->
-    <section class="flex flex-col gap-6 lg:col-span-1">
-      <MetricChart 
-        title="Gate Throughput"
-        subtitle="Live fans per minute"
-        :data="telemetry.gateThroughput"
-        :maxExpected="1000"
-      />
+    <!-- Middle Row: Main Chart & Side Charts -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-[400px]">
       
-      <MetricChart 
-        title="Transit Delays"
-        subtitle="Network delay in minutes"
-        :data="telemetry.transitDelays"
-        :inverseColors="true"
-        :maxExpected="30"
-      />
+      <!-- Main Large Area Chart (simulating Portfolio/Market chart) -->
+      <div class="lg:col-span-2 glass-panel rounded-[2rem] p-6 border border-white/5 shadow-2xl transition-all duration-400 hover:scale-[1.01] hover:-translate-y-1 hover:shadow-[0_15px_50px_rgba(204,255,0,0.1)] hover:border-[#ccff00]/20 ea-tile">
+        <MainLiveChart 
+          title="Global Stadium Throughput" 
+          subtitle="Live Fans / Min Across All Gates"
+          :currentValue="totalThroughput" 
+          color="#ccff00"
+        />
+      </div>
       
-      <MetricChart 
-        title="Concession Inventory"
-        subtitle="Current stock levels (%)"
-        :data="telemetry.concessionInventory"
-        :maxExpected="100"
-      />
+      <!-- Right Side Donut Chart -->
+      <div class="lg:col-span-1 glass-panel rounded-[2rem] p-6 border border-white/5 shadow-2xl transition-all duration-400 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_15px_50px_rgba(255,107,0,0.15)] hover:border-[#ff6b00]/30 ea-tile flex items-center justify-center">
+        <div class="w-full">
+          <TelemetryDonut 
+            title="Incident Distribution"
+            subtitle="Active Events by Severity"
+            :data="incidentDistribution"
+            centerLabel="Active Incidents"
+          />
+        </div>
+      </div>
     </section>
     
-    <!-- Right Column: AI Command Console -->
-    <section class="flex flex-col h-[600px] lg:h-[calc(100vh-140px)] lg:col-span-1">
+    <!-- Bottom Row: Data Table (Placeholder for AI console for now) -->
+    <section class="h-[400px] w-full glass-panel rounded-[2rem] p-8 border border-white/5 shadow-2xl mt-4 transition-all duration-400 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] ea-tile">
       <AiCommandConsole />
     </section>
     
@@ -43,9 +44,41 @@
 import { computed } from 'vue';
 import { useStadiumStore } from '../../store/useStadiumStore';
 import TelemetryGrid from './TelemetryGrid.vue';
-import MetricChart from './MetricChart.vue';
+import MainLiveChart from './MainLiveChart.vue';
+import TelemetryDonut from './TelemetryDonut.vue';
 import AiCommandConsole from './AiCommandConsole.vue';
 
 const store = useStadiumStore();
-const telemetry = computed(() => store.telemetry);
+
+const totalThroughput = computed(() => {
+  return Object.values(store.telemetry.gateThroughput).reduce((sum, val) => sum + val, 0);
+});
+
+const incidentDistribution = computed(() => {
+  const dist: Record<string, number> = { 'CRITICAL': 0, 'HIGH': 0, 'MEDIUM': 0, 'LOW': 0 };
+  store.incidents.forEach(inc => {
+    if (inc.status !== 'RESOLVED' && dist[inc.severity] !== undefined) {
+      dist[inc.severity]++;
+    }
+  });
+  // Filter out zeros for cleaner donut
+  const filtered: Record<string, number> = {};
+  for (const [k, v] of Object.entries(dist)) {
+    if (v > 0) filtered[k] = v;
+  }
+  // Fallback if empty
+  if (Object.keys(filtered).length === 0) return { 'None': 1 };
+  return filtered;
+});
 </script>
+
+<style scoped>
+.glass-panel {
+  background: rgba(10, 10, 26, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.ea-tile {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+</style>

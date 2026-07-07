@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useStadiumStore } from '../../store/useStadiumStore';
-import { getOrganizerRecommendation } from '../../services/gemini';
+import { getOrganizerRecommendation, translateAnnouncement, getSentimentAnalysis } from '../../services/gemini';
 
 const store = useStadiumStore();
 const query = ref('');
@@ -98,10 +98,19 @@ const askAI = async () => {
   isLoading.value = true;
   
   try {
-    const result = await getOrganizerRecommendation(userQuery, store.telemetry);
-    recommendations.value.push(result);
+    if (userQuery.startsWith('/broadcast ')) {
+      const textToTranslate = userQuery.replace('/broadcast ', '').trim();
+      const translation = await translateAnnouncement(textToTranslate);
+      recommendations.value.unshift(`[BROADCAST INITIATED]\nOriginal: ${textToTranslate}\n\nTranslations:\n${translation}`);
+    } else if (userQuery.startsWith('/sentiment')) {
+      const sentiment = await getSentimentAnalysis(store.telemetry);
+      recommendations.value.unshift(`[SENTIMENT ANALYSIS]\n${sentiment}`);
+    } else {
+      const result = await getOrganizerRecommendation(userQuery, store.telemetry);
+      recommendations.value.unshift(result);
+    }
   } catch (error) {
-    recommendations.value.push("System timeout.");
+    recommendations.value.unshift("System timeout.");
   } finally {
     isLoading.value = false;
   }

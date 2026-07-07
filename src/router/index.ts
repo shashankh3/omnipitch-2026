@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginView from '../views/LoginView.vue';
-import FanDashboard from '../views/FanDashboard.vue';
-import VolunteerDashboard from '../views/VolunteerDashboard.vue';
-import OrganizerDashboard from '../views/OrganizerDashboard.vue';
 import { useStadiumStore } from '../store/useStadiumStore';
+
+const LoginView = () => import('../views/LoginView.vue');
+const FanDashboard = () => import('../views/FanDashboard.vue');
+const VolunteerDashboard = () => import('../views/VolunteerDashboard.vue');
+const OrganizerDashboard = () => import('../views/OrganizerDashboard.vue');
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,7 +35,7 @@ const router = createRouter({
   ]
 });
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   const store = useStadiumStore();
   const session = store.currentSession;
   

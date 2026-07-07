@@ -1,30 +1,42 @@
 <template>
-  <div class="grid grid-cols-2 lg:grid-cols-1 gap-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col items-center text-center p-6 hover-lift relative overflow-hidden group">
-      <div class="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      <h3 class="text-xs text-zinc-400 font-bold mb-2 uppercase tracking-widest">WBGT Heat Safety</h3>
-      <div class="text-4xl font-black tracking-tighter" :class="wbgt > 32 ? 'text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'text-zinc-100'">
-        {{ wbgt.toFixed(1) }}°<span class="text-2xl text-zinc-500 font-bold">C</span>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- WBGT Heat Safety -->
+    <div class="bg-panel-bg border border-white/5 rounded-2xl flex flex-col p-5 hover-lift relative overflow-hidden group">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1.5 h-4 rounded-full" :class="wbgt > 32 ? 'bg-neon-orange' : 'bg-neon-lime'"></div>
+        <h3 class="text-xs text-zinc-400 font-medium tracking-wide">WBGT Safety</h3>
+      </div>
+      <div class="text-3xl font-bold tracking-tighter" :class="wbgt > 32 ? 'text-neon-orange' : 'text-white'">
+        {{ wbgt.toFixed(1) }}<span class="text-lg text-zinc-600 font-normal ml-1">°C</span>
       </div>
     </div>
     
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col items-center text-center p-6 hover-lift relative overflow-hidden group">
-      <div class="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      <h3 class="text-xs text-zinc-400 font-bold mb-2 uppercase tracking-widest">Active Incidents</h3>
-      <div class="text-4xl font-black tracking-tighter text-zinc-100">{{ activeIncidentCount }}</div>
+    <!-- Active Incidents -->
+    <div class="bg-panel-bg border border-white/5 rounded-2xl flex flex-col p-5 hover-lift relative overflow-hidden group">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1.5 h-4 rounded-full bg-red-500"></div>
+        <h3 class="text-xs text-zinc-400 font-medium tracking-wide">Active Incidents</h3>
+      </div>
+      <div class="text-3xl font-bold tracking-tighter text-white">{{ activeIncidentCount }}</div>
     </div>
     
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col items-center text-center p-6 hover-lift relative overflow-hidden group">
-      <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      <h3 class="text-xs text-zinc-400 font-bold mb-2 uppercase tracking-widest">Gate Flow Avg</h3>
-      <div class="text-4xl font-black tracking-tighter text-zinc-100">{{ avgThroughput.toFixed(0) }}</div>
+    <!-- Gate Flow Avg -->
+    <div class="bg-panel-bg border border-white/5 rounded-2xl flex flex-col p-5 hover-lift relative overflow-hidden group">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1.5 h-4 rounded-full bg-[#6366f1]"></div>
+        <h3 class="text-xs text-zinc-400 font-medium tracking-wide">Gate Flow Avg</h3>
+      </div>
+      <div class="text-3xl font-bold tracking-tighter text-white">{{ avgThroughput.toFixed(0) }} <span class="text-lg text-zinc-600 font-normal ml-1">/ min</span></div>
     </div>
     
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col items-center text-center p-6 hover-lift relative overflow-hidden group">
-      <div class="absolute inset-0 bg-gradient-to-b from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      <h3 class="text-xs text-zinc-400 font-bold mb-2 uppercase tracking-widest">Max Transit Delay</h3>
-      <div class="text-4xl font-black tracking-tighter" :class="maxDelay > 20 ? 'text-red-500' : maxDelay > 10 ? 'text-amber-500' : 'text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]'">
-        {{ maxDelay }}<span class="text-2xl text-zinc-500 font-bold ml-1">m</span>
+    <!-- Max Transit Delay -->
+    <div class="bg-panel-bg border border-white/5 rounded-2xl flex flex-col p-5 hover-lift relative overflow-hidden group">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-1.5 h-4 rounded-full" :class="maxDelay > 20 ? 'bg-red-500' : maxDelay > 10 ? 'bg-neon-orange' : 'bg-neon-lime'"></div>
+        <h3 class="text-xs text-zinc-400 font-medium tracking-wide">Max Transit Delay</h3>
+      </div>
+      <div class="text-3xl font-bold tracking-tighter" :class="maxDelay > 20 ? 'text-red-500' : maxDelay > 10 ? 'text-neon-orange' : 'text-neon-lime'">
+        {{ maxDelay }}<span class="text-lg text-zinc-600 font-normal ml-1">m</span>
       </div>
     </div>
   </div>

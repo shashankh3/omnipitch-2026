@@ -69,10 +69,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vue-vendor': ['vue', 'vue-router', 'pinia'],
-          'leaflet-vendor': ['leaflet', '@vue-leaflet/vue-leaflet'],
-          'ai-vendor': ['@google/generative-ai']
+        manualChunks(id: string) {
+          if (id.includes('node_modules')) {
+            if (id.includes('vue') || id.includes('pinia')) return 'vue-vendor';
+            if (id.includes('leaflet')) return 'leaflet-vendor';
+            if (id.includes('@google/generative-ai')) return 'ai-vendor';
+          }
         }
       }
     }

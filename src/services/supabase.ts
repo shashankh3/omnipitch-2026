@@ -1,8 +1,6 @@
 // Mock Supabase Client for MVP
 // In a real scenario, this would use @supabase/supabase-js
 
-import type { Incident, UserSession } from '../types';
-
 export const supabase = {
   auth: {
     getUser: async () => {
@@ -21,7 +19,7 @@ export const supabase = {
   },
   from: (table: string) => {
     return {
-      select: async (query?: string) => {
+      select: async (_query?: string) => {
         console.log(`Mock DB Select from ${table}`);
         return { data: [], error: null };
       },

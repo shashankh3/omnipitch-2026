@@ -1,49 +1,68 @@
 <template>
-  <div class="bg-[#0a0a1a]/90 backdrop-blur-2xl border border-white/8 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col pointer-events-auto w-72 transition-all duration-300">
-    <div class="px-4 py-3 flex justify-between items-center border-b border-white/5">
-      <div class="flex items-center gap-2">
+  <div :style="{'--theme-primary': feedData.liveMatch.primaryColor || '#ccff00', '--theme-secondary': feedData.liveMatch.secondaryColor || '#10b981'}" class="bg-[#0a0a1a]/90 backdrop-blur-2xl border border-white/8 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col pointer-events-auto w-72 ea-tile min-h-[350px] relative group">
+    <!-- EA Sports Scanner Line -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden z-0 rounded-2xl">
+      <div class="w-[200%] h-1 bg-gradient-to-r from-transparent via-[var(--theme-primary)] to-transparent opacity-0 group-hover:opacity-40 animate-scan-line"></div>
+    </div>
+    <div class="px-4 py-3 flex justify-between items-center border-b border-white/5 relative">
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#ccff00]/10 to-transparent translate-x-[-100%] animate-shimmer" v-if="isLoading"></div>
+      <div class="flex items-center gap-2 relative z-10">
         <span class="flex h-2 w-2 relative">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="isLoading ? 'bg-amber-400' : 'bg-red-400'"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2" :class="isLoading ? 'bg-amber-500' : 'bg-red-500'"></span>
         </span>
         <h3 class="font-bold text-xs text-white tracking-wide">Live Matches</h3>
       </div>
-      <span class="text-[9px] text-white/30 font-bold tracking-[0.2em] uppercase">MD 12</span>
+      <div class="flex items-center gap-2 relative z-10">
+        <button @click="forceRefresh" class="text-[9px] text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1 font-bold">
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 1 0 2.13-5.88L21 8"/></svg>
+          Refresh
+        </button>
+        <span class="text-[9px] text-white/30 font-bold tracking-[0.2em] uppercase">MD 12</span>
+      </div>
+    </div>
+    
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-70">
+      <div class="w-8 h-8 rounded-full border-2 border-white/10 border-t-[var(--theme-primary)] animate-spin mb-3 shadow-[0_0_15px_var(--theme-primary)]"></div>
+      <p class="text-xs font-bold uppercase tracking-widest text-white/50">Gemini AI Generating<br/>Match Feed...</p>
     </div>
 
-    <div class="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar">
+    <div v-else class="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar">
       <!-- Match 1: LIVE with Slideshow & Boom Animation -->
       <div class="p-3 border-b border-white/5 bg-white/5 cursor-pointer relative overflow-hidden group">
         <div class="flex justify-between items-center text-[10px] mb-2 relative z-10">
           <div class="flex items-center gap-1.5 text-red-400 font-bold">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span class="tabular-nums">{{ matchMinute }}'</span>
+            <span class="text-white/30 font-bold flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div> {{ matchMinute }}'</span>
           </div>
-          <span class="px-1.5 py-0.5 bg-red-500 text-white rounded text-[9px] uppercase tracking-wider font-extrabold shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-pulse">Live</span>
+          <span class="px-2 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px] uppercase tracking-wider font-extrabold border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]">Live</span>
         </div>
         
         <div class="flex justify-between items-center mb-2.5 relative z-10">
-          <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white text-xs block truncate drop-shadow-md">USA</span>
+          <div class="text-center w-[35%] flex flex-col items-center gap-1">
+            <div class="w-8 h-1 rounded-full opacity-70" :style="{ backgroundColor: 'var(--theme-primary)' }"></div>
+            <span class="font-extrabold text-white text-xs block truncate drop-shadow-md" :style="{ color: 'var(--theme-primary)' }">{{ feedData.liveMatch.homeTeam }}</span>
           </div>
           <div class="bg-black/40 backdrop-blur-md border border-white/20 px-3 py-1 rounded-lg font-black text-lg flex gap-1.5 tabular-nums text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-            <span :class="{'text-emerald-400 scale-110 transition-transform': currentSlide.isGoal}">2</span>
+            <span :class="{'scale-125 transition-transform': currentSlide?.isGoal}" :style="{ color: currentSlide?.isGoal ? 'var(--theme-primary)' : 'white' }">{{ feedData.liveMatch.homeScore }}</span>
             <span class="text-white/30">:</span>
-            <span>1</span>
+            <span :class="{'scale-125 transition-transform': currentSlide?.isGoal}" :style="{ color: currentSlide?.isGoal ? 'var(--theme-secondary)' : 'white' }">{{ feedData.liveMatch.awayScore }}</span>
           </div>
-          <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white/80 text-xs block truncate drop-shadow-md">MEXICO</span>
+          <div class="text-center w-[35%] flex flex-col items-center gap-1">
+            <div class="w-8 h-1 rounded-full opacity-70" :style="{ backgroundColor: 'var(--theme-secondary)' }"></div>
+            <span class="font-extrabold text-white/80 text-xs block truncate drop-shadow-md" :style="{ color: 'var(--theme-secondary)' }">{{ feedData.liveMatch.awayTeam }}</span>
           </div>
         </div>
 
         <!-- Slideshow Container -->
         <div class="relative h-32 rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.5)] border border-white/10 bg-black">
           <transition name="boom-slide" mode="out-in">
-            <div :key="currentSlide.id" class="absolute inset-0 w-full h-full">
+            <div v-if="currentSlide" :key="currentSlide.id" class="absolute inset-0 w-full h-full">
               <!-- Image with slow Ken Burns pan -->
               <img 
                 :src="currentSlide.image" 
-                :alt="currentSlide.text" 
+                alt="Match Action" 
                 class="w-full h-full object-cover animate-ken-burns" 
                 :class="currentSlide.imageClass"
               />
@@ -80,13 +99,13 @@
         </div>
         <div class="flex justify-between items-center mb-2.5">
           <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white/70 text-[10px] block truncate">ARGENTINA</span>
+            <span class="font-extrabold text-white/70 text-[10px] block truncate uppercase">{{ feedData.completedMatch.homeTeam }}</span>
           </div>
           <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg font-black text-base flex gap-1.5 tabular-nums text-white/60">
-            <span>3</span><span class="text-white/15">:</span><span>0</span>
+            <span>{{ feedData.completedMatch.homeScore }}</span><span class="text-white/15">:</span><span>{{ feedData.completedMatch.awayScore }}</span>
           </div>
           <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white/70 text-xs block truncate">CANADA</span>
+            <span class="font-extrabold text-white/70 text-xs block truncate uppercase">{{ feedData.completedMatch.awayTeam }}</span>
           </div>
         </div>
       </div>
@@ -94,18 +113,18 @@
       <!-- Upcoming Match -->
       <div class="p-3 hover:bg-white/3 transition-colors cursor-pointer">
         <div class="flex justify-between items-center text-[10px] mb-2">
-          <span class="text-white/30 font-bold">19:00 Local</span>
+          <span class="text-white/30 font-bold">{{ feedData.upcomingMatch.time }}</span>
           <span class="px-1.5 py-0.5 bg-amber-500/10 text-amber-400/80 rounded text-[9px] uppercase tracking-wider font-extrabold border border-amber-500/15">Soon</span>
         </div>
         <div class="flex justify-between items-center">
           <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white/50 text-xs block truncate">BRAZIL</span>
+            <span class="font-extrabold text-white/50 text-xs block truncate uppercase">{{ feedData.upcomingMatch.homeTeam }}</span>
           </div>
           <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg font-black text-sm flex gap-1.5 text-white/30">
             <span>vs</span>
           </div>
           <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white/50 text-xs block truncate">GERMANY</span>
+            <span class="font-extrabold text-white/50 text-xs block truncate uppercase">{{ feedData.upcomingMatch.awayTeam }}</span>
           </div>
         </div>
       </div>
@@ -117,47 +136,74 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import goalImg from '../../assets/soccer_goal_action.png';
 import fansImg from '../../assets/soccer_fans_cheering.png';
+import { getSimulatedMatchFeed } from '../../services/gemini';
 
-const matchMinute = ref(72);
+const isLoading = ref(true);
+const matchMinute = ref(0);
 const slideIndex = ref(0);
+const slides = ref<any[]>([]);
+
+const feedData = ref({
+  liveMatch: { homeTeam: '', awayTeam: '', homeScore: 0, awayScore: 0, minute: 0, primaryColor: '', secondaryColor: '', slides: [] },
+  completedMatch: { homeTeam: '', awayTeam: '', homeScore: 0, awayScore: 0 },
+  upcomingMatch: { homeTeam: '', awayTeam: '', time: '' }
+});
+
 let minuteInterval: any;
 let slideInterval: any;
 
-const slides = [
-  {
-    id: 1,
-    image: goalImg,
-    imageClass: 'object-center',
-    text: 'Pulisic receives the cross deep in the box...',
-    isGoal: false
-  },
-  {
-    id: 2,
-    image: goalImg,
-    imageClass: 'object-right scale-125 origin-right', // Zoom in on the action
-    text: '<span class="text-emerald-400 text-sm">STRIKE!</span> An absolute rocket into the top corner!',
-    isGoal: true
-  },
-  {
-    id: 3,
-    image: fansImg,
-    imageClass: 'object-center',
-    text: 'The American fans erupt as USA takes a dramatic 2-1 lead!',
-    isGoal: false
-  }
-];
+const currentSlide = computed(() => slides.value[slideIndex.value]);
 
-const currentSlide = computed(() => slides[slideIndex.value]);
+const forceRefresh = () => {
+  localStorage.removeItem('omnipitch_match_feed_v2');
+  isLoading.value = true;
+  fetchFeed(true);
+};
+
+const fetchFeed = async (forceRefetch = false) => {
+  try {
+    let data;
+    // Cache valid for 10 minutes (600000ms) to aggressively protect 20 RPD quota
+    const cached = localStorage.getItem('omnipitch_match_feed_v2');
+    if (cached && !forceRefetch) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.timestamp < 600000) {
+        data = parsed.data;
+      }
+    }
+    
+    if (!data) {
+      data = await getSimulatedMatchFeed();
+      localStorage.setItem('omnipitch_match_feed_v2', JSON.stringify({ timestamp: Date.now(), data }));
+    }
+
+    feedData.value = data;
+    matchMinute.value = data.liveMatch.minute;
+    slides.value = data.liveMatch.slides.map((s: any, idx: number) => ({
+      ...s,
+      image: idx % 2 === 0 ? goalImg : fansImg,
+      imageClass: idx % 2 === 0 ? 'object-[center_30%]' : 'object-center'
+    }));
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 onMounted(() => {
+  fetchFeed();
+
   // Cycle slides every 4 seconds
   slideInterval = setInterval(() => {
-    slideIndex.value = (slideIndex.value + 1) % slides.length;
+    if (slides.value.length > 0) {
+      slideIndex.value = (slideIndex.value + 1) % slides.value.length;
+    }
   }, 4000);
 
   // Slowly tick up the match minute
   minuteInterval = setInterval(() => {
-    if (matchMinute.value < 90) matchMinute.value++;
+    if (matchMinute.value < 90 && !isLoading.value) matchMinute.value++;
   }, 60000);
 });
 
@@ -168,6 +214,31 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+/* Snappy EA Sports style transition */
+.ea-tile {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.ea-tile:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 20px var(--theme-primary, rgba(204,255,0,0.2));
+  border-color: var(--theme-primary, rgba(255, 255, 255, 0.2));
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-10px) translateX(-50%); }
+  50% { transform: translateY(350px) translateX(0%); }
+  100% { transform: translateY(-10px) translateX(-50%); }
+}
+.animate-scan-line {
+  animation: scan-line 4s linear infinite;
+}
+
 /* Slideshow Transitions */
 .boom-slide-enter-active {
   transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
