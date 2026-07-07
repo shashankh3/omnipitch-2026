@@ -1,0 +1,7 @@
+- `[x]` Install `three` and `@types/three`
+- `[x]` Replace `FanMap.vue` with a Three.js setup
+- `[x]` Create procedural 3D stadium (pitch, stands)
+- `[x]` Implement heatmap material binding via Pinia store telemetry
+- `[x]` Implement live crowd simulation (walking particles)
+- `[x]` Add OrbitControls for rotation and zoom
+- `[x]` Add procedural chairs and live football match on pitch
