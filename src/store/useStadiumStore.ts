@@ -140,6 +140,32 @@ export const useStadiumStore = defineStore('stadium', {
         timestamp: new Date().toISOString()
       };
       this.incidents.push(newIncident);
+    },
+    startTelemetrySimulation() {
+      // Prevent multiple intervals
+      if ((window as any)._telemetryInterval) return;
+      
+      (window as any)._telemetryInterval = setInterval(() => {
+        // Randomly fluctuate temperature between 32 and 36 Celsius
+        this.telemetry.wbgtTemperature = Math.max(30, Math.min(38, this.telemetry.wbgtTemperature + (Math.random() - 0.5) * 0.5));
+        
+        // Randomly adjust gate throughput
+        Object.keys(this.telemetry.gateThroughput).forEach(gate => {
+          let current = this.telemetry.gateThroughput[gate];
+          current = Math.max(0, current + Math.floor((Math.random() - 0.4) * 50));
+          this.telemetry.gateThroughput[gate] = current;
+        });
+
+        // Randomly adjust crowd density
+        Object.keys(this.telemetry.crowdDensity).forEach(stand => {
+          let current = this.telemetry.crowdDensity[stand];
+          // Slow drift for crowds
+          current = Math.max(0, Math.min(100, current + Math.floor((Math.random() - 0.5) * 3)));
+          this.telemetry.crowdDensity[stand] = current;
+        });
+
+        this.telemetry.timestamp = new Date().toISOString();
+      }, 3000); // Update every 3 seconds
     }
   }
 });

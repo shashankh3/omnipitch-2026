@@ -4,7 +4,13 @@
 </template>
 
 <script setup lang="ts">
-// App logic initialized in router and stores
+import { onMounted } from 'vue';
+import { useStadiumStore } from './store/useStadiumStore';
+
+onMounted(() => {
+  const store = useStadiumStore();
+  store.startTelemetrySimulation();
+});
 </script>
 
 <style>
