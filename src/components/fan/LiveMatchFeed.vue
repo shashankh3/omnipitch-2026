@@ -135,8 +135,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import DOMPurify from 'dompurify';
-import goalImg from '../../assets/soccer_goal_action.png';
-import fansImg from '../../assets/soccer_fans_cheering.png';
+import goalImg from '../../assets/soccer_goal_action.webp';
+import fansImg from '../../assets/soccer_fans_cheering.webp';
 import { getSimulatedMatchFeed } from '../../services/gemini';
 
 const isLoading = ref(true);
