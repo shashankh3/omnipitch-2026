@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import type { UserSession, Incident, StadiumTelemetry } from '../types';
 
+let telemetryInterval: ReturnType<typeof setInterval> | undefined;
+
 export const useStadiumStore = defineStore('stadium', {
   state: () => ({
     currentSession: {
@@ -143,9 +145,9 @@ export const useStadiumStore = defineStore('stadium', {
     },
     startTelemetrySimulation() {
       // Prevent multiple intervals
-      if ((window as any)._telemetryInterval) return;
+      if (telemetryInterval) return;
       
-      (window as any)._telemetryInterval = setInterval(() => {
+      telemetryInterval = setInterval(() => {
         // Randomly fluctuate temperature between 32 and 36 Celsius
         this.telemetry.wbgtTemperature = Math.max(30, Math.min(38, this.telemetry.wbgtTemperature + (Math.random() - 0.5) * 0.5));
         

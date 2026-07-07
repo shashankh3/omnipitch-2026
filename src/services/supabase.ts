@@ -23,7 +23,7 @@ export const supabase = {
         console.log(`Mock DB Select from ${table}`);
         return { data: [], error: null };
       },
-      insert: async (data: any) => {
+      insert: async (data: Record<string, unknown>) => {
         console.log(`Mock DB Insert into ${table}`, data);
         return { data: data, error: null };
       }

@@ -5,6 +5,16 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
 /**
+ * Sanitizes user input to prevent prompt injection attacks.
+ * Strips control characters and limits input length for security.
+ */
+function sanitizeInput(input: string, maxLength = 500): string {
+  return input
+    .replace(/[\x00-\x1F\x7F]/g, '') // Strip control characters
+    .trim()
+    .substring(0, maxLength);
+}
+/**
  * Executes a localized, grounded conversational assistance cycle for fans.
  */
 export async function getFanAssistance(
@@ -31,7 +41,8 @@ export async function getFanAssistance(
   `;
 
   try {
-    const result = await model.generateContent([systemContext, userQuery]);
+    const safeQuery = sanitizeInput(userQuery);
+    const result = await model.generateContent([systemContext, safeQuery]);
     const response = await result.response;
     return response.text();
   } catch (error) {
