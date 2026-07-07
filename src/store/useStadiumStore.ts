@@ -3,6 +3,7 @@ import type { UserSession, Incident, StadiumTelemetry } from '../types';
 
 export const useStadiumStore = defineStore('stadium', {
   state: () => ({
+    globalTheme: 'dark' as 'light' | 'dark',
     currentSession: {
       id: 'usr_9921',
       email: 'fan_international@worldcup2026.org',
@@ -130,6 +131,14 @@ export const useStadiumStore = defineStore('stadium', {
     ] as Incident[]
   }),
   actions: {
+    toggleTheme() {
+      this.globalTheme = this.globalTheme === 'dark' ? 'light' : 'dark';
+      if (this.globalTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    },
     setRole(role: 'FAN' | 'VOLUNTEER' | 'ORGANIZER') {
       if (this.currentSession) this.currentSession.role = role;
     },

@@ -10,6 +10,12 @@ import { useStadiumStore } from './store/useStadiumStore';
 onMounted(() => {
   const store = useStadiumStore();
   store.startTelemetrySimulation();
+  
+  if (store.globalTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
 });
 </script>
 

@@ -1,18 +1,19 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-mesh relative overflow-hidden p-4">
+  <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#050510] relative overflow-hidden p-4 transition-colors duration-500">
+    
+    <!-- Theme Toggle -->
+    <div class="absolute top-6 right-6 z-50">
+      <ThemeToggle />
+    </div>
     
     <!-- Decorative floating elements -->
     <div class="absolute top-10 left-10 w-32 h-32 bg-violet-400 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob"></div>
     <div class="absolute top-10 right-10 w-32 h-32 bg-indigo-400 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-2000"></div>
-    <div class="absolute -bottom-8 left-20 w-32 h-32 bg-pink-400 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-4000"></div>
+    <div class="absolute -bottom-8 left-20 w-32 h-32 bg-pink-400 dark:bg-pink-900 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-4000 transition-colors duration-500"></div>
 
-    <BaseCard class="w-full max-w-md !p-8 relative z-10 glass-panel border border-white/40 shadow-2xl rounded-[2rem]">
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        </div>
-        <h1 class="text-3xl font-extrabold text-zinc-900 tracking-tight">OmniPitch <span class="text-indigo-600">2026</span></h1>
-        <p class="text-zinc-500 mt-2 text-sm font-medium">World Cup Operations Platform</p>
+    <BaseCard class="w-full max-w-md !p-8 relative z-10 glass-panel dark:bg-[#0a0a1a]/80 dark:border-white/10 border border-slate-200 shadow-2xl rounded-[2rem] transition-colors duration-500">
+      <div class="text-center mb-8 flex flex-col items-center justify-center">
+        <OmniLogo subtitle="World Cup Operations Platform" class="!flex-col !gap-4 mb-2 scale-125" />
       </div>
 
       <div class="flex flex-col gap-4">
@@ -41,6 +42,8 @@ import { useRouter } from 'vue-router';
 import { useStadiumStore } from '../store/useStadiumStore';
 import BaseCard from '../components/common/BaseCard.vue';
 import BaseButton from '../components/common/BaseButton.vue';
+import OmniLogo from '../components/common/OmniLogo.vue';
+import ThemeToggle from '../components/common/ThemeToggle.vue';
 import type { UserSession } from '../types';
 
 const router = useRouter();
