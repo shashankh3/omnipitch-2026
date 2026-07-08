@@ -60,7 +60,7 @@ graph TD
 ### 🎮 Holographic 3D Digital Twin
 A fully procedural, highly optimized **Three.js** stadium running at 60FPS. 
 - **Live Match Simulation**: 22 AI-driven players featuring flocking behaviors and physics right on the pitch.
-- **Dynamic Heatmaps**: GitHub-style contribution graphs float above the stands, dynamically shifting from *Emerald (Clear)* to *Amber (Busy)* to *Red (Packed)* based on live crowd density.
+- **Dynamic Heatmaps**: Tens of thousands of individual 3D box seats dynamically light up from *Slate Grey (Empty)* to *Emerald (Clear)* to *Amber (Busy)* to *Red (Packed)* in perfect sync with live crowd density and holographic HUDs.
 
 ### 🤖 Gemini AI Command Center
 Powered by Google Generative AI, the system intelligently grounds its responses in live stadium telemetry.
@@ -73,9 +73,9 @@ Through dynamic Google Search grounding simulation, the dashboard pulls the most
 
 ### 🛡️ API Resilience & Production Readiness
 We built this to survive the real world.
-- **10-Minute Caching**: Aggressive localStorage caching ensures the app operates smoothly without instantly draining API quotas.
-- **Graceful Degradation**: If the API rate limit is reached, the UI elegantly catches the 429 error and seamlessly injects localized fallback mock data (like Brazil vs Germany) with an alert, ensuring the dashboard never crashes.
-- **Manual Overrides**: Incident tracking and data refreshing can always be executed entirely manually.
+- **10-Minute Caching & Manual Fetch**: Aggressive localStorage caching and a manual "Load Live Score" button ensure the app operates smoothly and conserves your AI API limits during testing.
+- **Graceful Degradation**: If the API rate limit is reached, the UI elegantly catches the 429 error and seamlessly injects localized fallback mock data, ensuring the dashboard never crashes.
+- **Serverless Security**: API logic is routed through a Vercel Serverless Function (`api/gemini.js`), completely hiding the Gemini API keys from the frontend client.
 
 ---
 
@@ -118,14 +118,16 @@ We completely abandoned generic components to build a hyper-premium, immersive U
 3. **Configure Environment**
    Create a `.env` file in the root directory and add your Google Gemini API key:
    ```env
-   VITE_GEMINI_API_KEY=your_gemini_api_key_here
+   GEMINI_API_KEY=your_gemini_api_key_here
    ```
+   *(Note: This is used by the Vercel serverless function backend, so the `VITE_` prefix is no longer required).*
 
-4. **Launch the Holo-Dashboard**
+4. **Launch the Holo-Dashboard (with Serverless backend)**
+   Since we use a Vercel Serverless API, the best way to run this locally is using the Vercel CLI:
    ```bash
-   npm run dev
+   npx vercel dev
    ```
-   Open `http://localhost:5173` in your browser.
+   Open `http://localhost:3000` in your browser.
 
 ---
 <div align="center">
