@@ -1,4 +1,5 @@
 <template>
+  <a href="#main-content" class="sr-only focus:not-sr-only fixed top-4 left-4 z-50 px-4 py-2 bg-white text-black rounded font-bold shadow-lg">Skip to main content</a>
   <!-- Global Error Boundary Fallback UI -->
   <div v-if="hasError" class="h-screen w-full bg-[#050510] flex flex-col items-center justify-center text-center px-4 select-none">
     <div class="mb-6 w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/30">
@@ -12,7 +13,9 @@
   </div>
 
   <!-- Main entry point for the Vue Router -->
-  <router-view v-else></router-view>
+  <main id="main-content" v-else class="h-full w-full">
+    <router-view></router-view>
+  </main>
 </template>
 
 <script setup lang="ts">

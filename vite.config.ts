@@ -3,10 +3,20 @@ import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   test: {
     environment: 'jsdom',
+    coverage: {
+      provider: 'v8',
+      thresholds: {
+        lines: 80,
+        branches: 70,
+        functions: 70,
+        statements: 80
+      }
+    }
   },
   plugins: [
     vue(),
@@ -63,7 +73,8 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }),
+    visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true })
   ],
   resolve: {
     alias: {
