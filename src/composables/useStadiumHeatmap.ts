@@ -136,12 +136,12 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
     return texture;
   };
 
-  const createStand = (name: string, width: number, depth: number, x: number, z: number, rotY: number) => {
+  const createStand = (name: string, width: number, depth: number, x: number, z: number, rotY: number, backHeight: number = 22) => {
     const shape = new THREE.Shape();
     shape.moveTo(0, 0);
     shape.lineTo(width, 0);
-    shape.lineTo(width, 22);
-    shape.lineTo(width * 0.95, 24);
+    shape.lineTo(width, backHeight);
+    shape.lineTo(width * 0.95, backHeight + 2);
     shape.lineTo(0, 6);
     shape.lineTo(0, 0);
 
@@ -181,7 +181,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
     for (let r = 1; r < 15; r++) {
       for (let c = 0; c < 20; c++) {
         const localX = (r / 15) * width - (width / 2);
-        const localY = (r / 15) * 22 + 0.5;
+        const localY = (r / 15) * backHeight + 0.5;
         const localZ = (c / 20) * depth - (depth / 2);
 
         dummy.position.set(localX, localY, localZ);
@@ -199,11 +199,11 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
 
     // Roof canopy
     const roofShape = new THREE.Shape();
-    roofShape.moveTo(width * 0.6, 22);
-    roofShape.lineTo(width, 24);
-    roofShape.lineTo(width, 24.8);
-    roofShape.lineTo(width * 0.3, 22.8);
-    roofShape.lineTo(width * 0.6, 22);
+    roofShape.moveTo(width * 0.6, backHeight);
+    roofShape.lineTo(width, backHeight + 2);
+    roofShape.lineTo(width, backHeight + 2.8);
+    roofShape.lineTo(width * 0.3, backHeight + 0.8);
+    roofShape.lineTo(width * 0.6, backHeight);
 
     const roofGeo = new THREE.ExtrudeGeometry(roofShape, { depth: depth * 0.95, bevelEnabled: false });
     roofGeo.computeBoundingBox();
@@ -231,7 +231,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
     });
     const hudGeo = new THREE.PlaneGeometry(48, 12);
     const hudMesh = new THREE.Mesh(hudGeo, hudMat);
-    hudMesh.position.set(width * 0.45, 32, 0);
+    hudMesh.position.set(width * 0.45, backHeight + 10, 0);
     hudMesh.rotation.y = -Math.PI / 2;
     mesh.add(hudMesh); 
     standHUDMaterials[name] = hudMat;
@@ -338,10 +338,10 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
   };
 
   const initHeatmap = () => {
-    createStand('North Stand', 42, 115, 0, -68, -Math.PI / 2);
-    createStand('South Stand', 42, 115, 0, 68, Math.PI / 2);
-    createStand('East Stand', 42, 80, 85, 0, 0);
-    createStand('West Stand', 42, 80, -85, 0, Math.PI);
+    createStand('North Stand', 42, 115, 0, -68, -Math.PI / 2, 34);
+    createStand('South Stand', 42, 115, 0, 68, Math.PI / 2, 34);
+    createStand('East Stand', 42, 80, 85, 0, 0, 22);
+    createStand('West Stand', 42, 80, -85, 0, Math.PI, 22);
 
     createGate('GateA', -60, -65, -Math.PI / 4);
     createGate('GateB', -60, 65, Math.PI / 4);
