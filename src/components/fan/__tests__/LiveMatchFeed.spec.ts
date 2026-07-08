@@ -21,13 +21,17 @@ vi.mock('../../../services/gemini', () => ({
 }))
 
 describe('LiveMatchFeed', () => {
-  it('renders loading state initially', () => {
+  it('renders manual load state initially', () => {
     const wrapper = mount(LiveMatchFeed)
-    expect(wrapper.text()).toContain('Gemini AI Generating')
+    expect(wrapper.text()).toContain('Load Live Score')
   })
 
   it('renders match data after loading', async () => {
     const wrapper = mount(LiveMatchFeed)
+    
+    // Click the load button
+    await wrapper.find('button').trigger('click')
+    
     // Wait for the async fetch to resolve
     await new Promise(resolve => setTimeout(resolve, 0))
     await wrapper.vm.$nextTick()
