@@ -21,7 +21,7 @@
 
 ## 🌟 The Vision
 
-OmniPitch 2026 is an unprecedented stadium management solution designed specifically for the scale of the World Cup. It bridges the gap between chaotic physical infrastructure and sleek digital intelligence. By rendering a **Holographic 3D Digital Twin** of the stadium in the browser, OmniPitch fuses real-time IoT telemetry with the predictive, conversational, and multimodal vision capabilities of the `gemini-1.5-flash` (and simulated `2.5-flash`) AI models.
+OmniPitch 2026 is an unprecedented stadium management solution designed specifically for the scale of the World Cup. It bridges the gap between chaotic physical infrastructure and sleek digital intelligence. By rendering a **Holographic 3D Digital Twin** of the stadium in the browser, OmniPitch fuses real-time IoT telemetry with the predictive, conversational, and multimodal vision capabilities of the `gemini-2.5-flash` AI model.
 
 **Three distinct personas, one unified core:**
 - 📱 **Fan Dashboard**: Hyper-localized navigation, live AI match feeds, and conversational AI copilot.
@@ -42,7 +42,7 @@ graph TD
     end
 
     subgraph "Google Cloud"
-        AI[Gemini 1.5/2.5 Flash]
+        AI[Gemini 2.5 Flash]
     end
 
     subgraph "Simulated IoT Core"
