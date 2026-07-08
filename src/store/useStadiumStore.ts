@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import type { UserSession, Incident, StadiumTelemetry } from '../types';
+import { supabase } from '../services/supabase';
 
 let telemetryInterval: ReturnType<typeof setInterval> | undefined;
 
@@ -142,6 +143,24 @@ export const useStadiumStore = defineStore('stadium', {
         timestamp: new Date().toISOString()
       };
       this.incidents.push(newIncident);
+
+      // Broadcast the new incident to all other connected clients
+      supabase.channel('stadium_incidents').send({
+        type: 'broadcast',
+        event: 'new_incident',
+        payload: { incident: newIncident }
+      });
+    },
+    initRealtime() {
+      // Subscribe to incident broadcasts
+      supabase.channel('stadium_incidents')
+        .on('broadcast', { event: 'new_incident' }, ({ payload }) => {
+          // Prevent duplicates
+          if (!this.incidents.find(i => i.id === payload.incident.id)) {
+            this.incidents.push(payload.incident);
+          }
+        })
+        .subscribe();
     },
     startTelemetrySimulation() {
       // Prevent multiple intervals

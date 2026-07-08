@@ -38,6 +38,7 @@ const resetError = () => {
 onMounted(() => {
   const store = useStadiumStore();
   store.startTelemetrySimulation();
+  store.initRealtime();
 });
 </script>
 

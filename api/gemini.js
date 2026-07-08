@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+const rateLimitCache = new Map();
+
 export default async function handler(req, res) {
   // CORS Headers for Vercel (if needed for cross-origin, but usually same-origin is fine)
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -20,6 +22,24 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Simple memory rate limit (10 reqs / min per IP)
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+    if (!rateLimitCache.has(ip)) {
+      rateLimitCache.set(ip, { count: 1, firstRequest: now });
+    } else {
+      const rateData = rateLimitCache.get(ip);
+      if (now - rateData.firstRequest > 60000) {
+        // Reset after 1 minute
+        rateLimitCache.set(ip, { count: 1, firstRequest: now });
+      } else {
+        rateData.count++;
+        if (rateData.count > 10) {
+          return res.status(429).json({ error: 'Too Many Requests - Rate Limit Exceeded' });
+        }
+      }
+    }
+
     const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
     if (!apiKey) {
       return res.status(500).json({ error: 'API_KEY_MISSING' });
