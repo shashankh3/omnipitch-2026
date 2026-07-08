@@ -17,6 +17,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
   const standColorState: Record<string, { current: THREE.Color; target: THREE.Color; currentEmissive: number; targetEmissive: number }> = {};
   const stands: Record<string, THREE.Mesh> = {};
   const standHUDMaterials: Record<string, THREE.MeshBasicMaterial> = {};
+  const standChairMeshes: Record<string, THREE.InstancedMesh> = {};
 
   const gateMaterials: Record<string, THREE.MeshStandardMaterial> = {};
   const gateColorState: Record<string, { current: THREE.Color; target: THREE.Color; currentEmissive: number; targetEmissive: number }> = {};
@@ -172,17 +173,23 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
     };
     stands[name] = mesh;
 
+    const chairMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.1 });
     const chairGeo = new THREE.BoxGeometry(0.7, 0.6, 0.7);
-    const CHAIRS_PER_STAND = 300;
-    const standChairMesh = new THREE.InstancedMesh(chairGeo, mat, CHAIRS_PER_STAND);
+    const ROWS = 25;
+    const COLS = Math.floor(depth / 1.5);
+    const CHAIRS_PER_STAND = ROWS * COLS;
+    const standChairMesh = new THREE.InstancedMesh(chairGeo, chairMat, CHAIRS_PER_STAND);
     scene.add(standChairMesh);
+    standChairMeshes[name] = standChairMesh;
 
     let chairCounter = 0;
-    for (let r = 1; r < 15; r++) {
-      for (let c = 0; c < 20; c++) {
-        const localX = (r / 15) * width - (width / 2);
-        const localY = (r / 15) * backHeight + 0.5;
-        const localZ = (c / 20) * depth - (depth / 2);
+    const tmpColor = new THREE.Color(0x1a1a2e);
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const progress = r / (ROWS - 1);
+        const localX = -width / 2 + progress * width;
+        const localY = 6 + progress * (backHeight - 6) + 0.5;
+        const localZ = (c / (COLS - 1)) * depth - (depth / 2);
 
         dummy.position.set(localX, localY, localZ);
         dummy.rotation.set(0, 0, 0);
@@ -192,10 +199,13 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
         dummy.applyMatrix4(transformMatrix);
 
         dummy.updateMatrix();
-        standChairMesh.setMatrixAt(chairCounter++, dummy.matrix);
+        standChairMesh.setMatrixAt(chairCounter, dummy.matrix);
+        standChairMesh.setColorAt(chairCounter, tmpColor);
+        chairCounter++;
       }
     }
     standChairMesh.instanceMatrix.needsUpdate = true;
+    if (standChairMesh.instanceColor) standChairMesh.instanceColor.needsUpdate = true;
 
     // Roof canopy
     const roofShape = new THREE.Shape();
@@ -292,6 +302,20 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
         standHUDMaterials[section].map = newMap;
         standHUDMaterials[section].needsUpdate = true;
         if (oldMap) oldMap.dispose();
+      }
+
+      // Sync physical chairs with heatmap
+      const chairMesh = standChairMeshes[section];
+      if (chairMesh) {
+        const emptyColor = new THREE.Color(0x1a1a2e);
+        for(let i = 0; i < chairMesh.count; i++) {
+           if (Math.random() * 100 < density) {
+             chairMesh.setColorAt(i, targetColor);
+           } else {
+             chairMesh.setColorAt(i, emptyColor);
+           }
+        }
+        if (chairMesh.instanceColor) chairMesh.instanceColor.needsUpdate = true;
       }
     });
 
