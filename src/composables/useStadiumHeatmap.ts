@@ -338,8 +338,8 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
   };
 
   const initHeatmap = () => {
-    createStand('North Stand', 42, 115, 0, -68, -Math.PI / 2, 34);
-    createStand('South Stand', 42, 115, 0, 68, Math.PI / 2, 34);
+    createStand('North Stand', 42, 115, 0, -68, Math.PI / 2, 34);
+    createStand('South Stand', 42, 115, 0, 68, -Math.PI / 2, 34);
     createStand('East Stand', 42, 80, 85, 0, 0, 22);
     createStand('West Stand', 42, 80, -85, 0, Math.PI, 22);
 
