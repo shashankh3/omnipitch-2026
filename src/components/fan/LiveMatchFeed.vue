@@ -2,13 +2,13 @@
   <div :style="{'--theme-primary': feedData.liveMatch.primaryColor || '#ccff00', '--theme-secondary': feedData.liveMatch.secondaryColor || '#10b981'}" class="bg-[#0a0a1a]/90 backdrop-blur-2xl border border-white/8 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col pointer-events-auto w-72 ea-tile min-h-[350px] relative group">
     <!-- EA Sports Scanner Line -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden z-0 rounded-2xl">
-      <div class="w-[200%] h-1 bg-gradient-to-r from-transparent via-[var(--theme-primary)] to-transparent opacity-0 group-hover:opacity-40 animate-scan-line"></div>
+      <div class="w-[200%] h-1 bg-gradient-to-r from-transparent via-[var(--theme-primary)] to-transparent opacity-0 group-hover:opacity-40 motion-safe:animate-scan-line"></div>
     </div>
     <div class="px-4 py-3 flex justify-between items-center border-b border-white/5 relative">
-      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#ccff00]/10 to-transparent translate-x-[-100%] animate-shimmer" v-if="isLoading"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#ccff00]/10 to-transparent translate-x-[-100%] motion-safe:animate-shimmer" v-if="isLoading"></div>
       <div class="flex items-center gap-2 relative z-10">
         <span class="flex h-2 w-2 relative">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="isLoading ? 'bg-amber-400' : 'bg-red-400'"></span>
+          <span class="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="isLoading ? 'bg-amber-400' : 'bg-red-400'"></span>
           <span class="relative inline-flex rounded-full h-2 w-2" :class="isLoading ? 'bg-amber-500' : 'bg-red-500'"></span>
         </span>
         <h3 class="font-bold text-xs text-white tracking-wide">Live Matches</h3>
@@ -24,7 +24,7 @@
     
     <!-- Loading State -->
     <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-70">
-      <div class="w-8 h-8 rounded-full border-2 border-white/10 border-t-[var(--theme-primary)] animate-spin mb-3 shadow-[0_0_15px_var(--theme-primary)]"></div>
+      <div class="w-8 h-8 rounded-full border-2 border-white/10 border-t-[var(--theme-primary)] motion-safe:animate-spin mb-3 shadow-[0_0_15px_var(--theme-primary)]"></div>
       <p class="text-xs font-bold uppercase tracking-widest text-white/50">Gemini AI Generating<br/>Match Feed...</p>
     </div>
 
@@ -34,7 +34,7 @@
         <div class="flex justify-between items-center text-[10px] mb-2 relative z-10">
           <div class="flex items-center gap-1.5 text-red-400 font-bold">
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span class="text-white/30 font-bold flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div> {{ matchMinute }}'</span>
+            <span class="text-white/30 font-bold flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-red-500 motion-safe:animate-pulse"></div> {{ matchMinute }}'</span>
           </div>
           <span class="px-2 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px] uppercase tracking-wider font-extrabold border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]">Live</span>
         </div>
@@ -63,15 +63,15 @@
               <img 
                 :src="currentSlide.image" 
                 alt="Match Action" 
-                class="w-full h-full object-cover animate-ken-burns" 
+                class="w-full h-full object-cover motion-safe:animate-ken-burns" 
                 :class="currentSlide.imageClass"
               />
               <!-- Flash overlay for goals -->
-              <div v-if="currentSlide.isGoal" class="absolute inset-0 bg-white opacity-0 animate-goal-flash"></div>
+              <div v-if="currentSlide.isGoal" class="absolute inset-0 bg-white opacity-0 motion-safe:animate-goal-flash"></div>
               
               <!-- Gradient & Text -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent flex flex-col justify-end p-3">
-                <div v-if="currentSlide.isGoal" class="absolute bottom-10 left-3 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-[0_0_8px_rgba(220,38,38,0.8)] -rotate-3 animate-bounce">
+                <div v-if="currentSlide.isGoal" class="absolute bottom-10 left-3 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-[0_0_8px_rgba(220,38,38,0.8)] -rotate-3 motion-safe:animate-bounce">
                   GOAL!
                 </div>
                 <p class="text-white text-[11px] font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" v-html="DOMPurify.sanitize(currentSlide.text)"></p>
@@ -218,7 +218,7 @@ onUnmounted(() => {
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
-.animate-shimmer {
+.motion-safe:animate-shimmer {
   animation: shimmer 1.5s infinite;
 }
 /* Snappy EA Sports style transition */
@@ -236,7 +236,7 @@ onUnmounted(() => {
   50% { transform: translateY(350px) translateX(0%); }
   100% { transform: translateY(-10px) translateX(-50%); }
 }
-.animate-scan-line {
+.motion-safe:animate-scan-line {
   animation: scan-line 4s linear infinite;
 }
 
@@ -262,7 +262,7 @@ onUnmounted(() => {
   10% { opacity: 0.8; transform: scale(1.1); box-shadow: inset 0 0 50px rgba(255,255,255,1); }
   100% { opacity: 0; transform: scale(1); }
 }
-.animate-goal-flash {
+.motion-safe:animate-goal-flash {
   animation: goal-flash 1s ease-out forwards;
 }
 
@@ -271,7 +271,7 @@ onUnmounted(() => {
   0% { transform: scale(1.0); }
   100% { transform: scale(1.15); }
 }
-.animate-ken-burns {
+.motion-safe:animate-ken-burns {
   animation: ken-burns 6s linear forwards;
 }
 </style>

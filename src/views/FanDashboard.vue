@@ -30,7 +30,7 @@
     <!-- Top Bar -->
     <header class="absolute top-6 right-6 z-40 flex items-center gap-4">
       <div class="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl px-6 py-2.5 flex items-center gap-2 ea-tile shadow-lg">
-        <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse"></div>
+        <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] motion-safe:animate-pulse"></div>
         <span class="text-sm text-white/70 font-bold uppercase tracking-widest">Systems Online</span>
       </div>
       <BaseButton variant="secondary" @click="logout" aria-label="Exit Fan Portal" class="!px-6 !py-2.5 !text-sm !font-bold !tracking-widest uppercase bg-white/5 text-white/70 border-white/20 hover:bg-white/20 hover:text-white transition-all rounded-xl shadow-lg ea-button">
@@ -63,7 +63,7 @@
         @click="isChatOpen = !isChatOpen"
         aria-label="Ask Stadium Copilot"
       >
-        <div class="absolute inset-0 rounded-2xl animate-ping opacity-15 bg-amber-300 group-hover:opacity-25"></div>
+        <div class="absolute inset-0 rounded-2xl motion-safe:animate-ping opacity-15 bg-amber-300 group-hover:opacity-25"></div>
         <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
       </button>
     </div>
@@ -119,7 +119,7 @@ const fastestGate = computed(() => {
 
 const getGateClass = (gate: string) => {
   const tp = store.telemetry.gateThroughput[`Gate${gate}`] || 0;
-  if (tp > 800) return 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.7)] animate-pulse';
+  if (tp > 800) return 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.7)] motion-safe:animate-pulse';
   if (tp > 500) return 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)]';
   return 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]';
 };

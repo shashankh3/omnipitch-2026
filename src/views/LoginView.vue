@@ -7,8 +7,8 @@
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAyMGgyMHYyMEgyMHoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')] opacity-30"></div>
       
       <!-- Massive sweeping color gradients (Stadium Floodlight effect) -->
-      <div class="absolute top-[-20%] left-[-10%] w-[70%] h-[140%] bg-gradient-to-br from-indigo-600/20 to-transparent rounded-full mix-blend-screen filter blur-[120px] animate-sweep-slow"></div>
-      <div class="absolute bottom-[-30%] right-[-10%] w-[60%] h-[120%] bg-gradient-to-tl from-[#ccff00]/10 to-transparent rounded-full mix-blend-screen filter blur-[100px] animate-sweep-fast" style="animation-direction: reverse;"></div>
+      <div class="absolute top-[-20%] left-[-10%] w-[70%] h-[140%] bg-gradient-to-br from-indigo-600/20 to-transparent rounded-full mix-blend-screen filter blur-[120px] motion-safe:animate-sweep-slow"></div>
+      <div class="absolute bottom-[-30%] right-[-10%] w-[60%] h-[120%] bg-gradient-to-tl from-[#ccff00]/10 to-transparent rounded-full mix-blend-screen filter blur-[100px] motion-safe:animate-sweep-fast" style="animation-direction: reverse;"></div>
       
       <!-- Abstract diagonal slash typical of sports games -->
       <div class="absolute inset-0 opacity-20 transform -skew-x-12 translate-x-1/4 scale-150 border-l border-white/5 pointer-events-none"></div>
@@ -19,7 +19,7 @@
     <div class="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
       
       <!-- Left Side: Massive Typography -->
-      <div class="lg:col-span-7 flex flex-col justify-center animate-fade-in-left">
+      <div class="lg:col-span-7 flex flex-col justify-center motion-safe:animate-fade-in-left">
         <div class="flex items-center gap-4 mb-4">
           <div class="w-12 h-12 bg-gradient-to-br from-[#ccff00] to-emerald-500 rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(204,255,0,0.3)]">
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#050510" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -39,7 +39,7 @@
       </div>
 
       <!-- Right Side: Modular Tile Grid -->
-      <div class="lg:col-span-5 grid grid-cols-2 gap-4 animate-fade-in-up">
+      <div class="lg:col-span-5 grid grid-cols-2 gap-4 motion-safe:animate-fade-in-up">
         
         <!-- Hero Tile: Fan Experience -->
         <button 
@@ -149,10 +149,10 @@ const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   50% { transform: rotate(5deg) scale(1.1) translate(2%, 2%); }
   100% { transform: rotate(0deg) scale(1); }
 }
-.animate-sweep-slow {
+.motion-safe:animate-sweep-slow {
   animation: sweep 20s ease-in-out infinite;
 }
-.animate-sweep-fast {
+.motion-safe:animate-sweep-fast {
   animation: sweep 12s ease-in-out infinite;
 }
 
@@ -161,7 +161,7 @@ const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   from { opacity: 0; transform: translateX(-40px); }
   to { opacity: 1; transform: translateX(0); }
 }
-.animate-fade-in-left {
+.motion-safe:animate-fade-in-left {
   animation: fadeInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -169,7 +169,7 @@ const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-in-up {
+.motion-safe:animate-fade-in-up {
   animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
   opacity: 0; /* Ensures it stays hidden until animation starts */
 }

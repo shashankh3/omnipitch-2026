@@ -14,9 +14,9 @@
       <!-- Typing Indicator -->
       <div v-if="isLoading" class="self-start max-w-[88%] p-4 bg-white/5 border border-white/5 text-white/40 rounded-2xl rounded-bl-sm flex items-center gap-2">
         <div class="flex space-x-1">
-          <div class="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce"></div>
-          <div class="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-          <div class="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+          <div class="w-1.5 h-1.5 bg-amber-400 rounded-full motion-safe:animate-bounce"></div>
+          <div class="w-1.5 h-1.5 bg-amber-400 rounded-full motion-safe:animate-bounce" style="animation-delay: 0.1s"></div>
+          <div class="w-1.5 h-1.5 bg-amber-400 rounded-full motion-safe:animate-bounce" style="animation-delay: 0.2s"></div>
         </div>
       </div>
     </div>

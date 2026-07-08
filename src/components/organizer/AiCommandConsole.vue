@@ -14,7 +14,7 @@
       <div class="flex items-center gap-2">
         <span class="text-xs text-emerald-400 font-mono tracking-widest uppercase">Online</span>
         <span class="flex h-2 w-2 relative">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
         </span>
       </div>
@@ -47,8 +47,8 @@
       
       <!-- Loading State -->
       <div v-if="isLoading" class="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 flex items-center gap-3">
-         <svg aria-hidden="true" class="animate-spin h-4 w-4 text-zinc-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        <p class="text-zinc-500 text-xs font-mono uppercase tracking-widest animate-pulse">Computing tactical vectors...</p>
+         <svg aria-hidden="true" class="motion-safe:animate-spin h-4 w-4 text-zinc-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <p class="text-zinc-500 text-xs font-mono uppercase tracking-widest motion-safe:animate-pulse">Computing tactical vectors...</p>
       </div>
     </div>
 

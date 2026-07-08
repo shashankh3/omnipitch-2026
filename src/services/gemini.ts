@@ -1,8 +1,18 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { StadiumTelemetry } from '../types';
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(apiKey);
+/**
+ * Helper to call our local Express proxy instead of hitting Gemini directly from the client.
+ */
+async function callGeminiProxy(messages: any, tools?: any) {
+  const res = await fetch('/api/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, tools })
+  });
+  if (!res.ok) throw new Error('API Error');
+  const data = await res.json();
+  return { response: { text: () => data.text } };
+}
 
 /**
  * Sanitizes user input to prevent prompt injection attacks.
@@ -14,6 +24,7 @@ function sanitizeInput(input: string, maxLength = 500): string {
     .trim()
     .substring(0, maxLength);
 }
+
 /**
  * Executes a localized, grounded conversational assistance cycle for fans.
  */
@@ -23,10 +34,6 @@ export async function getFanAssistance(
   telemetry: StadiumTelemetry,
   needsStepFree: boolean
 ): Promise<string> {
-  if (!apiKey) return "API_KEY_MISSING";
-  
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  
   const systemContext = `
     You are OmniPitch 2026, the official GenAI operational assistant for the FIFA World Cup 2026 stadium management team.
     You must assist fans in their native language. Respond strictly in: ${userLang}.
@@ -42,9 +49,8 @@ export async function getFanAssistance(
 
   try {
     const safeQuery = sanitizeInput(userQuery);
-    const result = await model.generateContent([systemContext, safeQuery]);
-    const response = await result.response;
-    return response.text();
+    const result = await callGeminiProxy([systemContext, safeQuery]);
+    return result.response.text();
   } catch (error) {
     console.error("Gemini Multi-turn Chat Fault:", error);
     return "Oops! Our AI network is a bit crowded right now. 🏟️ Please give me a moment and try asking again, or refer to the stadium Jumbotrons for immediate directions!";
@@ -59,8 +65,6 @@ export async function processVisionIncident(
   mimeType: string, 
   locationContext: string
 ): Promise<{ type: string; severity: string; dispatchOrder: string }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  
   const visionPrompt = `
     Analyze this structural operational anomaly reported inside the stadium at: ${locationContext}.
     Classify the problem and identify critical parameters.
@@ -78,9 +82,8 @@ export async function processVisionIncident(
   };
 
   try {
-    const result = await model.generateContent([visionPrompt, imagePart]);
-    const response = await result.response;
-    return JSON.parse(response.text().trim());
+    const result = await callGeminiProxy([visionPrompt, imagePart]);
+    return JSON.parse(result.response.text().trim());
   } catch (error) {
     console.error("Gemini Vision Fault:", error);
     return {
@@ -98,8 +101,6 @@ export async function getOrganizerRecommendation(
   query: string,
   telemetry: StadiumTelemetry
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  
   const prompt = `
     You are the OmniPitch AI Command Console.
     Current Telemetry Context:
@@ -113,9 +114,8 @@ export async function getOrganizerRecommendation(
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
+    const result = await callGeminiProxy([prompt]);
+    return result.response.text();
   } catch (error) {
     console.error("Gemini Organizer Fault:", error);
     return "AI Core offline. Revert to manual operational protocols.";
@@ -126,11 +126,6 @@ export async function getOrganizerRecommendation(
  * Generates a simulated live football match feed.
  */
 export async function getSimulatedMatchFeed(): Promise<any> {
-  const model = genAI.getGenerativeModel({ 
-    model: 'gemini-2.5-flash',
-    tools: [{ googleSearch: {} }] as any
-  });
-  
   const prompt = `
     You are a sports data feed generator for the FIFA World Cup 2026. Today's date is ${new Date().toDateString()}.
     Using Google Search Grounding, search official sources (ESPN.com, FIFA.com, or BBC) for REAL matches.
@@ -169,11 +164,10 @@ export async function getSimulatedMatchFeed(): Promise<any> {
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const result = await callGeminiProxy([prompt], [{ googleSearch: {} }]);
     
     // Strip markdown wrappers and any trailing search citations/text
-    let rawText = response.text().trim();
+    let rawText = result.response.text().trim();
     rawText = rawText.replace(/^```json\n?/, '').replace(/\n?```$/, '');
     
     // If the model appended citations after the JSON block, we extract just the JSON
@@ -217,7 +211,6 @@ export async function getSimulatedMatchFeed(): Promise<any> {
  * Translates an English PA announcement into multiple languages.
  */
 export async function translateAnnouncement(text: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const prompt = `
     Translate this stadium PA announcement into Spanish, French, and German.
     Format the output elegantly like a Jumbotron broadcast display.
@@ -225,8 +218,8 @@ export async function translateAnnouncement(text: string): Promise<string> {
     Announcement: "${text}"
   `;
   try {
-    const result = await model.generateContent(prompt);
-    return (await result.response).text();
+    const result = await callGeminiProxy([prompt]);
+    return result.response.text();
   } catch (e) {
     return "TRANSLATION ERROR: Systems offline.";
   }
@@ -236,7 +229,6 @@ export async function translateAnnouncement(text: string): Promise<string> {
  * Generates a Live Fan Sentiment Analysis based on stadium conditions.
  */
 export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const prompt = `
     You are analyzing thousands of live fan tweets inside the OmniPitch stadium.
     Current conditions: WBGT Temperature: ${telemetry.wbgtTemperature}°C. 
@@ -244,8 +236,8 @@ export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise
     Generate a 2-3 sentence summary of the "Stadium Vibe Score" based on these conditions. Be highly realistic.
   `;
   try {
-    const result = await model.generateContent(prompt);
-    return (await result.response).text();
+    const result = await callGeminiProxy([prompt]);
+    return result.response.text();
   } catch (e) {
     return "VIBE SCORE: Neutral. (Analysis Offline)";
   }
@@ -255,7 +247,6 @@ export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise
  * Generates a step-by-step checklist for a volunteer task.
  */
 export async function getTaskChecklist(incidentDesc: string): Promise<string[]> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const prompt = `
     You are generating a triage protocol for a stadium volunteer.
     Incident: ${incidentDesc}.
@@ -263,8 +254,8 @@ export async function getTaskChecklist(incidentDesc: string): Promise<string[]> 
     Output RAW JSON ONLY. No markdown wrappers.
   `;
   try {
-    const result = await model.generateContent(prompt);
-    let rawText = (await result.response).text().trim();
+    const result = await callGeminiProxy([prompt]);
+    let rawText = result.response.text().trim();
     rawText = rawText.replace(/^```json\n?/, '').replace(/\n?```$/, '');
     return JSON.parse(rawText);
   } catch (e) {

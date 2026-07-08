@@ -87,7 +87,7 @@
         </div>
 
         <!-- AI Checklist Expansion -->
-        <div v-if="incident.status === 'IN_PROGRESS' && activeChecklists[incident.id]" class="w-full mt-4 p-4 rounded-xl bg-white/5 border border-white/10 animate-fade-in-up">
+        <div v-if="incident.status === 'IN_PROGRESS' && activeChecklists[incident.id]" class="w-full mt-4 p-4 rounded-xl bg-white/5 border border-white/10 motion-safe:animate-fade-in-up">
           <p class="text-[10px] uppercase font-mono tracking-widest text-emerald-400 mb-3 flex items-center gap-2">
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
             AI Triage Protocol Generated

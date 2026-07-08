@@ -6,7 +6,7 @@
         <p class="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-1">{{ subtitle || 'Live Telemetry Analysis' }}</p>
       </div>
       <div class="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/5 text-xs font-bold text-[#ccff00]">
-        <div class="w-2 h-2 rounded-full bg-[#ccff00] animate-pulse"></div>
+        <div class="w-2 h-2 rounded-full bg-[#ccff00] motion-safe:animate-pulse"></div>
         LIVE SYNC
       </div>
     </div>
