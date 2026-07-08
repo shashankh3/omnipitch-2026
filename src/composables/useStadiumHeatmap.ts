@@ -173,8 +173,8 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
     };
     stands[name] = mesh;
 
-    const chairMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.1 });
-    const chairGeo = new THREE.BoxGeometry(0.7, 0.6, 0.7);
+    const chairMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.1, emissive: 0x111111 });
+    const chairGeo = new THREE.BoxGeometry(1.4, 0.8, 1.4);
     const ROWS = 25;
     const COLS = Math.floor(depth / 1.5);
     const CHAIRS_PER_STAND = ROWS * COLS;
@@ -183,7 +183,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
     standChairMeshes[name] = standChairMesh;
 
     let chairCounter = 0;
-    const tmpColor = new THREE.Color(0x1a1a2e);
+    const tmpColor = new THREE.Color(0x4a4a6a);
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         const progress = r / (ROWS - 1);
@@ -307,7 +307,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
       // Sync physical chairs with heatmap
       const chairMesh = standChairMeshes[section];
       if (chairMesh) {
-        const emptyColor = new THREE.Color(0x1a1a2e);
+        const emptyColor = new THREE.Color(0x4a4a6a);
         for(let i = 0; i < chairMesh.count; i++) {
            if (Math.random() * 100 < density) {
              chairMesh.setColorAt(i, targetColor);
