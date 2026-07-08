@@ -28,6 +28,14 @@
       <p class="text-xs font-bold uppercase tracking-widest text-white/50">Gemini AI Generating<br/>Match Feed...</p>
     </div>
 
+    <!-- Manual Load State -->
+    <div v-else-if="!dataLoaded" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+      <button @click="forceRefresh" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl shadow-lg border border-white/20 transition-all uppercase tracking-widest text-xs hover:scale-105 active:scale-95">
+        Load Live Score
+      </button>
+      <p class="mt-3 text-[10px] text-white/40 max-w-[200px]">Uses AI to generate a realistic live match feed.</p>
+    </div>
+
     <div v-else class="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar">
       <!-- Match 1: LIVE with Slideshow & Boom Animation -->
       <div class="p-3 border-b border-white/5 bg-white/5 cursor-pointer relative overflow-hidden group">
@@ -139,7 +147,8 @@ import goalImg from '../../assets/soccer_goal_action.webp';
 import fansImg from '../../assets/soccer_fans_cheering.webp';
 import { getSimulatedMatchFeed } from '../../services/gemini';
 
-const isLoading = ref(true);
+const isLoading = ref(false);
+const dataLoaded = ref(false);
 const matchMinute = ref(0);
 const slideIndex = ref(0);
 const slides = ref<any[]>([]);
@@ -174,11 +183,14 @@ const fetchFeed = async (forceRefetch = false) => {
     }
     
     if (!data) {
+      if (!forceRefetch) return;
+      
       data = await getSimulatedMatchFeed();
       localStorage.setItem('omnipitch_match_feed_v2', JSON.stringify({ timestamp: Date.now(), data }));
     }
 
     feedData.value = data;
+    dataLoaded.value = true;
     matchMinute.value = data.liveMatch.minute;
     slides.value = data.liveMatch.slides.map((s: { id: number; text: string; isGoal: boolean }, idx: number) => ({
       ...s,
