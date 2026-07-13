@@ -20,7 +20,7 @@
         </div>
         <div class="flex items-center gap-3">
           <span class="text-white font-black text-sm tracking-wide">{{ matchData.away }}</span>
-          <div class="w-6 h-4 rounded-sm shadow-sm" :style="{ backgroundColor: matchData.awayColor }"></div>
+          <span class="text-xl" role="img" aria-label="Egypt flag">🇪🇬</span>
         </div>
         <div class="ml-2 flex items-center gap-1.5 border-l border-white/10 pl-4">
           <span class="relative flex h-2 w-2">
@@ -29,32 +29,60 @@
           </span>
           <span class="text-red-400 font-mono text-xs font-bold tracking-wider">{{ matchData.minute }}'</span>
         </div>
-      </div>
-    </div>
-
-    <!-- Heatmap Legend - Bottom Left -->
-    <div class="absolute bottom-6 left-6 z-20 pointer-events-none">
-      <div class="bg-[#0a0a1a]/80 backdrop-blur-xl border border-white/8 rounded-xl px-4 py-3 flex flex-col gap-2 shadow-lg">
-        <span class="text-[9px] text-white/40 uppercase tracking-[0.2em] font-bold">Crowd Density</span>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center gap-1.5">
-            <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]"></div>
-            <span class="text-white/50 text-[10px] font-medium">Clear</span>
+        <div class="flex items-center gap-2 ml-4">
+          <div class="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-xs text-white">
+            <span aria-hidden="true">☀️</span>
+            <span>{{ Math.round(store.telemetry.wbgtTemperature ?? 29) }}°C</span>
           </div>
-          <div class="flex items-center gap-1.5">
-            <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)]"></div>
-            <span class="text-white/50 text-[10px] font-medium">Busy</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.7)] motion-safe:animate-pulse"></div>
-            <span class="text-white/50 text-[10px] font-medium">Packed</span>
+          <div class="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-xs"
+               :class="store.isOfflineMode ? 'text-amber-400' : 'text-emerald-400'">
+            <span aria-hidden="true">{{ store.isOfflineMode ? '📡' : '📶' }}</span>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Heatmap Legend - Bottom Left -->
+    <div class="absolute bottom-6 left-6 z-20 pointer-events-none w-72 flex-shrink-0">
+      <div class="bg-[#0a0a1a]/80 backdrop-blur-xl border border-white/8 rounded-xl px-4 py-3 shadow-lg crowd-density-card">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+            Crowd Density
+          </span>
+          <span class="text-xs text-slate-500">Live</span>
+        </div>
+
+        <!-- 3 stat blocks -->
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+            <span class="text-[10px] text-slate-400 uppercase">Clear</span>
+            <span class="text-lg font-bold text-white">{{ clearPercent }}%</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+            <span class="text-[10px] text-slate-400 uppercase">Busy</span>
+            <span class="text-lg font-bold text-white">{{ busyPercent }}%</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-2 h-2 rounded-full bg-red-400"></div>
+            <span class="text-[10px] text-slate-400 uppercase">Packed</span>
+            <span class="text-lg font-bold text-white">{{ packedPercent }}%</span>
+          </div>
+        </div>
+
+        <!-- Wave graph using SVG sparkline -->
+        <svg viewBox="0 0 200 40" class="w-full h-10" aria-hidden="true" preserveAspectRatio="none">
+          <polyline :points="clearWavePoints" fill="none" stroke="#34d399" stroke-width="1.5" opacity="0.8" />
+          <polyline :points="busyWavePoints" fill="none" stroke="#fbbf24" stroke-width="1.5" opacity="0.8" />
+          <polyline :points="packedWavePoints" fill="none" stroke="#f87171" stroke-width="1.5" opacity="0.8" />
+        </svg>
+      </div>
+    </div>
+
     <!-- 3D Canvas Container -->
-    <div ref="canvasContainer" class="flex-1 relative cursor-grab active:cursor-grabbing touch-none">
+    <div ref="canvasContainer" class="flex-1 min-w-0 overflow-hidden relative cursor-grab active:cursor-grabbing touch-none">
       <!-- Cinematic vignette -->
       <div class="absolute inset-0 pointer-events-none z-10"
         style="background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);"></div>
@@ -77,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import * as THREE from 'three';
 import { useStadiumStore } from '../../store/useStadiumStore';
 
@@ -91,6 +119,52 @@ import { useStadiumFootball } from '../../composables/useStadiumFootball';
 const canvasContainer = ref<HTMLDivElement | null>(null);
 const isLoading = ref(true);
 const store = useStadiumStore();
+
+const densityValues = computed(() => Object.values(store.telemetry.crowdDensity ?? {}));
+
+const clearPercent = computed(() => {
+  const vals = densityValues.value;
+  if (!vals.length) return 0;
+  const clear = vals.filter(v => v < 60).length;
+  return Math.round((clear / vals.length) * 100);
+});
+
+const busyPercent = computed(() => {
+  const vals = densityValues.value;
+  if (!vals.length) return 0;
+  const busy = vals.filter(v => v >= 60 && v < 85).length;
+  return Math.round((busy / vals.length) * 100);
+});
+
+const packedPercent = computed(() => {
+  const vals = densityValues.value;
+  if (!vals.length) return 0;
+  return Math.max(0, 100 - clearPercent.value - busyPercent.value);
+});
+
+const densityHistory = ref<number[][]>([]);
+
+watch(densityValues, (vals) => {
+  densityHistory.value.push([...vals]);
+  if (densityHistory.value.length > 20) {
+    densityHistory.value.shift();
+  }
+});
+
+function makeWavePoints(threshold: (v: number) => boolean): string {
+  const history = densityHistory.value;
+  if (history.length < 2) return '0,20 200,20';
+  return history.map((tick, i) => {
+    const x = (i / (history.length - 1)) * 200;
+    const pct = tick.length ? (tick.filter(threshold).length / tick.length) * 100 : 50;
+    const y = 40 - (pct / 100) * 35;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+}
+
+const clearWavePoints = computed(() => makeWavePoints(v => v < 60));
+const busyWavePoints = computed(() => makeWavePoints(v => v >= 60 && v < 85));
+const packedWavePoints = computed(() => makeWavePoints(v => v >= 85));
 
 const matchData = ref({
   home: 'USA',

@@ -28,13 +28,7 @@
       <p class="text-xs font-bold uppercase tracking-widest text-white/50">Gemini AI Generating<br/>Match Feed...</p>
     </div>
 
-    <!-- Manual Load State -->
-    <div v-else-if="!dataLoaded" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
-      <button @click="forceRefresh" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl shadow-lg border border-white/20 transition-all uppercase tracking-widest text-xs hover:scale-105 active:scale-95">
-        Load Live Score
-      </button>
-      <p class="mt-3 text-[10px] text-white/40 max-w-[200px]">Uses AI to generate a realistic live match feed.</p>
-    </div>
+
 
     <div v-else class="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar">
       <!-- Match 1: LIVE with Slideshow & Boom Animation -->
@@ -44,7 +38,10 @@
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <span class="text-white/30 font-bold flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-red-500 motion-safe:animate-pulse"></div> {{ matchMinute }}'</span>
           </div>
-          <span class="px-2 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px] uppercase tracking-wider font-extrabold border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]">Live</span>
+          <div class="flex items-center gap-2">
+            <span v-if="!dataLoaded" class="text-[9px] text-slate-400 italic">Demo match</span>
+            <span class="px-2 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px] uppercase tracking-wider font-extrabold border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]">Live</span>
+          </div>
         </div>
         
         <div class="flex justify-between items-center mb-2.5 relative z-10">
@@ -150,14 +147,14 @@ import { getSimulatedMatchFeed } from '../../services/gemini';
 
 const isLoading = ref(false);
 const dataLoaded = ref(false);
-const matchMinute = ref(0);
+const matchMinute = ref(90);
 const slideIndex = ref(0);
 const slides = ref<any[]>([]);
 
 const feedData = ref({
-  liveMatch: { homeTeam: '', awayTeam: '', homeScore: 0, awayScore: 0, minute: 0, primaryColor: '', secondaryColor: '', slides: [] },
-  completedMatch: { homeTeam: '', awayTeam: '', homeScore: 0, awayScore: 0 },
-  upcomingMatch: { homeTeam: '', awayTeam: '', time: '' }
+  liveMatch: { homeTeam: 'Argentina', awayTeam: 'Egypt', homeScore: 3, awayScore: 2, minute: 90, primaryColor: '#43a1d5', secondaryColor: '#c09300', slides: [{ id: 1, text: 'Incredible atmosphere in the stadium!', isGoal: false, image: fansImg, imageClass: 'object-center' }] },
+  completedMatch: { homeTeam: 'Brazil', awayTeam: 'France', homeScore: 1, awayScore: 1 },
+  upcomingMatch: { homeTeam: 'Spain', awayTeam: 'Germany', time: '18:00' }
 });
 
 let minuteInterval: ReturnType<typeof setInterval> | undefined;

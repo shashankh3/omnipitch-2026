@@ -95,8 +95,12 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const aiModel = genAI.getGenerativeModel({ model, tools });
+    const start = Date.now();
     const result = await aiModel.generateContent(messages);
     const response = await result.response;
+    const latency = Date.now() - start;
+    console.info('gemini_latency', { latencyMs: latency });
+    res.setHeader('X-Response-Time', `${latency}ms`);
     
     res.status(200).json({ text: response.text() });
   } catch (error) {

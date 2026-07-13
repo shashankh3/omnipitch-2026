@@ -10,18 +10,50 @@
     </div>
 
     <!-- Gate Status Panel - Bottom Right (shifted up to clear FAB) -->
-    <div class="absolute bottom-28 right-6 z-20 pointer-events-none">
-      <div class="bg-[#0a0a1a]/80 backdrop-blur-xl border border-white/8 rounded-xl px-4 py-3 flex flex-col gap-2 shadow-lg ea-tile">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-[9px] text-white/40 uppercase tracking-[0.2em] font-bold">Gate Throughput</span>
-          <span v-if="fastestGate" class="text-[9px] text-emerald-400 font-bold tracking-wider bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-            FASTEST: {{ fastestGate }}
-          </span>
+    <div class="absolute bottom-28 right-6 z-20 pointer-events-none max-w-[280px] overflow-hidden mr-16">
+      <div class="bg-[#0a0a1a]/80 backdrop-blur-xl border border-white/8 rounded-xl px-4 py-3 flex flex-col shadow-lg gate-throughput-panel pointer-events-auto w-full">
+        <!-- Header with toggle -->
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+              Gate Throughput
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-[10px] text-emerald-400 font-medium">LIVE</span>
+            </span>
+          </div>
+          <div class="flex rounded-lg overflow-hidden border border-slate-700 text-[10px]">
+            <button
+              @click="throughputView = 'fastest'"
+              :class="throughputView === 'fastest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-500'"
+              class="px-2 py-1 transition-colors"
+            >
+              FASTEST
+            </button>
+            <button
+              @click="throughputView = 'lowest'"
+              :class="throughputView === 'lowest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-500'"
+              class="px-2 py-1 transition-colors"
+            >
+              LOWEST
+            </button>
+          </div>
         </div>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center gap-1.5" v-for="gate in ['A','B','C']" :key="gate">
-            <div class="w-2.5 h-2.5 rounded-full" :class="getGateClass(gate)"></div>
-            <span class="text-white/50 text-[10px] font-medium">Gate {{ gate }}</span>
+
+        <!-- All 4 gates -->
+        <div class="flex flex-col gap-2">
+          <div v-for="gate in sortedGates" :key="gate.name" class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: gate.color }"></span>
+              <span class="text-xs text-slate-300">{{ gate.name }}</span>
+            </div>
+            <span
+              class="text-xs font-bold tabular-nums"
+              :class="gate.throughput >= 1000 ? 'text-emerald-400' : gate.throughput >= 700 ? 'text-amber-400' : 'text-red-400'"
+            >
+              {{ gate.throughput.toLocaleString() }} /min
+            </span>
           </div>
         </div>
       </div>
@@ -52,12 +84,12 @@
     </main>
 
     <!-- Floating Match Feed -->
-    <div class="absolute top-36 left-6 z-40 hidden md:block">
+    <div class="absolute top-36 left-6 z-40 hidden md:block w-72 flex-shrink-0">
       <LiveMatchFeed />
     </div>
 
     <!-- AI Copilot FAB & Quiet Zone Button -->
-    <div class="absolute bottom-8 right-8 z-40 flex flex-col gap-4">
+    <div class="absolute bottom-4 right-4 z-40 flex flex-col gap-4">
       <button
         v-if="!isModalOpen"
         class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] hover:shadow-[0_12px_32px_rgba(79,70,229,0.5)] outline-none focus:ring-4 focus:ring-indigo-400/30 group ea-button"
@@ -224,20 +256,30 @@ const currentLanguage = computed(() => (session.currentSession?.language ?? 'en'
 
 const telemetry = computed(() => store.telemetry);
 
-const fastestGate = computed(() => {
-  const gates = store.telemetry.gateThroughput;
-  if (!gates || Object.keys(gates).length === 0) return null;
-  // Find the gate with the lowest throughput (fewest people)
-  const sorted = Object.entries(gates).sort((a, b) => a[1] - b[1]);
-  return sorted[0][0].replace('Gate', 'GATE ');
+const throughputView = ref<'fastest' | 'lowest'>('fastest');
+
+const gateColors: Record<string, string> = {
+  GateA: '#34d399',
+  GateB: '#34d399',
+  GateC: '#60a5fa',
+  GateD: '#f87171'
+};
+
+const allGates = computed(() => {
+  const throughput = store.telemetry.gateThroughput ?? {};
+  return Object.entries(throughput).map(([key, val]) => ({
+    name: key.replace('Gate', 'Gate '),
+    throughput: val,
+    color: gateColors[key] ?? '#94a3b8'
+  }));
 });
 
-const getGateClass = (gate: string) => {
-  const tp = store.telemetry.gateThroughput[`Gate${gate}`] || 0;
-  if (tp > 800) return 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.7)] motion-safe:animate-pulse';
-  if (tp > 500) return 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)]';
-  return 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]';
-};
+const sortedGates = computed(() => {
+  const gates = [...allGates.value];
+  return throughputView.value === 'fastest'
+    ? gates.sort((a, b) => b.throughput - a.throughput)
+    : gates.sort((a, b) => a.throughput - b.throughput);
+});
 
 const logout = () => {
   router.push({ name: 'login' });
