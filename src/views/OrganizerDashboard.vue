@@ -1,6 +1,42 @@
 <template>
   <div class="min-h-screen flex flex-col bg-[#030308] text-white font-sans transition-colors duration-500 relative overflow-hidden">
     
+    <!-- Health Status Strip -->
+    <div
+      class="flex items-center gap-4 px-4 py-2 text-xs
+             border-b border-slate-800/60
+             bg-slate-950/80 backdrop-blur-sm relative z-50"
+      role="status"
+      aria-live="polite"
+      aria-label="System health status"
+    >
+      <span
+        :class="isOffline
+          ? 'text-amber-400'
+          : 'text-emerald-400'"
+        class="font-medium"
+      >
+        {{ badgeLabel }}
+      </span>
+
+      <span class="text-slate-600">|</span>
+
+      <span class="text-slate-500">
+        Last checked: {{ lastCheckTime }}
+      </span>
+
+      <span class="text-slate-600">|</span>
+
+      <span
+        :class="isOffline
+          ? 'text-amber-500'
+          : 'text-emerald-500'"
+        class="text-xs"
+      >
+        {{ isOffline ? '🔴 Supabase Offline' : '🟢 Supabase Connected' }}
+      </span>
+    </div>
+
     <!-- Dynamic EA-Style Background -->
     <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none fixed">
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAyMGgyMHYyMEgyMHoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')] opacity-30"></div>
@@ -47,12 +83,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import OperationsDashboard from '../components/organizer/OperationsDashboard.vue';
 import BaseButton from '../components/common/BaseButton.vue';
+import { useHealthStatus } from '../composables/useHealthStatus';
 
 const router = useRouter();
+
+const { badgeLabel, isOffline, lastCheck } = useHealthStatus();
+const lastCheckTime = computed(() => {
+  if (!lastCheck.value) return 'checking...';
+  return new Date(lastCheck.value).toLocaleTimeString();
+});
 
 const health = ref({ status: 'unknown', llm: 'offline', supabase: 'missing', gemini: 'missing' });
 let healthInterval: number;

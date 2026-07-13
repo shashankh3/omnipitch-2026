@@ -3,12 +3,10 @@
     <!-- AI Status Badge -->
     <div class="absolute top-2 right-2 z-10">
       <span v-if="!store.isOfflineMode" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 backdrop-blur-md">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        AI Live
+        {{ badgeLabel }}
       </span>
       <span v-else class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 backdrop-blur-md">
-        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-        AI Offline (local)
+        {{ badgeLabel }}
       </span>
     </div>
 
@@ -63,8 +61,10 @@ import { useStadiumStore } from '../../store/useStadiumStore';
 import { getFanAssistance } from '../../services/gemini';
 import { resolveContext } from '../../services/decisionEngine';
 import type { FanContext } from '../../services/decisionEngine';
+import { useHealthStatus } from '../../composables/useHealthStatus';
 
 const store = useStadiumStore();
+const { badgeLabel } = useHealthStatus();
 const query = ref('');
 const isLoading = ref(false);
 const messages = ref<{role: 'user'|'ai'|'system', text: string}[]>([
