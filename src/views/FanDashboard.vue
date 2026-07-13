@@ -220,7 +220,7 @@ const { isModalOpen, sensoryRoom, stepFreeRoute, features, lang } = useSensoryRo
 const { sensoryRoom: nearest, stepFreeRoute: directions } = useSensoryRoom();
 const session = useSessionStore();
 const showSensoryRoom = ref(false);
-const currentLanguage = computed(() => session.currentSession?.language ?? 'en');
+const currentLanguage = computed(() => (session.currentSession?.language ?? 'en') as 'en' | 'es' | 'fr' | 'de');
 
 const telemetry = computed(() => store.telemetry);
 
