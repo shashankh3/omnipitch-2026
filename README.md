@@ -20,14 +20,36 @@
 
 ---
 
-## 🌟 The Vision
+## 🎯 Chosen Vertical & Vision
+
+**Chosen Vertical:** Smart Stadium Management / Event Operations (Sports & Entertainment)
 
 OmniPitch 2026 is an unprecedented stadium management solution designed specifically for the scale of the World Cup. It bridges the gap between chaotic physical infrastructure and sleek digital intelligence. By rendering a **Holographic 3D Digital Twin** of the stadium in the browser, OmniPitch fuses real-time IoT telemetry with the predictive, conversational, and multimodal vision capabilities of the Gemini 2.5 Flash AI model.
+
+---
+
+## 🧠 Approach and Logic
+
+Our approach focuses on building a smart, dynamic assistant ecosystem rather than a simple chatbot. We logically divide the system by user context (Fan, Volunteer, Organizer) while maintaining a unified data state. We integrate AI into practical, real-world workflows—for example, using Gemini 2.5 Flash to automatically interpret gate delays into sentiment scores or triage incident photos submitted by volunteers.
+
+---
+
+## ⚙️ How the Solution Works
 
 **Three distinct personas, one unified core:**
 - 📱 **Fan Dashboard**: Hyper-localized navigation, live AI match feeds, and conversational AI copilot.
 - 🦺 **Volunteer Portal**: Vision-based incident logging, automated triage checklists, and task management.
 - 🏢 **Organizer Command Console**: Global throughput analytics, AI sentiment analysis, and live multi-lingual broadcasting.
+
+The frontend (Vue 3, Pinia) drives a 3D Digital Twin (Three.js) that reacts dynamically to real-time telemetry (synced via Supabase WebSockets). User inputs and images are securely routed through a serverless backend to Gemini 2.5 Flash, providing logical decision-making grounded in live stadium data.
+
+---
+
+## 💡 Assumptions Made
+
+- **IoT Infrastructure:** The stadium is equipped with live IoT sensors (gate scanners, heat sensors) capable of streaming real-time telemetry to our state management layer.
+- **Network Reliability:** Organizers and volunteers have sufficient network access (5G/Wi-Fi) to handle WebSocket data streams and API calls.
+- **API Guardrails:** Fallbacks and graceful degradation are sufficient to handle API rate limits without disrupting critical stadium operations.
 
 ---
 
