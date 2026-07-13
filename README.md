@@ -228,6 +228,5 @@ at $50K/year per venue. 50 FIFA-affiliated stadiums globally = $2.5M ARR potenti
 
 ## 🎥 Demo
 
-[![Watch Demo](https://img.shields.io/badge/Watch_Demo-YouTube-red?style=for-the-badge&logo=youtube)](YOUR_DEMO_LINK_HERE)
+[![Watch Demo](https://img.shields.io/badge/Watch_Demo-YouTube-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 
-> Replace YOUR_DEMO_LINK_HERE with your actual YouTube/Loom link after recording.
