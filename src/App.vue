@@ -1,7 +1,8 @@
 <template>
   <a href="#main-content" class="sr-only focus:not-sr-only fixed top-4 left-4 z-50 px-4 py-2 bg-white text-black rounded font-bold shadow-lg">Skip to main content</a>
-  <!-- Global Error Boundary Fallback UI -->
+  <!-- System Alerts (Hidden on Login Page) -->
   <div
+    v-if="route.name !== 'login'"
     class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm"
     role="region"
     aria-label="System alerts"
@@ -53,7 +54,9 @@ import { logger } from './services/logger';
 import { useStadiumStore } from './store/useStadiumStore';
 import { useProactiveAlerts } from './composables/useProactiveAlerts';
 import { useSessionStore } from './store/useSessionStore';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const { visibleAlerts, dismiss } = useProactiveAlerts();
 const session = useSessionStore();
 const currentLanguage = computed(
