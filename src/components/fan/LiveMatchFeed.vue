@@ -142,6 +142,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { logger } from '../../services/logger';
 import DOMPurify from 'dompurify';
 import goalImg from '../../assets/soccer_goal_action.webp';
 import fansImg from '../../assets/soccer_fans_cheering.webp';
@@ -198,7 +199,7 @@ const fetchFeed = async (forceRefetch = false) => {
       imageClass: idx % 2 === 0 ? 'object-[center_30%]' : 'object-center'
     }));
   } catch (error) {
-    console.error(error);
+    logger.error('Failed to translate feed item', 2);
   } finally {
     isLoading.value = false;
   }

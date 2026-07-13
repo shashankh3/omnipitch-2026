@@ -6,8 +6,11 @@
     "allowArbitraryExtensions": true,
 
     /* Linting */
+    "strict": true,
+    "noImplicitAny": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },

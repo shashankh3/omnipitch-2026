@@ -1,9 +1,21 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const rateLimitCache = new Map();
+const rateLimitMap = new Map(); // key: IP string, value: { tokens: number, lastRefill: number }
+const CAPACITY = 10;
+const REFILL_RATE = 10;
+const WINDOW_MS = 60_000;
 
-export default async function handler(req, res) {
-  // CORS Headers for Vercel (if needed for cross-origin, but usually same-origin is fine)
+function setSecurityHeaders(res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com"
+  );
+  res.setHeader('X-XSS-Protection', '0');
+  
+  // CORS Headers for Vercel
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -11,6 +23,35 @@ export default async function handler(req, res) {
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
+}
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  
+  // Prune stale entries
+  for (const [key, bucket] of rateLimitMap.entries()) {
+    if (now - bucket.lastRefill > 5 * 60_000) {
+      rateLimitMap.delete(key);
+    }
+  }
+
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { tokens: CAPACITY - 1, lastRefill: now });
+    return false;
+  }
+  const bucket = rateLimitMap.get(ip);
+  const elapsed = now - bucket.lastRefill;
+  const refilled = Math.floor((elapsed / WINDOW_MS) * REFILL_RATE);
+  bucket.tokens = Math.min(CAPACITY, bucket.tokens + refilled);
+  bucket.lastRefill = now;
+  
+  if (bucket.tokens <= 0) return true;
+  bucket.tokens -= 1;
+  return false;
+}
+
+export default async function handler(req, res) {
+  setSecurityHeaders(res);
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
@@ -18,43 +59,50 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).json({ error: 'Method Not Allowed', code: 405 });
   }
 
   try {
-    // Simple memory rate limit (10 reqs / min per IP)
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-    const now = Date.now();
-    if (!rateLimitCache.has(ip)) {
-      rateLimitCache.set(ip, { count: 1, firstRequest: now });
-    } else {
-      const rateData = rateLimitCache.get(ip);
-      if (now - rateData.firstRequest > 60000) {
-        // Reset after 1 minute
-        rateLimitCache.set(ip, { count: 1, firstRequest: now });
-      } else {
-        rateData.count++;
-        if (rateData.count > 10) {
-          return res.status(429).json({ error: 'Too Many Requests - Rate Limit Exceeded' });
+    const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+    
+    if (isRateLimited(ip)) {
+      res.setHeader('Retry-After', '60');
+      return res.status(429).json({ error: 'Rate limit exceeded', code: 429 });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Request could not be processed', code: 500 });
+    }
+
+    let { model = 'gemini-2.5-flash', messages, tools } = req.body;
+    
+    // Sanitize input (messages is an array of strings in our usage, or objects)
+    if (Array.isArray(messages)) {
+      messages = messages.map(msg => {
+        if (typeof msg === 'string') {
+          return msg.replace(/[\x00-\x1F\x7F]/g, '').trim().slice(0, 2000);
         }
+        return msg; // Vision objects pass through
+      });
+
+      // If the last message (user query) was a string and is now empty, return 400
+      const lastMsg = messages[messages.length - 1];
+      if (typeof lastMsg === 'string' && lastMsg.length === 0) {
+        return res.status(400).json({ error: 'Invalid input', code: 400 });
       }
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
-    if (!apiKey) {
-      return res.status(500).json({ error: 'API_KEY_MISSING' });
-    }
-
     const genAI = new GoogleGenerativeAI(apiKey);
-    const { model = 'gemini-2.5-flash', messages, systemInstruction, tools } = req.body;
-    
     const aiModel = genAI.getGenerativeModel({ model, tools });
     const result = await aiModel.generateContent(messages);
     const response = await result.response;
     
     res.status(200).json({ text: response.text() });
   } catch (error) {
-    console.error('Gemini API Error:', error);
-    res.status(500).json({ error: error.message || 'Internal Server Error' });
+    // Scrub logs
+    const safeErrorMsg = (error.message || '').replace(new RegExp(process.env.GEMINI_API_KEY || 'MISSING_KEY', 'g'), '***');
+    console.error('Gemini API Error:', safeErrorMsg);
+    res.status(500).json({ error: 'Request could not be processed', code: 500 });
   }
 }

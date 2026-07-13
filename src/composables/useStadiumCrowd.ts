@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { randomFloat } from '../utils/mathUtils';
 
 export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolean) {
   let crowdInstancedMesh: THREE.InstancedMesh;
@@ -68,20 +69,20 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
 
     const standNames = ['North Stand', 'South Stand', 'East Stand', 'West Stand'];
     for (let i = 0; i < CROWD_SIZE; i++) {
-      const targetStand = standNames[Math.floor(Math.random() * standNames.length)];
+      const targetStand = standNames[Math.floor(randomFloat() * standNames.length)];
       let cx = 0, cz = 0;
 
-      if (targetStand === 'North Stand') { cx = (Math.random() - 0.5) * 115; cz = -68 + (Math.random() * 20 - 10); }
-      if (targetStand === 'South Stand') { cx = (Math.random() - 0.5) * 115; cz = 68 + (Math.random() * 20 - 10); }
-      if (targetStand === 'East Stand') { cz = (Math.random() - 0.5) * 80; cx = 85 + (Math.random() * 20 - 10); }
-      if (targetStand === 'West Stand') { cz = (Math.random() - 0.5) * 80; cx = -85 + (Math.random() * 20 - 10); }
+      if (targetStand === 'North Stand') { cx = (randomFloat() - 0.5) * 115; cz = -68 + (randomFloat() * 20 - 10); }
+      if (targetStand === 'South Stand') { cx = (randomFloat() - 0.5) * 115; cz = 68 + (randomFloat() * 20 - 10); }
+      if (targetStand === 'East Stand') { cz = (randomFloat() - 0.5) * 80; cx = 85 + (randomFloat() * 20 - 10); }
+      if (targetStand === 'West Stand') { cz = (randomFloat() - 0.5) * 80; cx = -85 + (randomFloat() * 20 - 10); }
 
       crowdData.push({
         x: cx, z: cz, vx: 0, vz: 0,
         anchorX: cx, anchorZ: cz,
-        wanderAngle: Math.random() * Math.PI * 2,
-        bobPhase: Math.random() * Math.PI * 2,
-        bobSpeed: 2 + Math.random() * 2,
+        wanderAngle: randomFloat() * Math.PI * 2,
+        bobPhase: randomFloat() * Math.PI * 2,
+        bobSpeed: 2 + randomFloat() * 2,
         targetStand
       });
       dummy.position.set(cx, 1.2, cz);
@@ -123,7 +124,7 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
       fx += (a.anchorX - a.x) * ANCHOR_FORCE * 0.05;
       fz += (a.anchorZ - a.z) * ANCHOR_FORCE * 0.05;
 
-      a.wanderAngle += (Math.random() - 0.5) * 1.5 * dt;
+      a.wanderAngle += (randomFloat() - 0.5) * 1.5 * dt;
       fx += Math.cos(a.wanderAngle) * WANDER_FORCE * 0.3;
       fz += Math.sin(a.wanderAngle) * WANDER_FORCE * 0.3;
 

@@ -1,0 +1,235 @@
+{
+  "zones": [
+    {
+      "id": "gate_a",
+      "label": { "en": "Gate A", "es": "Puerta A", "fr": "Porte A", "de": "Tor A" },
+      "type": "gate",
+      "connections": ["concourse_north", "concourse_west", "parking_zone"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "gate_b",
+      "label": { "en": "Gate B", "es": "Puerta B", "fr": "Porte B", "de": "Tor B" },
+      "type": "gate",
+      "connections": ["concourse_south", "concourse_east", "transit_hub"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "gate_c",
+      "label": { "en": "Gate C", "es": "Puerta C", "fr": "Porte C", "de": "Tor C" },
+      "type": "gate",
+      "connections": ["concourse_east", "concourse_north"],
+      "hasStairs": true,
+      "hasElevator": false,
+      "hasAccessibleToilet": false
+    },
+    {
+      "id": "concourse_north",
+      "label": { "en": "North Concourse", "es": "Vestíbulo Norte", "fr": "Hall Nord", "de": "Nordhalle" },
+      "type": "concourse",
+      "connections": ["gate_a", "gate_c", "north_stand", "first_aid_north", "toilet_block_1", "food_court_a", "sensory_room_north"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "concourse_south",
+      "label": { "en": "South Concourse", "es": "Vestíbulo Sur", "fr": "Hall Sud", "de": "Südhalle" },
+      "type": "concourse",
+      "connections": ["gate_b", "south_stand", "first_aid_south", "toilet_block_2", "food_court_b"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "concourse_east",
+      "label": { "en": "East Concourse", "es": "Vestíbulo Este", "fr": "Hall Est", "de": "Osthalle" },
+      "type": "concourse",
+      "connections": ["gate_b", "gate_c", "east_stand", "section_100", "section_200"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "concourse_west",
+      "label": { "en": "West Concourse", "es": "Vestíbulo Oeste", "fr": "Hall Ouest", "de": "Westhalle" },
+      "type": "concourse",
+      "connections": ["gate_a", "west_stand", "section_300", "section_400"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "section_100",
+      "label": { "en": "Section 100", "es": "Sección 100", "fr": "Section 100", "de": "Block 100" },
+      "type": "section",
+      "connections": ["concourse_east"],
+      "hasStairs": true,
+      "hasElevator": false,
+      "hasAccessibleToilet": false
+    },
+    {
+      "id": "section_200",
+      "label": { "en": "Section 200", "es": "Sección 200", "fr": "Section 200", "de": "Block 200" },
+      "type": "section",
+      "connections": ["concourse_east"],
+      "hasStairs": true,
+      "hasElevator": false,
+      "hasAccessibleToilet": false
+    },
+    {
+      "id": "section_300",
+      "label": { "en": "Section 300", "es": "Sección 300", "fr": "Section 300", "de": "Block 300" },
+      "type": "section",
+      "connections": ["concourse_west"],
+      "hasStairs": true,
+      "hasElevator": false,
+      "hasAccessibleToilet": false
+    },
+    {
+      "id": "section_400",
+      "label": { "en": "Section 400", "es": "Sección 400", "fr": "Section 400", "de": "Block 400" },
+      "type": "section",
+      "connections": ["concourse_west"],
+      "hasStairs": true,
+      "hasElevator": false,
+      "hasAccessibleToilet": false
+    },
+    {
+      "id": "north_stand",
+      "label": { "en": "North Stand", "es": "Grada Norte", "fr": "Tribune Nord", "de": "Nordtribüne" },
+      "type": "stand",
+      "connections": ["concourse_north", "pitch"],
+      "hasStairs": true,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "south_stand",
+      "label": { "en": "South Stand", "es": "Grada Sur", "fr": "Tribune Sud", "de": "Südtribüne" },
+      "type": "stand",
+      "connections": ["concourse_south", "pitch"],
+      "hasStairs": true,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "east_stand",
+      "label": { "en": "East Stand", "es": "Grada Este", "fr": "Tribune Est", "de": "Osttribüne" },
+      "type": "stand",
+      "connections": ["concourse_east", "pitch"],
+      "hasStairs": true,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "west_stand",
+      "label": { "en": "West Stand", "es": "Grada Oeste", "fr": "Tribune Ouest", "de": "Westtribüne" },
+      "type": "stand",
+      "connections": ["concourse_west", "pitch"],
+      "hasStairs": true,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "first_aid_north",
+      "label": { "en": "First Aid North", "es": "Primeros Auxilios Norte", "fr": "Premiers Secours Nord", "de": "Erste Hilfe Nord" },
+      "type": "first_aid",
+      "connections": ["concourse_north"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "first_aid_south",
+      "label": { "en": "First Aid South", "es": "Primeros Auxilios Sur", "fr": "Premiers Secours Sud", "de": "Erste Hilfe Süd" },
+      "type": "first_aid",
+      "connections": ["concourse_south"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "food_court_a",
+      "label": { "en": "Food Court A", "es": "Patio de Comidas A", "fr": "Aire de Restauration A", "de": "Gastronomiebereich A" },
+      "type": "food",
+      "connections": ["concourse_north"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "food_court_b",
+      "label": { "en": "Food Court B", "es": "Patio de Comidas B", "fr": "Aire de Restauration B", "de": "Gastronomiebereich B" },
+      "type": "food",
+      "connections": ["concourse_south"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "toilet_block_1",
+      "label": { "en": "Restroom Block 1", "es": "Baños Bloque 1", "fr": "Toilettes Bloc 1", "de": "Toiletten Block 1" },
+      "type": "toilet",
+      "connections": ["concourse_north"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "toilet_block_2",
+      "label": { "en": "Restroom Block 2", "es": "Baños Bloque 2", "fr": "Toilettes Bloc 2", "de": "Toiletten Block 2" },
+      "type": "toilet",
+      "connections": ["concourse_south"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "sensory_room_north",
+      "label": {
+        "en": "Quiet Zone — North",
+        "es": "Zona Tranquila — Norte",
+        "fr": "Zone Calme — Nord",
+        "de": "Ruhezone — Nord"
+      },
+      "type": "sensory_room",
+      "connections": ["concourse_north"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true,
+      "features": ["low_stimulation", "noise_cancelling", "dim_lighting", "cooling", "seating", "caregiver_space"]
+    },
+    {
+      "id": "transit_hub",
+      "label": { "en": "Transit Hub", "es": "Centro de Transporte", "fr": "Pôle de Correspondance", "de": "Verkehrsknotenpunkt" },
+      "type": "transit",
+      "connections": ["gate_b"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "parking_zone",
+      "label": { "en": "Parking Zone", "es": "Zona de Estacionamiento", "fr": "Zone de Stationnement", "de": "Parkzone" },
+      "type": "parking",
+      "connections": ["gate_a"],
+      "hasStairs": false,
+      "hasElevator": true,
+      "hasAccessibleToilet": true
+    },
+    {
+      "id": "pitch",
+      "label": { "en": "The Pitch", "es": "El Campo", "fr": "Le Terrain", "de": "Das Spielfeld" },
+      "type": "pitch",
+      "connections": ["north_stand", "south_stand", "east_stand", "west_stand"],
+      "hasStairs": false,
+      "hasElevator": false,
+      "hasAccessibleToilet": false
+    }
+  ]
+}

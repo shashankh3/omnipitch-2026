@@ -131,5 +131,11 @@ describe('OmniPitch 2026 — Stadium Store Test Suite', () => {
         expect(validStatuses).toContain(inc.status);
       });
     });
+
+    it('should pass minutesToKickoff to telemetry simulation', () => {
+      const store = useStadiumStore();
+      store.startTelemetrySimulation(45);
+      expect(store.minutesToKickoff).toBe(45);
+    });
   });
 });

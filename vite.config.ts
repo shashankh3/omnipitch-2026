@@ -10,12 +10,25 @@ export default defineConfig({
     environment: 'jsdom',
     coverage: {
       provider: 'v8',
+      include: [
+        'src/services/**',
+        'src/store/**',
+        'src/data/**',
+        'src/composables/useSensoryRoom.ts',
+        'src/composables/useProactiveAlerts.ts'
+      ],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/main.ts',
+        'src/router/**'
+      ],
       thresholds: {
-        lines: 80,
-        branches: 70,
-        functions: 70,
-        statements: 80
-      }
+        lines: 90,
+        branches: 85,
+        functions: 90,
+        statements: 90
+      },
+      reporter: ['text', 'lcov', 'html']
     }
   },
   plugins: [

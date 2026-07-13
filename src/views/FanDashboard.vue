@@ -56,8 +56,16 @@
       <LiveMatchFeed />
     </div>
 
-    <!-- AI Copilot FAB -->
-    <div class="absolute bottom-8 right-8 z-40">
+    <!-- AI Copilot FAB & Quiet Zone Button -->
+    <div class="absolute bottom-8 right-8 z-40 flex flex-col gap-4">
+      <button
+        v-if="!isModalOpen"
+        class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] hover:shadow-[0_12px_32px_rgba(79,70,229,0.5)] outline-none focus:ring-4 focus:ring-indigo-400/30 group ea-button"
+        @click="isModalOpen = true"
+        aria-label="Find Quiet Zone"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+      </button>
       <button
         class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-[0_8px_24px_rgba(251,191,36,0.35)] hover:shadow-[0_12px_32px_rgba(251,191,36,0.5)] outline-none focus:ring-4 focus:ring-amber-400/30 group ea-button"
         @click="isChatOpen = !isChatOpen"
@@ -66,6 +74,39 @@
         <div class="absolute inset-0 rounded-2xl motion-safe:animate-ping opacity-15 bg-amber-300 group-hover:opacity-25"></div>
         <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
       </button>
+    </div>
+
+    <!-- Quiet Zone Modal -->
+    <div
+      v-if="isModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="sensory-modal-title"
+    >
+      <div class="bg-[#0a0a1a] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
+        <button
+          @click="isModalOpen = false"
+          class="absolute top-4 right-4 text-white/50 hover:text-white"
+          aria-label="Close modal"
+        >✕</button>
+        <h2 id="sensory-modal-title" class="text-xl font-bold mb-2">Quiet Zone Finder</h2>
+        <div v-if="sensoryRoom">
+          <p class="text-emerald-400 font-semibold mb-4">{{ sensoryRoom.label[lang as 'en'|'es'|'fr'|'de'] || sensoryRoom.label.en }}</p>
+          <div class="mb-4">
+            <h3 class="text-xs uppercase text-white/50 mb-1">Features</h3>
+            <ul class="flex flex-wrap gap-2">
+              <li v-for="f in features" :key="f" class="bg-white/10 px-2 py-1 rounded text-xs font-medium">{{ f }}</li>
+            </ul>
+          </div>
+          <div class="bg-indigo-900/40 border border-indigo-500/30 p-3 rounded-lg text-sm text-indigo-100">
+            <strong>Step-Free Route:</strong> {{ stepFreeRoute }}
+          </div>
+        </div>
+        <div v-else class="text-white/50 text-sm">
+          No sensory room found in current configuration.
+        </div>
+      </div>
     </div>
 
     <!-- Copilot Slide Panel -->
@@ -102,10 +143,13 @@ import ConciergeChat from '../components/fan/ConciergeChat.vue';
 import LiveMatchFeed from '../components/fan/LiveMatchFeed.vue';
 import BaseButton from '../components/common/BaseButton.vue';
 import { useStadiumStore } from '../store/useStadiumStore';
+import { useSensoryRoom } from '../composables/useSensoryRoom';
 
 const router = useRouter();
 const store = useStadiumStore();
 const isChatOpen = ref(true);
+
+const { isModalOpen, sensoryRoom, stepFreeRoute, features, lang } = useSensoryRoom();
 
 const telemetry = computed(() => store.telemetry);
 

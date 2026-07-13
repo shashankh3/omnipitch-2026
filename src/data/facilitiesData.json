@@ -1,0 +1,112 @@
+{
+  "facilities": [
+    {
+      "id": "toilet_block_1",
+      "type": "toilet",
+      "zoneId": "concourse_north",
+      "crowdBaseLevel": "low",
+      "isAccessible": true,
+      "nearestAlternativeId": "toilet_block_2",
+      "label": { "en": "Restroom Block 1", "es": "Baños Bloque 1", "fr": "Toilettes Bloc 1", "de": "Toiletten Block 1" }
+    },
+    {
+      "id": "toilet_block_2",
+      "type": "toilet",
+      "zoneId": "concourse_south",
+      "crowdBaseLevel": "low",
+      "isAccessible": true,
+      "nearestAlternativeId": "toilet_block_1",
+      "label": { "en": "Restroom Block 2", "es": "Baños Bloque 2", "fr": "Toilettes Bloc 2", "de": "Toiletten Block 2" }
+    },
+    {
+      "id": "food_court_a",
+      "type": "food",
+      "zoneId": "concourse_north",
+      "crowdBaseLevel": "medium",
+      "isAccessible": true,
+      "nearestAlternativeId": "food_court_b",
+      "label": { "en": "Food Court A", "es": "Patio de Comidas A", "fr": "Aire de Restauration A", "de": "Gastronomiebereich A" }
+    },
+    {
+      "id": "food_court_b",
+      "type": "food",
+      "zoneId": "concourse_south",
+      "crowdBaseLevel": "medium",
+      "isAccessible": true,
+      "nearestAlternativeId": "food_court_a",
+      "label": { "en": "Food Court B", "es": "Patio de Comidas B", "fr": "Aire de Restauration B", "de": "Gastronomiebereich B" }
+    },
+    {
+      "id": "first_aid_north",
+      "type": "first_aid",
+      "zoneId": "concourse_north",
+      "crowdBaseLevel": "low",
+      "isAccessible": true,
+      "nearestAlternativeId": "first_aid_south",
+      "label": { "en": "First Aid North", "es": "Primeros Auxilios Norte", "fr": "Premiers Secours Nord", "de": "Erste Hilfe Nord" }
+    },
+    {
+      "id": "first_aid_south",
+      "type": "first_aid",
+      "zoneId": "concourse_south",
+      "crowdBaseLevel": "low",
+      "isAccessible": true,
+      "nearestAlternativeId": "first_aid_north",
+      "label": { "en": "First Aid South", "es": "Primeros Auxilios Sur", "fr": "Premiers Secours Sud", "de": "Erste Hilfe Süd" }
+    },
+    {
+      "id": "gate_a",
+      "type": "gate",
+      "zoneId": "gate_a",
+      "crowdBaseLevel": "high",
+      "isAccessible": true,
+      "nearestAlternativeId": "gate_b",
+      "label": { "en": "Gate A", "es": "Puerta A", "fr": "Porte A", "de": "Tor A" }
+    },
+    {
+      "id": "gate_b",
+      "type": "gate",
+      "zoneId": "gate_b",
+      "crowdBaseLevel": "medium",
+      "isAccessible": true,
+      "nearestAlternativeId": "gate_a",
+      "label": { "en": "Gate B", "es": "Puerta B", "fr": "Porte B", "de": "Tor B" }
+    },
+    {
+      "id": "gate_c",
+      "type": "gate",
+      "zoneId": "gate_c",
+      "crowdBaseLevel": "critical",
+      "isAccessible": false,
+      "nearestAlternativeId": "gate_a",
+      "label": { "en": "Gate C", "es": "Puerta C", "fr": "Porte C", "de": "Tor C" }
+    },
+    {
+      "id": "sensory_room",
+      "type": "facility",
+      "zoneId": "concourse_west",
+      "crowdBaseLevel": "low",
+      "isAccessible": true,
+      "nearestAlternativeId": "first_aid_north",
+      "label": { "en": "Sensory Room", "es": "Sala Sensorial", "fr": "Salle Sensorielle", "de": "Sensorischer Raum" }
+    },
+    {
+      "id": "transit_hub",
+      "type": "transit",
+      "zoneId": "gate_b",
+      "crowdBaseLevel": "high",
+      "isAccessible": true,
+      "nearestAlternativeId": "gate_a",
+      "label": { "en": "Transit Hub", "es": "Centro de Transporte", "fr": "Pôle de Correspondance", "de": "Verkehrsknotenpunkt" }
+    },
+    {
+      "id": "parking_zone",
+      "type": "parking",
+      "zoneId": "gate_a",
+      "crowdBaseLevel": "medium",
+      "isAccessible": true,
+      "nearestAlternativeId": "transit_hub",
+      "label": { "en": "Parking Zone", "es": "Zona de Estacionamiento", "fr": "Zone de Stationnement", "de": "Parkzone" }
+    }
+  ]
+}

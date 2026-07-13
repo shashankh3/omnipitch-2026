@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { randomFloat } from '../utils/mathUtils';
 
 export const colors = {
   clear: new THREE.Color(0x34d399),
@@ -114,7 +115,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
       for (let r = 0; r < rows; r++) {
         // Simulate historical heatmap data fading into the current exact density
         const timeFactor = c / cols; 
-        let val = (density / 100) * timeFactor * (0.5 + Math.random() * 0.5);
+        let val = (density / 100) * timeFactor * (0.5 + randomFloat() * 0.5);
         if (c >= cols - 2) val = density / 100;
         
         val = Math.max(0, Math.min(1, val));
@@ -309,7 +310,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
       if (chairMesh) {
         const emptyColor = new THREE.Color(0x4a4a6a);
         for(let i = 0; i < chairMesh.count; i++) {
-           if (Math.random() * 100 < density) {
+           if (randomFloat() * 100 < density) {
              chairMesh.setColorAt(i, targetColor);
            } else {
              chairMesh.setColorAt(i, emptyColor);

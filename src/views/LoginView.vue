@@ -118,7 +118,7 @@ const store = useStadiumStore();
 
 const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   const sessionData: UserSession = {
-    id: `usr_${Math.floor(Math.random() * 10000)}`,
+    id: crypto.randomUUID(),
     email: `test_${role}@worldcup2026.org`,
     role: role.toUpperCase() as 'FAN' | 'VOLUNTEER' | 'ORGANIZER',
     language: 'en',

@@ -25,7 +25,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { randomFloat } from '../../utils/mathUtils';
 
 const props = defineProps<{
   title: string;
@@ -108,7 +109,7 @@ onMounted(() => {
       y: simulatedVal
     });
     // Reverse logic of the simulation to trace a realistic past
-    simulatedVal = Math.max(0, simulatedVal - Math.floor((Math.random() - 0.4) * 150));
+    simulatedVal = Math.max(0, simulatedVal - Math.floor((randomFloat() - 0.4) * 150));
   }
   series.value = [{ name: 'Telemetry', data: initialData }];
   

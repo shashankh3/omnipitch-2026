@@ -1,6 +1,18 @@
 <template>
-  <div class="flex flex-col h-full">
-    <div class="flex-1 overflow-y-auto flex flex-col gap-4 pr-1 custom-scrollbar" aria-live="polite" aria-atomic="false">
+  <div class="flex flex-col h-full relative">
+    <!-- AI Status Badge -->
+    <div class="absolute top-2 right-2 z-10">
+      <span v-if="!store.isOfflineMode" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 backdrop-blur-md">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        AI Live
+      </span>
+      <span v-else class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 backdrop-blur-md">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+        AI Offline (local)
+      </span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto flex flex-col gap-4 pr-1 pt-10 custom-scrollbar" aria-live="polite" aria-atomic="false">
       <div
         v-for="(msg, index) in messages"
         :key="index"
@@ -49,6 +61,8 @@
 import { ref } from 'vue';
 import { useStadiumStore } from '../../store/useStadiumStore';
 import { getFanAssistance } from '../../services/gemini';
+import { resolveContext } from '../../services/decisionEngine';
+import type { FanContext } from '../../services/decisionEngine';
 
 const store = useStadiumStore();
 const query = ref('');
@@ -72,11 +86,30 @@ const sendMessage = async () => {
   isLoading.value = true;
 
   try {
+    const isStepFree = store.currentSession?.accessibilityProfile.requiresStepFree || false;
+    const isHighContrast = store.currentSession?.accessibilityProfile.highContrastMode || false;
+    const language = store.currentSession?.language as 'en' | 'es' | 'fr' | 'de' || 'en';
+    
+    const accessibilityNeeds = [];
+    if (isStepFree) accessibilityNeeds.push('wheelchair');
+    if (isHighContrast) accessibilityNeeds.push('visual');
+
+    const fanContext: FanContext = {
+      currentZone: 'North Stand',
+      destinationIntent: userText,
+      accessibilityNeeds,
+      minutesToKickoff: 20,
+      language
+    };
+
+    const resolvedFacts = resolveContext(fanContext);
+
     const response = await getFanAssistance(
       userText,
-      store.currentSession?.language || 'en',
+      language,
       store.telemetry,
-      store.currentSession?.accessibilityProfile.requiresStepFree || false
+      isStepFree,
+      resolvedFacts
     );
 
     if (response === "API_KEY_MISSING") {

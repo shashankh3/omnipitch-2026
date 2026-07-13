@@ -1,0 +1,28 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { setActivePinia, createPinia } from 'pinia';
+import { useSessionStore } from '../useSessionStore';
+
+describe('useSessionStore', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
+  it('sets role', () => {
+    const store = useSessionStore();
+    store.setRole('ORGANIZER');
+    expect(store.currentSession?.role).toBe('ORGANIZER');
+  });
+
+  it('sets language', () => {
+    const store = useSessionStore();
+    store.setLanguage('es');
+    expect(store.currentSession?.language).toBe('es');
+  });
+
+  it('sets accessibility profile', () => {
+    const store = useSessionStore();
+    store.setAccessibilityProfile({ requiresStepFree: true, highContrastMode: true });
+    expect(store.currentSession?.accessibilityProfile.requiresStepFree).toBe(true);
+    expect(store.currentSession?.accessibilityProfile.highContrastMode).toBe(true);
+  });
+});

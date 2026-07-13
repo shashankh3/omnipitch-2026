@@ -6,11 +6,14 @@ import VueApexCharts from 'vue3-apexcharts';
 import './assets/main.css';
 
 import { i18n } from './i18n';
+import { useStadiumStore } from './store/useStadiumStore';
+import { useSystemStore } from './store/useSystemStore';
 
 const app = createApp(App);
+const pinia = createPinia();
 
 app.use(VueApexCharts);
-app.use(createPinia());
+app.use(pinia);
 app.use(router);
 app.use(i18n);
 
@@ -19,4 +22,29 @@ if (window.matchMedia && window.matchMedia('(prefers-contrast: more)').matches) 
   document.body.classList.add('high-contrast-outdoor');
 }
 
-app.mount('#app');
+const store = useStadiumStore();
+
+async function initApp() {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  let isOffline = false;
+
+  if (!supabaseUrl) {
+    isOffline = true;
+  } else {
+    try {
+      // Try to ping supabase health (or just the base URL)
+      await fetch(`${supabaseUrl}/auth/v1/health`, { method: 'GET', signal: AbortSignal.timeout(3000) });
+    } catch {
+      isOffline = true;
+    }
+  }
+
+  store.setOfflineMode(isOffline);
+  app.mount('#app');
+
+  const systemStore = useSystemStore();
+  systemStore.checkHealth();
+  setInterval(() => systemStore.checkHealth(), 30_000);
+}
+
+initApp();

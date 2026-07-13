@@ -81,6 +81,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useStadiumStore } from '../../store/useStadiumStore';
+import { logger } from '../../services/logger';
 import { processVisionIncident } from '../../services/gemini';
 import BaseButton from '../common/BaseButton.vue';
 import type { Incident } from '../../types';
@@ -132,7 +133,7 @@ const analyzeImage = async () => {
       locationContext.value
     );
   } catch (error) {
-    console.error(error);
+    logger.error('Failed to report incident', 1);
   } finally {
     isProcessing.value = false;
   }

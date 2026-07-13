@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { randomFloat } from '../utils/mathUtils';
 
 export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boolean) {
   const PLAYERS_PER_TEAM = 11;
@@ -59,8 +60,8 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
 
     for (let i = 0; i < PLAYERS_PER_TEAM; i++) {
       const off = formationOffsets[i];
-      redTeamData.push({ x: off.x - 10, z: off.z, vx: 0, vz: 0, homeX: off.x - 10, homeZ: off.z, speed: 6 + Math.random() * 2, role: 'support', bobPhase: Math.random() * Math.PI * 2 });
-      blueTeamData.push({ x: -off.x + 10, z: -off.z, vx: 0, vz: 0, homeX: -off.x + 10, homeZ: -off.z, speed: 6 + Math.random() * 2, role: 'support', bobPhase: Math.random() * Math.PI * 2 });
+      redTeamData.push({ x: off.x - 10, z: off.z, vx: 0, vz: 0, homeX: off.x - 10, homeZ: off.z, speed: 6 + randomFloat() * 2, role: 'support', bobPhase: randomFloat() * Math.PI * 2 });
+      blueTeamData.push({ x: -off.x + 10, z: -off.z, vx: 0, vz: 0, homeX: -off.x + 10, homeZ: -off.z, speed: 6 + randomFloat() * 2, role: 'support', bobPhase: randomFloat() * Math.PI * 2 });
     }
 
     // Ball
@@ -157,10 +158,10 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
           const kdx = ballData.x - p.x;
           const kdz = ballData.z - p.z;
           const kd = Math.hypot(kdx, kdz) || 1;
-          const power = 8 + Math.random() * 6;
+          const power = 8 + randomFloat() * 6;
           ballData.vx = (kdx / kd) * power;
           ballData.vz = (kdz / kd) * power;
-          ballData.vy = 3 + Math.random() * 4;
+          ballData.vy = 3 + randomFloat() * 4;
         }
       }
 

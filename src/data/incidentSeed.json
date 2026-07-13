@@ -1,0 +1,102 @@
+[
+  {
+    "id": "inc_001",
+    "timestamp": "SEED",
+    "reportedBy": "system_sensor",
+    "location": { "section": "112", "gate": "GateC", "coordinates": [43.6821, -79.6122] },
+    "type": "WEATHER_HAZARD",
+    "severity": "HIGH",
+    "description": "Wet Bulb Globe Temperature exceeded 33°C in unshaded East Stand area. Extreme heat stroke risk.",
+    "status": "OPEN"
+  },
+  {
+    "id": "inc_002",
+    "timestamp": "SEED",
+    "reportedBy": "vol_302",
+    "location": { "section": "Concourse B", "gate": "GateA", "coordinates": [43.6825, -79.6130] },
+    "type": "FACILITY_DAMAGE",
+    "severity": "CRITICAL",
+    "description": "Elevator EL-04 serving accessibility route out of commission due to power failure.",
+    "status": "OPEN"
+  },
+  {
+    "id": "inc_003",
+    "timestamp": "SEED",
+    "reportedBy": "fan_402",
+    "location": { "section": "205", "gate": "GateB", "coordinates": [43.6815, -79.6110] },
+    "type": "MEDICAL",
+    "severity": "MEDIUM",
+    "description": "Fan reports dehydration symptoms, requires medical assistance.",
+    "status": "OPEN"
+  },
+  {
+    "id": "inc_004",
+    "timestamp": "SEED",
+    "reportedBy": "vol_105",
+    "location": { "section": "GateC", "gate": "GateC", "coordinates": [43.6830, -79.6120] },
+    "type": "CROWD_BOTTLENECK",
+    "severity": "HIGH",
+    "description": "Severe crowding at Gate C due to security scanner malfunction.",
+    "status": "IN_PROGRESS"
+  },
+  {
+    "id": "inc_005",
+    "timestamp": "SEED",
+    "reportedBy": "system_sensor",
+    "location": { "section": "100", "gate": "GateA", "coordinates": [43.6820, -79.6135] },
+    "type": "FACILITY_DAMAGE",
+    "severity": "LOW",
+    "description": "Water concession stand POS system offline.",
+    "status": "RESOLVED"
+  },
+  {
+    "id": "inc_006",
+    "timestamp": "SEED",
+    "reportedBy": "org_admin",
+    "location": { "section": "Transit Hub", "gate": "GateB", "coordinates": [43.6800, -79.6100] },
+    "type": "CROWD_BOTTLENECK",
+    "severity": "CRITICAL",
+    "description": "Metro Line 1 delayed by 25 mins, causing massive platform crowding.",
+    "status": "OPEN"
+  },
+  {
+    "id": "inc_007",
+    "timestamp": "SEED",
+    "reportedBy": "fan_120",
+    "location": { "section": "115", "gate": "GateC", "coordinates": [43.6825, -79.6118] },
+    "type": "MEDICAL",
+    "severity": "LOW",
+    "description": "Minor scrape, requires first aid kit at section 115.",
+    "status": "RESOLVED"
+  },
+  {
+    "id": "inc_008",
+    "timestamp": "SEED",
+    "reportedBy": "vol_200",
+    "location": { "section": "300", "gate": "GateA", "coordinates": [43.6822, -79.6128] },
+    "type": "FACILITY_DAMAGE",
+    "severity": "MEDIUM",
+    "description": "Restroom block 3A flooded.",
+    "status": "IN_PROGRESS"
+  },
+  {
+    "id": "inc_009",
+    "timestamp": "SEED",
+    "reportedBy": "vol_201",
+    "location": { "section": "400", "gate": "GateB", "coordinates": [43.6818, -79.6115] },
+    "type": "WEATHER_HAZARD",
+    "severity": "LOW",
+    "description": "Rain blowing into uncovered section 400 rows A-F.",
+    "status": "OPEN"
+  },
+  {
+    "id": "inc_010",
+    "timestamp": "SEED",
+    "reportedBy": "org_admin",
+    "location": { "section": "Perimeter", "gate": "GateC", "coordinates": [43.6835, -79.6125] },
+    "type": "CROWD_BOTTLENECK",
+    "severity": "MEDIUM",
+    "description": "Ride-share pickup zone backed up onto main arterial road.",
+    "status": "OPEN"
+  }
+]
