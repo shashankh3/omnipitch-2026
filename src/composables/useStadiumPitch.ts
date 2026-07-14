@@ -45,7 +45,7 @@ export function useStadiumPitch(scene: THREE.Scene) {
     const pitchW = 105, pitchH = 68;
     const pitch = new THREE.Mesh(
       new THREE.PlaneGeometry(pitchW, pitchH),
-      new THREE.MeshStandardMaterial({ color: 0x1a6b3c, roughness: 0.85 })
+      new THREE.MeshStandardMaterial({ color: 0x1e7a40, roughness: 0.65, metalness: 0.0 })
     );
     pitch.rotation.x = -Math.PI / 2;
     pitch.position.y = 0.5;
@@ -57,7 +57,7 @@ export function useStadiumPitch(scene: THREE.Scene) {
       if (i % 2 === 0) continue;
       const stripe = new THREE.Mesh(
         new THREE.PlaneGeometry(pitchW / stripeCount, pitchH),
-        new THREE.MeshStandardMaterial({ color: 0x1f7a45, roughness: 0.9, transparent: true, opacity: 0.4 })
+        new THREE.MeshStandardMaterial({ color: 0x228b4a, roughness: 0.7, transparent: true, opacity: 0.55 })
       );
       stripe.rotation.x = -Math.PI / 2;
       stripe.position.set(-pitchW / 2 + (i + 0.5) * (pitchW / stripeCount), 0.55, 0);
@@ -128,16 +128,29 @@ export function useStadiumPitch(scene: THREE.Scene) {
 
       const lightHead = new THREE.Mesh(
         new THREE.BoxGeometry(6, 2, 4),
-        new THREE.MeshStandardMaterial({ color: 0x333344, emissive: 0xffeedd, emissiveIntensity: 0.4, roughness: 0.1 })
+        new THREE.MeshStandardMaterial({
+          color: 0x444455,
+          emissive: 0xfff4cc,
+          emissiveIntensity: 1.5,
+          roughness: 0.1,
+          metalness: 0.5
+        })
       );
       lightHead.position.set(x, 56, z);
       scene.add(lightHead);
 
-      const floodSpot = new THREE.SpotLight(0xfff8e7, 2.5, 300, Math.PI / 4, 0.6, 1.5);
+      // Main flood spot — bright, wide cone pointing at pitch centre
+      const floodSpot = new THREE.SpotLight(0xfff8e7, 8, 400, Math.PI / 3.5, 0.5, 1.2);
       floodSpot.position.set(x, 56, z);
       floodSpot.target.position.set(0, 0, 0);
+      floodSpot.castShadow = false; // skip shadow for perf, ambient lights fill it
       scene.add(floodSpot);
       scene.add(floodSpot.target);
+
+      // Soft point-light corona so light bleeds naturally onto nearby stands
+      const corona = new THREE.PointLight(0xfff0cc, 3.0, 120, 2);
+      corona.position.set(x, 54, z);
+      scene.add(corona);
     };
 
     createFloodlight(-75, -55);

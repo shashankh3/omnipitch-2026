@@ -30,7 +30,7 @@ export function useStadiumScene(
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.6;
     canvasContainer.value.appendChild(renderer.domElement);
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -46,11 +46,11 @@ export function useStadiumScene(
     controls.autoRotate = !prefersReducedMotion;
     controls.autoRotateSpeed = 0.3;
 
-    // Lighting
-    scene.add(new THREE.AmbientLight(0xfff5e6, 0.15));
-    scene.add(new THREE.HemisphereLight(0x1a1a3e, 0x0a0a0a, 0.3));
+    // Lighting — bright stadium floodlight night look
+    scene.add(new THREE.AmbientLight(0xfff5e6, 0.5));         // warmer, stronger fill
+    scene.add(new THREE.HemisphereLight(0x2a2a6e, 0x0a0a0a, 0.6)); // rich sky/ground bounce
 
-    const sunLight = new THREE.DirectionalLight(0xffeedd, 1.0);
+    const sunLight = new THREE.DirectionalLight(0xfff0d0, 1.8);
     sunLight.position.set(80, 250, 80);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
@@ -61,6 +61,11 @@ export function useStadiumScene(
     sunLight.shadow.camera.bottom = -150;
     sunLight.shadow.bias = -0.0001;
     scene.add(sunLight);
+
+    // Extra fill light from opposite side to eliminate harsh shadows
+    const fillLight = new THREE.DirectionalLight(0xaad4ff, 0.6);
+    fillLight.position.set(-80, 100, -80);
+    scene.add(fillLight);
 
     return { scene, camera, renderer, controls, prefersReducedMotion };
   };
