@@ -91,6 +91,29 @@ export default async function handler(req, res) {
       if (typeof lastMsg === 'string' && lastMsg.length === 0) {
         return res.status(400).json({ error: 'Invalid input', code: 400 });
       }
+
+      // Hack for old cached PWA clients: if the frontend sent hardcoded Gate C, parse the intent on the backend
+      if (messages.length > 0 && typeof messages[0] === 'string' && messages[0].includes('Facility: Gate C')) {
+        const text = messages[0];
+        const lowerText = text.toLowerCase();
+        if (lowerText.includes('food') || lowerText.includes('drink') || lowerText.includes('concession')) {
+          messages[0] = text
+            .replace('Facility: Gate C', 'Facility: Concourse B Concessions')
+            .replace(/Route: .*Gate C/g, 'Route: North Stand → Level 1 → Concourse B');
+        } else if (lowerText.includes('toilet') || lowerText.includes('restroom') || lowerText.includes('bathroom')) {
+          messages[0] = text
+            .replace('Facility: Gate C', 'Facility: Section 115 Restrooms')
+            .replace(/Route: .*Gate C/g, 'Route: North Stand → Main Concourse → Section 115');
+        } else if (lowerText.includes('first aid') || lowerText.includes('medical')) {
+          messages[0] = text
+            .replace('Facility: Gate C', 'Facility: Gate B First Aid Station')
+            .replace(/Route: .*Gate C/g, 'Route: North Stand → Level 1 → Gate B');
+        } else if (lowerText.includes('park') || lowerText.includes('parking')) {
+          messages[0] = text
+            .replace('Facility: Gate C', 'Facility: West Overflow Lot')
+            .replace(/Route: .*Gate C/g, 'Route: North Stand → Main Exit → West Lot');
+        }
+      }
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
