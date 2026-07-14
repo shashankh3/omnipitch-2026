@@ -75,7 +75,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Request could not be processed', code: 500 });
     }
 
-    let { model = 'gemini-1.5-flash', messages, tools } = req.body;
+    let { model = 'gemini-2.5-flash', messages, tools } = req.body;
     
     // Sanitize input (messages is an array of strings in our usage, or objects)
     if (Array.isArray(messages)) {

@@ -28,7 +28,7 @@ app.get('/api/health', (req, res) => {
 // Generic endpoint for Gemini generateContent
 app.post('/api/gemini', async (req, res) => {
   try {
-    const { model = 'gemini-1.5-flash', messages, systemInstruction, tools } = req.body;
+    const { model = 'gemini-2.5-flash', messages, systemInstruction, tools } = req.body;
     
     if (!apiKey) {
       return res.status(500).json({ error: 'API_KEY_MISSING' });

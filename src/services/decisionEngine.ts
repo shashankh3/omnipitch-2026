@@ -29,9 +29,34 @@ export function resolveContext(fanContext: FanContext): DecisionResult {
     telemetry = MOCK_STADIUM_STATE.telemetry;
   }
 
+  const q = fanContext.destinationIntent.toLowerCase();
+  
+  let resolvedFacility = 'Gate C';
+  let route = [fanContext.currentZone, 'Concourse A', 'Gate C'];
+
+  if (q.includes('food') || q.includes('drink') || q.includes('concession') || q.includes('comida') || q.includes('bebida') || q.includes('nourriture') || q.includes('essen')) {
+    resolvedFacility = 'Concourse B Concessions';
+    route = [fanContext.currentZone, 'Level 1', 'Concourse B'];
+  } else if (q.includes('toilet') || q.includes('restroom') || q.includes('bathroom') || q.includes('bano') || q.includes('toilettes') || q.includes('toilette')) {
+    resolvedFacility = 'Section 115 Restrooms';
+    route = [fanContext.currentZone, 'Main Concourse', 'Section 115'];
+  } else if (q.includes('first aid') || q.includes('medical') || q.includes('doctor') || q.includes('primeros auxilios') || q.includes('premiers secours') || q.includes('erste hilfe')) {
+    resolvedFacility = 'Gate B First Aid Station';
+    route = [fanContext.currentZone, 'Level 1', 'Gate B'];
+  } else if (q.includes('park') || q.includes('parking') || q.includes('estacionamiento') || q.includes('parkplatz')) {
+    resolvedFacility = 'West Overflow Lot';
+    route = [fanContext.currentZone, 'Main Exit', 'West Lot'];
+  } else if (q.includes('ticket') || q.includes('box office') || q.includes('boleto') || q.includes('billet')) {
+    resolvedFacility = 'Gate A Box Office';
+    route = [fanContext.currentZone, 'Plaza', 'Gate A'];
+  } else if (q.includes('exit') || q.includes('salida') || q.includes('sortie') || q.includes('ausgang')) {
+    resolvedFacility = 'Gate C Exit';
+    route = [fanContext.currentZone, 'Concourse A', 'Gate C'];
+  }
+
   const result: DecisionResult = {
-    resolvedFacility: 'Gate C',
-    resolvedRoute: [fanContext.currentZone, 'Concourse A', 'Gate C'],
+    resolvedFacility,
+    resolvedRoute: route,
     crowdLevel: 'low',
     isStepFree: false,
     urgencyFlag: false,
