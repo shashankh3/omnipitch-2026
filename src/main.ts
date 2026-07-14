@@ -24,7 +24,11 @@ if (window.matchMedia && window.matchMedia('(prefers-contrast: more)').matches) 
 
 const store = useStadiumStore();
 
-async function initApp() {
+// Mount immediately so the user doesn't see a blank screen
+app.mount('#app');
+
+// Run health checks asynchronously
+async function initHealthChecks() {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   let isOffline = false;
 
@@ -40,11 +44,10 @@ async function initApp() {
   }
 
   store.setOfflineMode(isOffline);
-  app.mount('#app');
 
   const systemStore = useSystemStore();
   systemStore.checkHealth();
   setInterval(() => systemStore.checkHealth(), 30_000);
 }
 
-initApp();
+initHealthChecks();
