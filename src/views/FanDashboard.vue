@@ -2,7 +2,7 @@
   <div class="fan-dashboard flex flex-col h-screen overflow-hidden bg-[#050510] text-white relative transition-colors duration-500">
 
     <!-- Heat Alert Banner -->
-    <div v-if="telemetry.wbgtTemperature > 32" class="absolute top-20 left-1/2 -translate-x-1/2 z-50">
+    <div v-if="telemetry.wbgtTemperature > 32" class="absolute top-28 left-1/2 -translate-x-1/2 z-50">
       <div class="bg-amber-500/20 backdrop-blur-xl border border-amber-400/30 text-amber-200 font-semibold px-6 py-2.5 rounded-2xl shadow-[0_4px_24px_rgba(245,158,11,0.2)] flex items-center gap-3">
         <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
         <span class="text-sm">High Heat: {{ telemetry.wbgtTemperature.toFixed(1) }}°C — Stay hydrated, shaded paths prioritized</span>
