@@ -13,17 +13,17 @@
     <div class="absolute bottom-28 right-6 z-20 pointer-events-none max-w-[280px] overflow-hidden mr-16">
       <div class="bg-[#0a0a1a]/80 backdrop-blur-xl border border-white/8 rounded-xl px-4 py-3 flex flex-col shadow-lg gate-throughput-panel pointer-events-auto w-full">
         <!-- Header with toggle -->
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+        <div class="flex items-start justify-between mb-3 gap-2">
+          <div class="flex flex-col gap-1">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
               Gate Throughput
             </span>
             <span class="flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span class="text-[10px] text-emerald-400 font-medium">LIVE</span>
+              <span class="text-[9px] text-emerald-400 font-bold">LIVE</span>
             </span>
           </div>
-          <div class="flex rounded-lg overflow-hidden border border-slate-700 text-[10px]">
+          <div class="flex rounded-lg overflow-hidden border border-slate-700 text-[9px] flex-shrink-0 mt-0.5">
             <button
               @click="throughputView = 'fastest'"
               :class="throughputView === 'fastest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-500'"
@@ -84,8 +84,8 @@
     </main>
 
     <!-- Floating Match Feed -->
-    <div class="absolute top-36 left-6 z-40 hidden md:block w-72 flex-shrink-0">
-      <LiveMatchFeed />
+    <div class="absolute top-32 left-6 bottom-[220px] z-40 hidden md:flex flex-col w-72 flex-shrink-0">
+      <LiveMatchFeed class="h-full" />
     </div>
 
     <!-- AI Copilot FAB & Quiet Zone Button -->

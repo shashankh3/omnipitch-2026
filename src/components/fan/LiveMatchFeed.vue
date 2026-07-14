@@ -1,5 +1,5 @@
 <template>
-  <div :style="{'--theme-primary': feedData.liveMatch.primaryColor || '#ccff00', '--theme-secondary': feedData.liveMatch.secondaryColor || '#10b981'}" class="bg-[#0a0a1a]/90 backdrop-blur-2xl border border-white/8 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col pointer-events-auto w-72 ea-tile min-h-[350px] relative group">
+  <div :style="{'--theme-primary': feedData.liveMatch.primaryColor || '#ccff00', '--theme-secondary': feedData.liveMatch.secondaryColor || '#10b981'}" class="bg-[#0a0a1a]/90 backdrop-blur-2xl border border-white/8 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col pointer-events-auto w-72 ea-tile min-h-0 relative group">
     <!-- EA Sports Scanner Line -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden z-0 rounded-2xl">
       <div class="w-[200%] h-1 bg-gradient-to-r from-transparent via-[var(--theme-primary)] to-transparent opacity-0 group-hover:opacity-40 motion-safe:animate-scan-line"></div>
@@ -30,7 +30,7 @@
 
 
 
-    <div v-else class="flex-1 overflow-y-auto max-h-[55vh] custom-scrollbar">
+    <div v-else class="flex-1 overflow-y-auto min-h-0 custom-scrollbar pb-2">
       <!-- Match 1: LIVE with Slideshow & Boom Animation -->
       <div class="p-3 border-b border-white/5 bg-white/5 cursor-pointer relative overflow-hidden group">
         <div class="flex justify-between items-center text-[10px] mb-2 relative z-10">
