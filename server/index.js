@@ -14,9 +14,15 @@ app.use(express.json());
 const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Basic health check
+// Health check — returns shape consumed by both useSystemStore and OrganizerDashboard
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', hasKey: !!apiKey });
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+  res.json({
+    status: 'ok',
+    llm: apiKey ? 'live' : 'offline',
+    supabase: supabaseUrl ? 'configured' : 'missing',
+    gemini: apiKey ? 'configured' : 'missing'
+  });
 });
 
 // Generic endpoint for Gemini generateContent

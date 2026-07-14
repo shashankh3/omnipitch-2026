@@ -75,8 +75,8 @@
     </div>
 
     <!-- Crowd Density -->
-    <aside class="pointer-events-none absolute bottom-6 left-6 z-30 w-64">
-      <div class="density-panel overflow-hidden rounded-2xl p-4">
+    <aside class="pointer-events-none absolute bottom-6 left-6 z-30 w-72 transition-all duration-500">
+      <div class="density-panel overflow-hidden rounded-2xl p-4 bg-[#0a0a1a]/90 backdrop-blur-2xl border border-white/8 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
         <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent"></div>
 
         <div class="mb-4 flex items-center justify-between">
@@ -371,7 +371,6 @@ onBeforeUnmount(() => {
 }
 
 .scoreboard-shell,
-.density-panel,
 .loader-card {
   border: 1px solid rgba(255, 255, 255, 0.1);
   background:

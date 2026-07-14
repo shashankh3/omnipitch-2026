@@ -27,9 +27,6 @@
       <div class="col-span-3 text-right">Action</div>
     </div>
     
-    <ul v-else class="flex flex-col gap-5">
-    </ul>
-    
     <ul v-if="activeIncidents.length > 0" class="flex flex-col gap-2">
       <li v-for="(incident, index) in activeIncidents" :key="incident.id" class="bg-panel-bg hover:bg-white/[0.02] transition-colors border border-white/5 rounded-xl px-4 py-3 group flex items-center">
         <div class="grid grid-cols-12 gap-4 w-full items-center">

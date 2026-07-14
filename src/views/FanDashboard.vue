@@ -84,7 +84,7 @@
     </main>
 
     <!-- Floating Match Feed -->
-    <div class="absolute top-32 left-6 bottom-[220px] z-40 hidden md:flex flex-col w-72 flex-shrink-0">
+    <div class="absolute top-32 left-6 bottom-[280px] z-40 hidden md:flex flex-col w-72 flex-shrink-0 transition-all duration-500">
       <LiveMatchFeed class="h-full" />
     </div>
 

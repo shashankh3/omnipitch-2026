@@ -21,15 +21,18 @@ vi.mock('../../../services/gemini', () => ({
 }))
 
 describe('LiveMatchFeed', () => {
-  it('renders manual load state initially', () => {
+  it('renders header and demo match data initially', () => {
     const wrapper = mount(LiveMatchFeed)
-    expect(wrapper.text()).toContain('Load Live Score')
+    expect(wrapper.text()).toContain('Live Matches')
+    // Demo data is shown immediately (Argentina vs Egypt)
+    expect(wrapper.text()).toContain('Argentina')
+    expect(wrapper.text()).toContain('Egypt')
   })
 
   it('renders match data after loading', async () => {
     const wrapper = mount(LiveMatchFeed)
     
-    // Click the load button
+    // Click the refresh button
     await wrapper.find('button').trigger('click')
     
     // Wait for the async fetch to resolve
@@ -44,3 +47,4 @@ describe('LiveMatchFeed', () => {
     expect(wrapper.text()).toContain('ESP')
   })
 })
+
