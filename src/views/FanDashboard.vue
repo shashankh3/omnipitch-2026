@@ -9,8 +9,8 @@
       </div>
     </div>
 
-    <!-- Gate Status Panel - Bottom Right (shifted up to clear FAB) -->
-    <div class="absolute bottom-28 right-6 z-20 pointer-events-none max-w-[280px] overflow-hidden mr-16">
+    <!-- Gate Status Panel - Bottom Right (shifted left to clear FAB) -->
+    <div class="absolute bottom-6 right-24 z-20 pointer-events-none w-[280px]">
       <div class="bg-[#0a0a1a]/80 backdrop-blur-xl border border-white/8 rounded-xl px-4 py-3 flex flex-col shadow-lg gate-throughput-panel pointer-events-auto w-full">
         <!-- Header with toggle -->
         <div class="flex items-start justify-between mb-3 gap-2">
