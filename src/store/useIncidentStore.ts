@@ -19,9 +19,7 @@ export const useIncidentStore = defineStore('incident', {
       };
       this.incidents.push(newIncident);
 
-      // We rely on the calling component or system to check if offlineMode is true,
-      // but to decouple from useSystemStore here we broadcast unless the client
-      // fails      // Broadcast the new incident to all other connected clients
+      // Broadcast the new incident to all other connected clients
       supabase.channel('stadium_incidents').send({
         type: 'broadcast',
         event: 'new_incident',

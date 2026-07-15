@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   variant?: 'primary' | 'secondary' | 'danger' | 'warning' | 'success';
   block?: boolean;
   ariaLabel?: string;

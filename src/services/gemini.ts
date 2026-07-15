@@ -310,10 +310,11 @@ export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise
   }
 
   const prompt = `
-    You are analyzing thousands of live fan tweets inside the OmniPitch stadium.
-    Current conditions: WBGT Temperature: ${telemetry.wbgtTemperature}°C. 
-    Gate delays: ${JSON.stringify(telemetry.gateThroughput)}.
-    Generate a 2-3 sentence summary of the "Stadium Vibe Score" based on these conditions. Be highly realistic.
+    You are the OmniPitch Vibe Engine. Infer live fan sentiment from stadium telemetry only.
+    Current conditions: WBGT Temperature: ${telemetry.wbgtTemperature}°C.
+    Gate throughput (entries/min per gate): ${JSON.stringify(telemetry.gateThroughput)}.
+    Generate a 2-3 sentence summary of the "Stadium Vibe Score" based strictly on these numbers
+    (heat stress and gate congestion). Do not invent events, tweets, or data not provided.
   `;
   try {
     const result = await callGeminiProxy([prompt]);

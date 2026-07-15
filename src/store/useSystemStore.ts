@@ -24,10 +24,6 @@ export const useSystemStore = defineStore('system', {
         const data = await res.json();
         
         this.setLlmMode(data.llm || 'offline');
-        // We set offlineMode based on Supabase health in our new structure,
-        // wait, the plan says:
-        // → on success: setLlmMode(data.llm), setOfflineMode(false)
-        // → on error: setLlmMode('offline'), setOfflineMode(true)
         this.setOfflineMode(false);
       } catch (err) {
         this.setLlmMode('offline');

@@ -1,6 +1,22 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://zxzlwpdpnvvcgnttjfao.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_rxXXKLhKUdZUc_QHLM-sRA_g79xAys3';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Without credentials the app runs in offline mode: broadcasts become no-ops
+// so incident logging still works locally with zero configuration.
+function createOfflineStub(): SupabaseClient {
+  const channelStub = {
+    send: async () => 'ok',
+    on: () => channelStub,
+    subscribe: () => channelStub,
+    unsubscribe: async () => 'ok'
+  };
+  return { channel: () => channelStub } as unknown as SupabaseClient;
+}
+
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+export const supabase: SupabaseClient = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : createOfflineStub();

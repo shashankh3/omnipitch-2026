@@ -165,7 +165,7 @@
 
         <!-- Quiet Zone Finder Button -->
         <button
-          @click="showSensoryRoom = true"
+          @click="isModalOpen = true"
           class="flex items-center gap-2 px-4 py-2 rounded-xl
                  bg-indigo-900/40 border border-indigo-500/40
                  text-indigo-300 hover:bg-indigo-800/50
@@ -178,58 +178,6 @@
         </button>
       </div>
     </div>
-    <!-- Quiet Zone Modal -->
-    <Teleport to="body">
-      <div
-        v-if="showSensoryRoom"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="sensory-title"
-        class="fixed inset-0 z-50 flex items-center justify-center
-               p-4 bg-black/60 backdrop-blur-sm"
-        @click.self="showSensoryRoom = false"
-      >
-        <div
-          class="bg-slate-900 border border-indigo-500/40
-                 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
-        >
-          <h2
-            id="sensory-title"
-            class="text-lg font-semibold text-indigo-300 mb-2"
-          >
-            🧘 {{ nearest?.label?.[currentLanguage] 
-                  ?? nearest?.label?.en 
-                  ?? 'Quiet Zone' }}
-          </h2>
-
-          <p class="text-slate-300 text-sm leading-relaxed mb-4">
-            {{ directions }}
-          </p>
-
-          <div class="flex flex-wrap gap-2 mb-5">
-            <span
-              v-for="feature in (nearest?.features ?? [])"
-              :key="feature"
-              class="px-2 py-1 rounded-full text-xs
-                     bg-indigo-900/50 text-indigo-300
-                     border border-indigo-700/40"
-            >
-              {{ feature.replace(/_/g, ' ') }}
-            </span>
-          </div>
-
-          <button
-            @click="showSensoryRoom = false"
-            class="w-full py-2 rounded-lg bg-indigo-700
-                   hover:bg-indigo-600 text-white text-sm
-                   font-medium transition-colors"
-            aria-label="Close quiet zone finder"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </Teleport>
   </div>
 </template>
 
@@ -242,17 +190,12 @@ import LiveMatchFeed from '../components/fan/LiveMatchFeed.vue';
 import BaseButton from '../components/common/BaseButton.vue';
 import { useStadiumStore } from '../store/useStadiumStore';
 import { useSensoryRoom } from '../composables/useSensoryRoom';
-import { useSessionStore } from '../store/useSessionStore';
 
 const router = useRouter();
 const store = useStadiumStore();
 const isChatOpen = ref(true);
 
 const { isModalOpen, sensoryRoom, stepFreeRoute, features, lang } = useSensoryRoom();
-const { sensoryRoom: nearest, stepFreeRoute: directions } = useSensoryRoom();
-const session = useSessionStore();
-const showSensoryRoom = ref(false);
-const currentLanguage = computed(() => (session.currentSession?.language ?? 'en') as 'en' | 'es' | 'fr' | 'de');
 
 const telemetry = computed(() => store.telemetry);
 

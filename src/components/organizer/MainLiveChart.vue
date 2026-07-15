@@ -26,6 +26,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
+import apexchart from 'vue3-apexcharts';
+import type { ApexOptions } from 'apexcharts';
 import { randomFloat } from '../../utils/mathUtils';
 
 const props = defineProps<{
@@ -45,12 +47,11 @@ const series = ref([{
 
 const themeColor = props.color || '#ff6b00';
 
-const chartOptions = ref({
+const chartOptions = ref<ApexOptions>({
   chart: {
     type: 'area',
     animations: {
       enabled: true,
-      easing: 'linear',
       dynamicAnimation: { speed: 1000 }
     },
     toolbar: { show: false },

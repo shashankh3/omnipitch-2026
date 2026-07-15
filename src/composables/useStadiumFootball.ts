@@ -6,7 +6,7 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
   let redTeamMesh: THREE.InstancedMesh;
   let blueTeamMesh: THREE.InstancedMesh;
   let ballMesh: THREE.Mesh;
-  let ballTrailPoints: THREE.Vector3[] = [];
+  const ballTrailPoints: THREE.Vector3[] = [];
   let ballTrail: THREE.Line;
   const dummy = new THREE.Object3D();
 

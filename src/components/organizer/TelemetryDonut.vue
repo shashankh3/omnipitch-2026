@@ -30,6 +30,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import apexchart from 'vue3-apexcharts';
+import type { ApexOptions } from 'apexcharts';
 
 const props = defineProps<{
   title: string;
@@ -44,7 +46,7 @@ const series = computed(() => Object.values(props.data));
 const labels = computed(() => Object.keys(props.data));
 const totalValue = computed(() => series.value.reduce((a, b) => a + b, 0));
 
-const chartOptions = computed(() => ({
+const chartOptions = computed<ApexOptions>(() => ({
   chart: {
     type: 'donut',
     background: 'transparent',
@@ -66,7 +68,7 @@ const chartOptions = computed(() => ({
   theme: { mode: 'dark' },
   tooltip: {
     theme: 'dark',
-    y: { formatter: (val: number) => val }
+    y: { formatter: (val: number) => String(val) }
   }
 }));
 

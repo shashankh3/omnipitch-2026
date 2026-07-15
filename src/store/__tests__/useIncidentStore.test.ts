@@ -83,7 +83,7 @@ describe('useIncidentStore', () => {
     const store = useIncidentStore();
     store.incidents = [];
 
-    let onCallback: Function = () => {};
+    let onCallback: (msg: { payload: any }) => void = () => {};
     const mockChannel = {
       send: vi.fn(),
       on: vi.fn().mockImplementation((_event: any, _filter: any, callback: any) => {

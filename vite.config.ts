@@ -103,13 +103,19 @@ export default defineConfig({
     }
   },
   build: {
+    // three-vendor and charts-vendor exceed 500 kB but are lazy-loaded per route,
+    // never on the critical path (login loads ~125 kB of JS)
+    chunkSizeWarningLimit: 1300,
     rollupOptions: {
       output: {
         manualChunks(id: string) {
           if (id.includes('node_modules')) {
-            if (id.includes('vue') || id.includes('pinia')) return 'vue-vendor';
+            if (id.includes('three')) return 'three-vendor';
+            if (id.includes('apexcharts')) return 'charts-vendor';
+            if (id.includes('@supabase')) return 'supabase-vendor';
             if (id.includes('leaflet')) return 'leaflet-vendor';
             if (id.includes('@google/generative-ai')) return 'ai-vendor';
+            if (id.includes('vue') || id.includes('pinia')) return 'vue-vendor';
           }
         }
       }

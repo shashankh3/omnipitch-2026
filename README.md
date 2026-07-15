@@ -14,8 +14,8 @@
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
 <br>
-[![Tests](https://img.shields.io/badge/Tests-135_Passing-brightgreen?style=for-the-badge)]()
-[![Coverage](https://img.shields.io/badge/Coverage-96.68%25_Lines-brightgreen?style=for-the-badge)]()
+[![Tests](https://img.shields.io/badge/Tests-168_Passing-brightgreen?style=for-the-badge)]()
+[![Coverage](https://img.shields.io/badge/Coverage-96%25_Lines_(logic_layer)-brightgreen?style=for-the-badge)]()
 [![Bundle](https://img.shields.io/badge/Bundle-630.56KB-blue?style=for-the-badge)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-0_Errors-blue?style=for-the-badge&logo=typescript)]()
 [![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-brightgreen?style=for-the-badge)]()
@@ -35,7 +35,7 @@ OmniPitch solves all of this in one unified AI Command Center.
 |---|---|
 | Gate bottleneck traps thousands of fans | Live gate throughput heatmap + AI proactive rerouting alert |
 | Volunteer can't assess remote incident severity | Gemini Vision Triage — photo upload → severity score → dispatch protocol |
-| Organizer has no real-time sentiment data | AI Vibe Engine — gate delays + crowd density → live fan sentiment score |
+| Organizer has no real-time sentiment data | AI Vibe Engine — gate throughput + heat telemetry → live fan sentiment score |
 | Fan lost in 80,000-person stadium | Fan Copilot — step-free localized navigation in EN/ES/FR/DE |
 | Language barrier for international fans | Real-time i18n — 4 languages, html lang attribute updates dynamically |
 | Fans with sensory sensitivities have no support | Quiet Zone Finder — nearest sensory room, step-free routed, on 3D twin |
@@ -137,7 +137,7 @@ We built this to survive the real world.
 - **Deterministic offline engine** — app boots with zero credentials, full functionality preserved
 - **Per-IP rate limiting** — token bucket, 10 req/min, 429 + Retry-After header
 - **Security headers** — CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy on every response
-- **90%+ test coverage** — unit tests for all store logic, services, and decision engine
+- **90%+ line coverage on all logic** — unit tests for every store, service, and the decision engine (UI components exercised via Cypress e2e)
 - **CI enforced** — GitHub Actions runs lint + type check + tests on every push
 - **Privacy-safe logging** — only zone IDs and event names logged, never user text or API keys
 
@@ -187,9 +187,10 @@ All metrics measured on live deployment and codebase.
 ### Build & Bundle
 | Metric | Value |
 |---|---|
-| Total JS bundle (gzipped) | 630.56 KB |
+| Total JS bundle (gzipped) | ~633 KB (all routes combined) |
+| Critical path (login page) | ~125 KB gzipped — Three.js & charts lazy-load per route |
 | CSS bundle (gzipped) | 14.75 KB |
-| Build chunks | 14 |
+| Build chunks | 12 |
 | Build tool | Vite 8.1.1 |
 
 ### Code Quality
@@ -199,10 +200,10 @@ All metrics measured on live deployment and codebase.
 | Lines of code | 5515 |
 | Source files | 65 |
 | Components | 15 |
-| Test files | 15 |
-| Tests passing | 135/135 |
-| Line coverage | 96.68% |
-| Branch coverage | 85.57% |
+| Test files | 20 |
+| Tests passing | 168/168 |
+| Line coverage (services, stores, composables) | 96.06% |
+| Branch coverage | 87.29% |
 | npm vulnerabilities | 0 |
 
 ### AI Reliability
@@ -220,8 +221,8 @@ All metrics measured on live deployment and codebase.
 |---|---|
 | Rate limiting | 10 requests/min per IP, token bucket |
 | Input cap | 2000 characters max |
-| Security headers | <ul><li>X-Content-Type-Options: nosniff</li><li>X-Frame-Options: DENY</li><li>Referrer-Policy: no-referrer</li><li>Content-Security-Policy: default-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com</li><li>X-XSS-Protection: 0</li><li>Access-Control-Allow-Credentials: true</li><li>Access-Control-Allow-Origin: *</li><li>Access-Control-Allow-Methods: GET,OPTIONS,PATCH,DELETE,POST,PUT</li><li>Access-Control-Allow-Headers: X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version</li><li>X-Response-Time: [latency]ms</li></ul> |
-| API key exposure | Never — server-side only, confirmed by grep |
+| Security headers | <ul><li>X-Content-Type-Options: nosniff</li><li>X-Frame-Options: DENY</li><li>Referrer-Policy: no-referrer</li><li>Content-Security-Policy: default-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com</li><li>X-XSS-Protection: 0</li><li>CORS pinned to deployment origin, POST/OPTIONS only</li><li>X-Response-Time: [latency]ms</li></ul> |
+| API key exposure | Gemini key server-side only; Supabase anon key via env vars (RLS-protected, no hardcoded fallback) |
 | Secret scanning | Gitleaks in CI on every push |
 | Dependency audit | npm audit on every CI run |
 
@@ -252,11 +253,11 @@ Every response from /api/gemini includes:
 - Referrer-Policy: no-referrer
 - Content-Security-Policy: default-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com
 - X-XSS-Protection: 0
-- Access-Control-Allow-Credentials: true
-- Access-Control-Allow-Origin: *
-- Access-Control-Allow-Methods: GET,OPTIONS,PATCH,DELETE,POST,PUT
-- Access-Control-Allow-Headers: X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version
+- Access-Control-Allow-Origin pinned to the deployment domain (no wildcard)
+- Access-Control-Allow-Methods: POST,OPTIONS
 - X-Response-Time: [latency]ms
+
+The model is pinned server-side (`gemini-2.5-flash`) — clients cannot select a different model, and requests are rate-limited per IP.
 
 ## 🏗️ Architecture Decisions
 
@@ -321,5 +322,8 @@ at $50K/year per venue. 50 FIFA-affiliated stadiums globally = $2.5M ARR potenti
 
 ## 🎥 Demo
 
-[![Watch Demo](https://img.shields.io/badge/Watch_Demo-YouTube-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+Try it live: **[omnipitch-2026.vercel.app](https://omnipitch-2026.vercel.app/)**
+
+<!-- TODO: record demo video and replace this line with the real YouTube/Loom link before submission -->
+*Demo video coming soon.*
 

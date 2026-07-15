@@ -62,6 +62,65 @@ describe('decisionEngine', () => {
     expect(result.accessibilityMode).toBe('screen_reader');
   });
 
+  describe('Intent resolution — every facility branch, all supported languages', () => {
+    it.each([
+      // Concessions (en/es/fr/de keywords)
+      ['I want some food', 'Concourse B Concessions'],
+      ['need a drink', 'Concourse B Concessions'],
+      ['where is the concession stand', 'Concourse B Concessions'],
+      ['donde hay comida', 'Concourse B Concessions'],
+      ['quiero una bebida', 'Concourse B Concessions'],
+      ['où est la nourriture', 'Concourse B Concessions'],
+      ['wo gibt es essen', 'Concourse B Concessions'],
+      // Restrooms
+      ['nearest toilet please', 'Section 115 Restrooms'],
+      ['where is the restroom', 'Section 115 Restrooms'],
+      ['bathroom location', 'Section 115 Restrooms'],
+      ['donde esta el bano', 'Section 115 Restrooms'],
+      ['où sont les toilettes', 'Section 115 Restrooms'],
+      // First aid
+      ['I need first aid', 'Gate B First Aid Station'],
+      ['medical help', 'Gate B First Aid Station'],
+      ['is there a doctor', 'Gate B First Aid Station'],
+      ['primeros auxilios por favor', 'Gate B First Aid Station'],
+      ['premiers secours', 'Gate B First Aid Station'],
+      ['erste hilfe bitte', 'Gate B First Aid Station'],
+      // Parking
+      ['where did I park', 'West Overflow Lot'],
+      ['parking lot', 'West Overflow Lot'],
+      ['estacionamiento', 'West Overflow Lot'],
+      ['parkplatz finden', 'West Overflow Lot'],
+      // Box office
+      ['lost my ticket', 'Gate A Box Office'],
+      ['box office location', 'Gate A Box Office'],
+      ['perdí mi boleto', 'Gate A Box Office'],
+      ['billet perdu', 'Gate A Box Office'],
+      // Exit
+      ['nearest exit', 'Gate C Exit'],
+      ['salida más cercana', 'Gate C Exit'],
+      ['sortie la plus proche', 'Gate C Exit'],
+      ['wo ist der ausgang', 'Gate C Exit'],
+      // Default fallback
+      ['tell me something random', 'Gate C']
+    ])('"%s" resolves to %s', (intent, expectedFacility) => {
+      const result = resolveContext({ ...baseContext, destinationIntent: intent });
+      expect(result.resolvedFacility).toBe(expectedFacility);
+    });
+
+    it('route always starts from the fan\'s current zone', () => {
+      const ctx = { ...baseContext, currentZone: 'South Stand', destinationIntent: 'food' };
+      const result = resolveContext(ctx);
+      expect(result.resolvedRoute[0]).toBe('South Stand');
+    });
+
+    it('resolution is deterministic — same input, same output, zero API calls', () => {
+      const ctx = { ...baseContext, destinationIntent: 'nearest toilet' };
+      const a = resolveContext(ctx);
+      const b = resolveContext(ctx);
+      expect(a).toEqual(b);
+    });
+  });
+
   describe('Crowd Level branches', () => {
     it('density < 40 -> low', () => {
       const store = useStadiumStore();
