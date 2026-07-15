@@ -16,11 +16,14 @@
         <h1 class="text-4xl md:text-5xl lg:text-7xl font-black italic text-white uppercase tracking-tighter leading-none mb-1 drop-shadow-lg">
           OMNI<span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">PITCH</span> <span class="text-[#ccff00]">26</span>
         </h1>
-        <p class="text-[#ccff00] text-sm md:text-base font-bold uppercase tracking-widest pl-1">Volunteer Operations</p>
+        <p class="text-[#ccff00] text-sm md:text-base font-bold uppercase tracking-widest pl-1">{{ $t('volunteerOperations') }}</p>
       </div>
       
-      <div class="flex items-center gap-4 motion-safe:animate-fade-in-right mb-2">
-        <BaseButton variant="secondary" @click="logout" aria-label="Exit Volunteer Portal" class="!px-6 !py-2.5 !text-sm !font-bold !tracking-widest uppercase bg-white/5 text-white/70 border-white/20 hover:bg-white/20 hover:text-white transition-all rounded-xl ea-button">DISCONNECT</BaseButton>
+      <div class="flex flex-col items-end gap-3 motion-safe:animate-fade-in-right mb-2">
+        <div class="flex items-center gap-4">
+          <BaseButton variant="secondary" @click="logout" aria-label="Exit Volunteer Portal" class="!px-6 !py-2.5 !text-sm !font-bold !tracking-widest uppercase bg-white/5 text-white/70 border-white/20 hover:bg-white/20 hover:text-white transition-all rounded-xl ea-button">{{ $t('disconnect') }}</BaseButton>
+        </div>
+        <LanguageSelector />
       </div>
     </header>
 
@@ -46,8 +49,11 @@ import TaskInbox from '../components/volunteer/TaskInbox.vue';
 import IncidentLogger from '../components/volunteer/IncidentLogger.vue';
 import BaseButton from '../components/common/BaseButton.vue';
 import BaseCard from '../components/common/BaseCard.vue';
+import LanguageSelector from '../components/common/LanguageSelector.vue';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
+const { t: $t } = useI18n();
 
 const logout = () => {
   router.push({ name: 'login' });

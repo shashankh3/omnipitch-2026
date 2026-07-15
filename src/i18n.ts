@@ -32,7 +32,16 @@ const messages = {
     quietZoneFinder: 'Quiet Zone Finder',
     features: 'Features',
     stepFreeRoute: 'Step-Free Route',
-    noSensoryRoom: 'No sensory room found in current configuration.'
+    noSensoryRoom: 'No sensory room found in current configuration.',
+    
+    // Organizer & Volunteer
+    volunteerOperations: 'Volunteer Operations',
+    lastChecked: 'Last checked',
+    supabaseOffline: 'Supabase Offline',
+    supabaseConnected: 'Supabase Connected',
+    systemStatusUnknown: 'System Status Unknown',
+    aiLive: 'AI Live',
+    aiOffline: 'AI Offline'
   },
   es: {
     dashboard: 'Tablero',
@@ -63,7 +72,15 @@ const messages = {
     quietZoneFinder: 'Buscador de Zona Tranquila',
     features: 'Características',
     stepFreeRoute: 'Ruta sin Escalones',
-    noSensoryRoom: 'No se encontró sala sensorial en la configuración actual.'
+    noSensoryRoom: 'No se encontró sala sensorial en la configuración actual.',
+    
+    volunteerOperations: 'Operaciones de Voluntarios',
+    lastChecked: 'Última comprobación',
+    supabaseOffline: 'Supabase Desconectado',
+    supabaseConnected: 'Supabase Conectado',
+    systemStatusUnknown: 'Estado del Sistema Desconocido',
+    aiLive: 'IA en Vivo',
+    aiOffline: 'IA Desconectada'
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -94,7 +111,15 @@ const messages = {
     quietZoneFinder: 'Recherche de Zone Calme',
     features: 'Caractéristiques',
     stepFreeRoute: 'Itinéraire sans escaliers',
-    noSensoryRoom: 'Aucune salle sensorielle trouvée dans la configuration actuelle.'
+    noSensoryRoom: 'Aucune salle sensorielle trouvée dans la configuration actuelle.',
+    
+    volunteerOperations: 'Opérations des Bénévoles',
+    lastChecked: 'Dernière vérification',
+    supabaseOffline: 'Supabase Hors ligne',
+    supabaseConnected: 'Supabase Connecté',
+    systemStatusUnknown: 'État du système inconnu',
+    aiLive: 'IA en Direct',
+    aiOffline: 'IA Hors ligne'
   },
   de: {
     dashboard: 'Armaturenbrett',
@@ -125,7 +150,15 @@ const messages = {
     quietZoneFinder: 'Ruhezonen-Finder',
     features: 'Eigenschaften',
     stepFreeRoute: 'Stufenlose Route',
-    noSensoryRoom: 'In der aktuellen Konfiguration wurde kein Sensorraum gefunden.'
+    noSensoryRoom: 'In der aktuellen Konfiguration wurde kein Sensorraum gefunden.',
+    
+    volunteerOperations: 'Freiwilligen-Operationen',
+    lastChecked: 'Zuletzt geprüft',
+    supabaseOffline: 'Supabase Offline',
+    supabaseConnected: 'Supabase Verbunden',
+    systemStatusUnknown: 'Systemstatus Unbekannt',
+    aiLive: 'KI Live',
+    aiOffline: 'KI Offline'
   }
 };
 

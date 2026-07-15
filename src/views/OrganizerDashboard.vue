@@ -22,7 +22,7 @@
       <span class="text-slate-600">|</span>
 
       <span class="text-slate-500">
-        Last checked: {{ lastCheckTime }}
+        {{ $t('lastChecked') }}: {{ lastCheckTime }}
       </span>
 
       <span class="text-slate-600">|</span>
@@ -33,7 +33,7 @@
           : 'text-emerald-500'"
         class="text-xs"
       >
-        {{ isOffline ? '🔴 Supabase Offline' : '🟢 Supabase Connected' }}
+        {{ isOffline ? '🔴 ' + $t('supabaseOffline') : '🟢 ' + $t('supabaseConnected') }}
       </span>
     </div>
 
@@ -52,27 +52,30 @@
         <h1 class="text-4xl md:text-5xl lg:text-7xl font-black italic text-white uppercase tracking-tighter leading-none mb-1 drop-shadow-lg">
           OMNI<span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">PITCH</span> <span class="text-[#ccff00]">26</span>
         </h1>
-        <p class="text-[#ccff00] text-sm md:text-base font-bold uppercase tracking-widest pl-1">Command Center</p>
+        <p class="text-[#ccff00] text-sm md:text-base font-bold uppercase tracking-widest pl-1">{{ $t('cmdCenter') }}</p>
       </div>
       
-      <div class="flex items-center gap-4 motion-safe:animate-fade-in-right mb-2">
-        <div class="flex flex-col gap-1 items-end text-xs font-medium mr-4">
-          <div v-if="health.status === 'unknown'" class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30">
-            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-            System Status Unknown
+      <div class="flex flex-col items-end gap-3 motion-safe:animate-fade-in-right mb-2">
+        <div class="flex items-center gap-4">
+          <div class="flex flex-col gap-1 items-end text-xs font-medium mr-4">
+            <div v-if="health.status === 'unknown'" class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+              {{ $t('systemStatusUnknown') }}
+            </div>
+            <template v-else>
+              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border" :class="health.llm === 'live' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
+                <span class="w-1.5 h-1.5 rounded-full" :class="health.llm === 'live' ? 'bg-emerald-400' : 'bg-red-400'"></span>
+                {{ health.llm === 'live' ? $t('aiLive') : $t('aiOffline') }}
+              </div>
+              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border" :class="health.supabase === 'configured' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
+                <span class="w-1.5 h-1.5 rounded-full" :class="health.supabase === 'configured' ? 'bg-emerald-400' : 'bg-red-400'"></span>
+                {{ health.supabase === 'configured' ? $t('supabaseConnected') : $t('supabaseOffline') }}
+              </div>
+            </template>
           </div>
-          <template v-else>
-            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border" :class="health.llm === 'live' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
-              <span class="w-1.5 h-1.5 rounded-full" :class="health.llm === 'live' ? 'bg-emerald-400' : 'bg-red-400'"></span>
-              AI {{ health.llm === 'live' ? 'Live' : 'Offline' }}
-            </div>
-            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border" :class="health.supabase === 'configured' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
-              <span class="w-1.5 h-1.5 rounded-full" :class="health.supabase === 'configured' ? 'bg-emerald-400' : 'bg-red-400'"></span>
-              Supabase {{ health.supabase === 'configured' ? 'Connected' : 'Offline' }}
-            </div>
-          </template>
+          <BaseButton variant="secondary" @click="logout" aria-label="Exit Organizer Portal" class="!px-6 !py-2.5 !text-sm !font-bold !tracking-widest uppercase bg-white/5 text-white/70 border-white/20 hover:bg-white/20 hover:text-white transition-all rounded-xl ea-button">{{ $t('disconnect') }}</BaseButton>
         </div>
-        <BaseButton variant="secondary" @click="logout" aria-label="Exit Organizer Portal" class="!px-6 !py-2.5 !text-sm !font-bold !tracking-widest uppercase bg-white/5 text-white/70 border-white/20 hover:bg-white/20 hover:text-white transition-all rounded-xl ea-button">DISCONNECT</BaseButton>
+        <LanguageSelector />
       </div>
     </header>
 
@@ -87,9 +90,12 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import OperationsDashboard from '../components/organizer/OperationsDashboard.vue';
 import BaseButton from '../components/common/BaseButton.vue';
+import LanguageSelector from '../components/common/LanguageSelector.vue';
 import { useHealthStatus } from '../composables/useHealthStatus';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
+const { t: $t } = useI18n();
 
 const { badgeLabel, isOffline, lastCheck } = useHealthStatus();
 const lastCheckTime = computed(() => {
