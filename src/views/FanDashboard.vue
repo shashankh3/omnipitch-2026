@@ -60,15 +60,17 @@
     </div>
 
     <!-- Top Bar -->
-    <header class="absolute top-6 right-6 z-40 flex items-center gap-4">
-      <LanguageSelector />
-      <div class="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl px-6 py-2.5 flex items-center gap-2 ea-tile shadow-lg">
-        <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] motion-safe:animate-pulse"></div>
-        <span class="text-sm text-white/70 font-bold uppercase tracking-widest">{{ $t('systemsOnline') }}</span>
+    <header class="absolute top-6 right-6 z-40 flex flex-col items-end gap-3">
+      <div class="flex items-center gap-4">
+        <div class="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl px-6 py-2.5 flex items-center gap-2 ea-tile shadow-lg">
+          <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] motion-safe:animate-pulse"></div>
+          <span class="text-sm text-white/70 font-bold uppercase tracking-widest">{{ $t('systemsOnline') }}</span>
+        </div>
+        <BaseButton variant="secondary" @click="logout" aria-label="Exit Fan Portal" class="!px-6 !py-2.5 !text-sm !font-bold !tracking-widest uppercase bg-white/5 text-white/70 border-white/20 hover:bg-white/20 hover:text-white transition-all rounded-xl shadow-lg ea-button">
+          {{ $t('disconnect') }}
+        </BaseButton>
       </div>
-      <BaseButton variant="secondary" @click="logout" aria-label="Exit Fan Portal" class="!px-6 !py-2.5 !text-sm !font-bold !tracking-widest uppercase bg-white/5 text-white/70 border-white/20 hover:bg-white/20 hover:text-white transition-all rounded-xl shadow-lg ea-button">
-        {{ $t('disconnect') }}
-      </BaseButton>
+      <LanguageSelector />
     </header>
 
     <!-- Massive EA Typography - Top Left -->

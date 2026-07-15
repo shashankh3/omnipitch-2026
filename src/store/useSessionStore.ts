@@ -2,15 +2,18 @@ import { defineStore } from 'pinia';
 import type { UserSession } from '../types';
 
 export const useSessionStore = defineStore('session', {
-  state: () => ({
-    currentSession: {
-      id: 'usr_9921',
-      email: 'fan_international@worldcup2026.org',
-      role: 'FAN',
-      language: 'en',
-      accessibilityProfile: { requiresStepFree: false }
-    } as UserSession | null
-  }),
+  state: () => {
+    const savedLang = localStorage.getItem('omnipitch_lang') || 'en';
+    return {
+      currentSession: {
+        id: 'usr_9921',
+        email: 'fan_international@worldcup2026.org',
+        role: 'FAN',
+        language: savedLang,
+        accessibilityProfile: { requiresStepFree: false }
+      } as UserSession | null
+    };
+  },
   actions: {
     setRole(role: 'FAN' | 'VOLUNTEER' | 'ORGANIZER') {
       if (this.currentSession) {
@@ -20,6 +23,7 @@ export const useSessionStore = defineStore('session', {
     setLanguage(lang: 'en' | 'es' | 'fr' | 'de') {
       if (this.currentSession) {
         this.currentSession.language = lang;
+        localStorage.setItem('omnipitch_lang', lang);
       }
     },
     setAccessibilityProfile(profile: UserSession['accessibilityProfile']) {

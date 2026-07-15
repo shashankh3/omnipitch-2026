@@ -127,7 +127,7 @@ const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
     id: crypto.randomUUID(),
     email: `test_${role}@worldcup2026.org`,
     role: role.toUpperCase() as 'FAN' | 'VOLUNTEER' | 'ORGANIZER',
-    language: 'en',
+    language: store.currentSession?.language || localStorage.getItem('omnipitch_lang') || 'en',
     accessibilityProfile: { requiresStepFree: false }
   };
   
