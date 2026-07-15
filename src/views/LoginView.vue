@@ -1,5 +1,8 @@
 <template>
   <div class="h-screen w-full bg-[#030308] overflow-hidden relative flex items-center select-none">
+    <div class="absolute top-6 right-6 z-50">
+      <LanguageSelector />
+    </div>
     
     <!-- Dynamic EA-Style Background -->
     <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -34,7 +37,7 @@
         </h1>
         
         <p class="text-white/40 text-lg md:text-xl font-medium tracking-wide mt-6 border-l-4 border-[#ccff00] pl-4 max-w-md">
-          Global Stadium Operations & Immersive Fan Telemetry Engine
+          {{ $t('globalStadiumOps') }}
         </p>
       </div>
 
@@ -54,8 +57,8 @@
           <div class="absolute right-0 bottom-0 w-64 h-64 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCI+PHBhdGggZD0iTTAgMGg4MHY4MEgwem00MCA0MGg0MHY0MEg0MHoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')] transform rotate-12 translate-x-10 translate-y-10 group-hover:rotate-6 transition-transform duration-700 ease-out"></div>
           
           <div class="absolute inset-0 p-8 flex flex-col justify-end">
-            <h2 class="text-4xl font-black italic uppercase text-white tracking-tight mb-2 group-hover:text-[#ccff00] transition-colors duration-300 transform group-hover:translate-x-2">Fan<br/>Experience</h2>
-            <p class="text-white/60 text-sm font-medium tracking-wide transform group-hover:translate-x-2 transition-transform duration-300 delay-75">Enter the immersive 3D stadium</p>
+            <h2 class="text-4xl font-black italic uppercase text-white tracking-tight mb-2 group-hover:text-[#ccff00] transition-colors duration-300 transform group-hover:translate-x-2" v-html="$t('fanExperience').replace(' ', '<br/>')"></h2>
+            <p class="text-white/60 text-sm font-medium tracking-wide transform group-hover:translate-x-2 transition-transform duration-300 delay-75">{{ $t('enter3dStadium') }}</p>
           </div>
           
           <!-- Glowing arrow indicator -->
@@ -75,8 +78,8 @@
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div>
-              <h3 class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300">Volunteer</h3>
-              <p class="text-white/40 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">Ground Crew</p>
+              <h3 class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300">{{ $t('volunteer') }}</h3>
+              <p class="text-white/40 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">{{ $t('groundCrew') }}</p>
             </div>
           </div>
         </button>
@@ -92,8 +95,8 @@
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
             </div>
             <div>
-              <h3 class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300">Organizer</h3>
-              <p class="text-white/40 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">Cmd Center</p>
+              <h3 class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300">{{ $t('organizer') }}</h3>
+              <p class="text-white/40 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">{{ $t('cmdCenter') }}</p>
             </div>
           </div>
         </button>
@@ -112,9 +115,12 @@
 import { useRouter } from 'vue-router';
 import { useStadiumStore } from '../store/useStadiumStore';
 import type { UserSession } from '../types';
+import LanguageSelector from '../components/common/LanguageSelector.vue';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const store = useStadiumStore();
+const { t: $t } = useI18n();
 
 const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   const sessionData: UserSession = {

@@ -7,7 +7,32 @@ const messages = {
     telemetry: 'Telemetry',
     concierge: 'AI Concierge',
     loadLiveScore: 'Load Live Score',
-    systemFault: 'System Fault Detected'
+    systemFault: 'System Fault Detected',
+    
+    // Login & Common
+    globalStadiumOps: 'Global Stadium Operations & Immersive Fan Telemetry Engine',
+    fanExperience: 'Fan Experience',
+    enter3dStadium: 'Enter the immersive 3D stadium',
+    volunteer: 'Volunteer',
+    groundCrew: 'Ground Crew',
+    organizer: 'Organizer',
+    cmdCenter: 'Cmd Center',
+    
+    // Fan Dashboard
+    highHeat: 'High Heat',
+    stayHydrated: 'Stay hydrated, shaded paths prioritized',
+    gateThroughput: 'Gate Throughput',
+    live: 'LIVE',
+    fastest: 'FASTEST',
+    lowest: 'LOWEST',
+    perMin: '/min',
+    systemsOnline: 'Systems Online',
+    disconnect: 'DISCONNECT',
+    poweredByGemini: 'Powered by Gemini AI',
+    quietZoneFinder: 'Quiet Zone Finder',
+    features: 'Features',
+    stepFreeRoute: 'Step-Free Route',
+    noSensoryRoom: 'No sensory room found in current configuration.'
   },
   es: {
     dashboard: 'Tablero',
@@ -15,7 +40,30 @@ const messages = {
     telemetry: 'Telemetría',
     concierge: 'Conserje IA',
     loadLiveScore: 'Cargar Puntuación',
-    systemFault: 'Fallo del Sistema Detectado'
+    systemFault: 'Fallo del Sistema Detectado',
+    
+    globalStadiumOps: 'Operaciones Globales del Estadio y Motor Inmersivo de Telemetría para Fans',
+    fanExperience: 'Experiencia del Fan',
+    enter3dStadium: 'Entra al estadio inmersivo 3D',
+    volunteer: 'Voluntario',
+    groundCrew: 'Equipo de Tierra',
+    organizer: 'Organizador',
+    cmdCenter: 'Centro de Comando',
+    
+    highHeat: 'Calor Extremo',
+    stayHydrated: 'Manténgase hidratado, rutas con sombra priorizadas',
+    gateThroughput: 'Flujo de Puertas',
+    live: 'EN VIVO',
+    fastest: 'MÁS RÁPIDO',
+    lowest: 'MÁS LENTO',
+    perMin: '/min',
+    systemsOnline: 'Sistemas en Línea',
+    disconnect: 'DESCONECTAR',
+    poweredByGemini: 'Impulsado por Gemini AI',
+    quietZoneFinder: 'Buscador de Zona Tranquila',
+    features: 'Características',
+    stepFreeRoute: 'Ruta sin Escalones',
+    noSensoryRoom: 'No se encontró sala sensorial en la configuración actual.'
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -23,7 +71,30 @@ const messages = {
     telemetry: 'Télémétrie',
     concierge: 'Concierge IA',
     loadLiveScore: 'Charger le score',
-    systemFault: 'Défaut système détecté'
+    systemFault: 'Défaut système détecté',
+    
+    globalStadiumOps: 'Opérations mondiales du stade & Moteur de télémétrie immersive',
+    fanExperience: 'Expérience Fan',
+    enter3dStadium: 'Entrez dans le stade 3D immersif',
+    volunteer: 'Bénévole',
+    groundCrew: 'Équipe au sol',
+    organizer: 'Organisateur',
+    cmdCenter: 'Centre de Commande',
+    
+    highHeat: 'Forte Chaleur',
+    stayHydrated: 'Restez hydraté, chemins ombragés priorisés',
+    gateThroughput: 'Débit des Portes',
+    live: 'EN DIRECT',
+    fastest: 'LE PLUS RAPIDE',
+    lowest: 'LE PLUS LENT',
+    perMin: '/min',
+    systemsOnline: 'Systèmes en Ligne',
+    disconnect: 'DÉCONNECTER',
+    poweredByGemini: 'Propulsé par Gemini AI',
+    quietZoneFinder: 'Recherche de Zone Calme',
+    features: 'Caractéristiques',
+    stepFreeRoute: 'Itinéraire sans escaliers',
+    noSensoryRoom: 'Aucune salle sensorielle trouvée dans la configuration actuelle.'
   },
   de: {
     dashboard: 'Armaturenbrett',
@@ -31,7 +102,30 @@ const messages = {
     telemetry: 'Telemetrie',
     concierge: 'KI-Concierge',
     loadLiveScore: 'Spielstand laden',
-    systemFault: 'Systemfehler erkannt'
+    systemFault: 'Systemfehler erkannt',
+    
+    globalStadiumOps: 'Globale Stadionoperationen & Immersive Fan-Telemetrie',
+    fanExperience: 'Fan-Erlebnis',
+    enter3dStadium: 'Betreten Sie das immersive 3D-Stadion',
+    volunteer: 'Freiwillige',
+    groundCrew: 'Bodenpersonal',
+    organizer: 'Veranstalter',
+    cmdCenter: 'Kommandozentrale',
+    
+    highHeat: 'Starke Hitze',
+    stayHydrated: 'Bleiben Sie hydratisiert, schattige Wege werden priorisiert',
+    gateThroughput: 'Tor-Durchsatz',
+    live: 'LIVE',
+    fastest: 'SCHNELLSTE',
+    lowest: 'LANGSAMSTE',
+    perMin: '/min',
+    systemsOnline: 'Systeme Online',
+    disconnect: 'TRENNEN',
+    poweredByGemini: 'Unterstützt von Gemini AI',
+    quietZoneFinder: 'Ruhezonen-Finder',
+    features: 'Eigenschaften',
+    stepFreeRoute: 'Stufenlose Route',
+    noSensoryRoom: 'In der aktuellen Konfiguration wurde kein Sensorraum gefunden.'
   }
 };
 
