@@ -21,8 +21,8 @@ describe('useSessionStore', () => {
 
   it('sets accessibility profile', () => {
     const store = useSessionStore();
-    store.setAccessibilityProfile({ requiresStepFree: true, highContrastMode: true });
+    store.setAccessibilityProfile({ requiresStepFree: true, sensoryMode: 'screen_reader' });
     expect(store.currentSession?.accessibilityProfile.requiresStepFree).toBe(true);
-    expect(store.currentSession?.accessibilityProfile.highContrastMode).toBe(true);
+    expect(store.currentSession?.accessibilityProfile.sensoryMode).toBe('screen_reader');
   });
 });

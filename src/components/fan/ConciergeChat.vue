@@ -87,12 +87,13 @@ const sendMessage = async () => {
 
   try {
     const isStepFree = store.currentSession?.accessibilityProfile.requiresStepFree || false;
-    const isHighContrast = store.currentSession?.accessibilityProfile.highContrastMode || false;
+    const sensoryMode = store.currentSession?.accessibilityProfile.sensoryMode;
     const language = store.currentSession?.language as 'en' | 'es' | 'fr' | 'de' || 'en';
     
     const accessibilityNeeds = [];
     if (isStepFree) accessibilityNeeds.push('wheelchair');
-    if (isHighContrast) accessibilityNeeds.push('visual');
+    if (sensoryMode === 'screen_reader') accessibilityNeeds.push('visual');
+    if (sensoryMode === 'captioned') accessibilityNeeds.push('hearing');
 
     const fanContext: FanContext = {
       currentZone: 'North Stand',

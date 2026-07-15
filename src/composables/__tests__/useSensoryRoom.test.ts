@@ -30,7 +30,7 @@ describe('useSensoryRoom', () => {
   it('defaults to English when language is not matched', () => {
     const session = useSessionStore();
     // Use an unsupported lang to see fallback
-    session.currentSession = { id: '1', email: 'a@a.com', role: 'FAN', language: 'it', accessibilityProfile: { requiresStepFree: false, highContrastMode: false } };
+    session.currentSession = { id: '1', email: 'a@a.com', role: 'FAN', language: 'it', accessibilityProfile: { requiresStepFree: false } };
     
     const { stepFreeRoute } = useSensoryRoom();
     expect(stepFreeRoute.value).toContain('North Concourse');

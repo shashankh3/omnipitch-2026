@@ -122,7 +122,7 @@ const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
     email: `test_${role}@worldcup2026.org`,
     role: role.toUpperCase() as 'FAN' | 'VOLUNTEER' | 'ORGANIZER',
     language: 'en',
-    accessibilityProfile: { requiresStepFree: false, highContrastMode: false }
+    accessibilityProfile: { requiresStepFree: false }
   };
   
   store.currentSession = sessionData;

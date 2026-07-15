@@ -8,7 +8,7 @@ export const useSessionStore = defineStore('session', {
       email: 'fan_international@worldcup2026.org',
       role: 'FAN',
       language: 'en',
-      accessibilityProfile: { requiresStepFree: false, highContrastMode: false }
+      accessibilityProfile: { requiresStepFree: false }
     } as UserSession | null
   }),
   actions: {

@@ -49,19 +49,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onErrorCaptured, onMounted } from 'vue';
+import { computed, ref, onErrorCaptured, onMounted, watch } from 'vue';
 import { logger } from './services/logger';
 import { useStadiumStore } from './store/useStadiumStore';
 import { useProactiveAlerts } from './composables/useProactiveAlerts';
 import { useSessionStore } from './store/useSessionStore';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
 const route = useRoute();
 const { visibleAlerts, dismiss } = useProactiveAlerts();
 const session = useSessionStore();
+const { locale } = useI18n();
+
 const currentLanguage = computed(
   () => (session.currentSession?.language as 'en' | 'es' | 'fr' | 'de') ?? 'en'
 );
+
+watch(currentLanguage, (newLang) => {
+  locale.value = newLang;
+  document.documentElement.lang = newLang;
+}, { immediate: true });
 
 const hasError = ref(false);
 

@@ -5,11 +5,11 @@ export function useA11y() {
   const session = useSessionStore();
   const profile = computed(() => session.currentSession?.accessibilityProfile);
   const isWheelchair = computed(() => profile.value?.requiresStepFree ?? false);
-  const isHighContrast = computed(() => profile.value?.highContrastMode ?? false);
+  const sensoryMode = computed(() => profile.value?.sensoryMode);
   const activeMode = computed(() => {
     if (isWheelchair.value) return 'wheelchair';
-    if (isHighContrast.value) return 'screen_reader';
+    if (sensoryMode.value) return sensoryMode.value;
     return 'standard';
   });
-  return { isWheelchair, isHighContrast, activeMode };
+  return { isWheelchair, sensoryMode, activeMode };
 }

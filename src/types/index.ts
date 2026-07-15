@@ -7,7 +7,7 @@ export interface UserSession {
   language: string;
   accessibilityProfile: {
     requiresStepFree: boolean;
-    highContrastMode: boolean;
+    sensoryMode?: 'screen_reader' | 'captioned';
   };
 }
 
