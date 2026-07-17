@@ -85,27 +85,27 @@ const logout = () => {
   50% { transform: rotate(5deg) scale(1.1) translate(2%, 2%); }
   100% { transform: rotate(0deg) scale(1); }
 }
-.motion-safe:animate-sweep-slow { animation: sweep 20s ease-in-out infinite; }
-.motion-safe:animate-sweep-fast { animation: sweep 12s ease-in-out infinite; }
+.motion-safe\:animate-sweep-slow { animation: sweep 20s ease-in-out infinite; }
+.motion-safe\:animate-sweep-fast { animation: sweep 12s ease-in-out infinite; }
 
 /* Entrance Animations */
 @keyframes fadeInLeft {
   from { opacity: 0; transform: translateX(-40px); }
   to { opacity: 1; transform: translateX(0); }
 }
-.motion-safe:animate-fade-in-left { animation: fadeInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.motion-safe\:animate-fade-in-left { animation: fadeInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 @keyframes fadeInRight {
   from { opacity: 0; transform: translateX(40px); }
   to { opacity: 1; transform: translateX(0); }
 }
-.motion-safe:animate-fade-in-right { animation: fadeInRight 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.motion-safe\:animate-fade-in-right { animation: fadeInRight 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.motion-safe:animate-fade-in-up {
+.motion-safe\:animate-fade-in-up {
   animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
   opacity: 0;
 }

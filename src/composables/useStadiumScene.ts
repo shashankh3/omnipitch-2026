@@ -13,8 +13,8 @@ export function useStadiumScene(
   const initScene = () => {
     if (!canvasContainer.value) return null;
 
-    const width = canvasContainer.value.clientWidth;
-    const height = canvasContainer.value.clientHeight;
+    const width = Math.max(1, canvasContainer.value.clientWidth);
+    const height = Math.max(1, canvasContainer.value.clientHeight);
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x050510);
@@ -23,7 +23,7 @@ export function useStadiumScene(
     camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1200);
     camera.position.set(-80, 120, 180);
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -88,7 +88,7 @@ export function useStadiumScene(
           }
         });
       }
-      if (canvasContainer.value && renderer && renderer.domElement) {
+      if (canvasContainer.value && renderer?.domElement?.parentElement === canvasContainer.value) {
         canvasContainer.value.removeChild(renderer.domElement);
       }
     };
@@ -98,8 +98,8 @@ export function useStadiumScene(
 
   const onWindowResize = () => {
     if (!canvasContainer.value || !camera || !renderer) return;
-    const width = canvasContainer.value.clientWidth;
-    const height = canvasContainer.value.clientHeight;
+    const width = Math.max(1, canvasContainer.value.clientWidth);
+    const height = Math.max(1, canvasContainer.value.clientHeight);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);

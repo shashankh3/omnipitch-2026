@@ -14,7 +14,12 @@
         <h3 class="font-bold text-xs text-white tracking-wide">Live Matches</h3>
       </div>
       <div class="flex items-center gap-2 relative z-10">
-        <button @click="forceRefresh" class="text-[9px] text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1 font-bold">
+        <button
+          @click="forceRefresh"
+          class="text-[9px] text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1 font-bold focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="isLoading"
+          aria-label="Refresh live match feed"
+        >
           <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 1 0 2.13-5.88L21 8"/></svg>
           Refresh
         </button>
@@ -23,7 +28,7 @@
     </div>
     
     <!-- Loading State -->
-    <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-70">
+    <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-70" role="status" aria-live="polite">
       <div class="w-8 h-8 rounded-full border-2 border-white/10 border-t-[var(--theme-primary)] motion-safe:animate-spin mb-3 shadow-[0_0_15px_var(--theme-primary)]"></div>
       <p class="text-xs font-bold uppercase tracking-widest text-white/50">Gemini AI Generating<br/>Match Feed...</p>
     </div>
@@ -67,7 +72,7 @@
               <!-- Image with slow Ken Burns pan -->
               <img 
                 :src="currentSlide.image" 
-                alt="Match Action" 
+                :alt="currentSlide.isGoal ? 'Goal highlight image' : 'Fans cheering in the stadium'"
                 class="w-full h-full object-cover motion-safe:animate-ken-burns" 
                 :class="currentSlide.imageClass"
               />
@@ -79,7 +84,7 @@
                 <div v-if="currentSlide.isGoal" class="absolute bottom-10 left-3 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-[0_0_8px_rgba(220,38,38,0.8)] -rotate-3 motion-safe:animate-bounce">
                   GOAL!
                 </div>
-                <p class="text-white text-[11px] font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" v-html="DOMPurify.sanitize(currentSlide.text)"></p>
+                <p class="text-white text-[11px] font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{{ currentSlide.text }}</p>
               </div>
             </div>
           </transition>
@@ -140,16 +145,21 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { logger } from '../../services/logger';
-import DOMPurify from 'dompurify';
 import goalImg from '../../assets/soccer_goal_action.webp';
 import fansImg from '../../assets/soccer_fans_cheering.webp';
 import { getSimulatedMatchFeed } from '../../services/gemini';
+import {
+  cloneMatchFeed,
+  DEFAULT_MATCH_FEED,
+  MATCH_FEED_CACHE_KEY,
+  readCachedMatchFeed,
+  writeCachedMatchFeed,
+  type MatchFeedResponse,
+  type MatchFeedSlide
+} from '../../services/matchFeed';
 
 
-interface Slide {
-  id: number;
-  text: string;
-  isGoal: boolean;
+interface Slide extends MatchFeedSlide {
   image: string;
   imageClass: string;
 }
@@ -159,60 +169,60 @@ const dataLoaded = ref(false);
 const matchMinute = ref(90);
 const slideIndex = ref(0);
 const slides = ref<Slide[]>([]);
-
-const feedData = ref({
-  liveMatch: { homeTeam: 'Argentina', awayTeam: 'Egypt', homeScore: 3, awayScore: 2, minute: 90, primaryColor: '#43a1d5', secondaryColor: '#c09300', slides: [{ id: 1, text: 'Incredible atmosphere in the stadium!', isGoal: false, image: fansImg, imageClass: 'object-center' }] },
-  completedMatch: { homeTeam: 'Brazil', awayTeam: 'France', homeScore: 1, awayScore: 1 },
-  upcomingMatch: { homeTeam: 'Spain', awayTeam: 'Germany', time: '18:00' }
-});
+const feedData = ref<MatchFeedResponse>(cloneMatchFeed(DEFAULT_MATCH_FEED));
 
 let minuteInterval: ReturnType<typeof setInterval> | undefined;
 let slideInterval: ReturnType<typeof setInterval> | undefined;
 
 const currentSlide = computed(() => slides.value[slideIndex.value]);
 
+const decorateSlides = (matchSlides: MatchFeedSlide[]): Slide[] => matchSlides.map((slide, idx) => ({
+  ...slide,
+  image: idx % 2 === 0 ? goalImg : fansImg,
+  imageClass: idx % 2 === 0 ? 'object-[center_30%]' : 'object-center'
+}));
+
+const applyFeed = (data: MatchFeedResponse, loadedFromLiveSource: boolean) => {
+  feedData.value = data;
+  dataLoaded.value = loadedFromLiveSource;
+  matchMinute.value = data.liveMatch.minute;
+  slides.value = decorateSlides(data.liveMatch.slides);
+  slideIndex.value = 0;
+};
+
 const forceRefresh = () => {
-  localStorage.removeItem('omnipitch_match_feed_v2');
+  if (isLoading.value) return;
+  localStorage.removeItem(MATCH_FEED_CACHE_KEY);
   isLoading.value = true;
-  fetchFeed(true);
+  void fetchFeed(true);
 };
 
 const fetchFeed = async (forceRefetch = false) => {
   try {
-    let data;
-    // Cache valid for 10 minutes (600000ms) to aggressively protect 20 RPD quota
-    const cached = localStorage.getItem('omnipitch_match_feed_v2');
-    if (cached && !forceRefetch) {
-      const parsed = JSON.parse(cached);
-      if (Date.now() - parsed.timestamp < 600000) {
-        data = parsed.data;
-      }
-    }
-    
+    let data = forceRefetch ? null : readCachedMatchFeed();
+
     if (!data) {
-      if (!forceRefetch) return;
-      
+      if (!forceRefetch) {
+        applyFeed(cloneMatchFeed(DEFAULT_MATCH_FEED), false);
+        return;
+      }
+
       data = await getSimulatedMatchFeed();
-      localStorage.setItem('omnipitch_match_feed_v2', JSON.stringify({ timestamp: Date.now(), data }));
+      writeCachedMatchFeed(data);
     }
 
-    feedData.value = data;
-    dataLoaded.value = true;
-    matchMinute.value = data.liveMatch.minute;
-    slides.value = data.liveMatch.slides.map((s: { id: number; text: string; isGoal: boolean }, idx: number) => ({
-      ...s,
-      image: idx % 2 === 0 ? goalImg : fansImg,
-      imageClass: idx % 2 === 0 ? 'object-[center_30%]' : 'object-center'
-    }));
+    applyFeed(data, true);
   } catch (error) {
     logger.error('Failed to fetch match feed', 2);
+    applyFeed(cloneMatchFeed(DEFAULT_MATCH_FEED), false);
   } finally {
     isLoading.value = false;
   }
 };
 
 onMounted(() => {
-  fetchFeed();
+  applyFeed(cloneMatchFeed(DEFAULT_MATCH_FEED), false);
+  void fetchFeed();
 
   // Cycle slides every 4 seconds
   slideInterval = setInterval(() => {
@@ -237,7 +247,7 @@ onUnmounted(() => {
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
-.motion-safe:animate-shimmer {
+.motion-safe\:animate-shimmer {
   animation: shimmer 1.5s infinite;
 }
 /* Snappy EA Sports style transition */
@@ -255,7 +265,7 @@ onUnmounted(() => {
   50% { transform: translateY(350px) translateX(0%); }
   100% { transform: translateY(-10px) translateX(-50%); }
 }
-.motion-safe:animate-scan-line {
+.motion-safe\:animate-scan-line {
   animation: scan-line 4s linear infinite;
 }
 
@@ -281,7 +291,7 @@ onUnmounted(() => {
   10% { opacity: 0.8; transform: scale(1.1); box-shadow: inset 0 0 50px rgba(255,255,255,1); }
   100% { opacity: 0; transform: scale(1); }
 }
-.motion-safe:animate-goal-flash {
+.motion-safe\:animate-goal-flash {
   animation: goal-flash 1s ease-out forwards;
 }
 
@@ -290,7 +300,7 @@ onUnmounted(() => {
   0% { transform: scale(1.0); }
   100% { transform: scale(1.15); }
 }
-.motion-safe:animate-ken-burns {
+.motion-safe\:animate-ken-burns {
   animation: ken-burns 6s linear forwards;
 }
 </style>

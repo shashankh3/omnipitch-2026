@@ -8,8 +8,9 @@ export const colors = {
 };
 
 export const getHeatmapColor = (density: number): THREE.Color => {
-  if (density > 80) return colors.packed;
-  if (density > 50) return colors.moderate;
+  const normalizedDensity = Math.max(0, Math.min(100, Number.isFinite(density) ? density : 0));
+  if (normalizedDensity > 80) return colors.packed;
+  if (normalizedDensity > 50) return colors.moderate;
   return colors.clear;
 };
 
@@ -21,57 +22,63 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
   const stands: Record<string, THREE.Mesh> = {};
   const standHUDMaterials: Record<string, THREE.MeshBasicMaterial> = {};
   const standChairMeshes: Record<string, THREE.InstancedMesh> = {};
+  const lastStandHUDDensity: Record<string, number> = {};
+  const lastChairDensity: Record<string, number> = {};
 
   const gateMaterials: Record<string, THREE.MeshStandardMaterial> = {};
   const gateColorState: Record<string, { current: THREE.Color; target: THREE.Color; currentEmissive: number; targetEmissive: number }> = {};
   const gates: Record<string, THREE.Mesh> = {};
   const gateHUDMaterials: Record<string, THREE.MeshBasicMaterial> = {};
-  
+  const lastGateThroughput: Record<string, number> = {};
+
   const dummy = new THREE.Object3D();
-  
+  const emptyChairColor = new THREE.Color(0x4a4a6a);
+
   const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
   const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+  const shouldRefreshNumericAsset = (previous: number | undefined, next: number, minimumDelta = 1) =>
+    previous === undefined || Math.abs(previous - next) >= minimumDelta;
 
   const createGateHUDTexture = (gateId: string, throughput: number) => {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 128;
     const ctx = canvas.getContext('2d')!;
-    
+
     // Holographic glass background
     ctx.fillStyle = 'rgba(5, 5, 20, 0.6)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
     // Calculate wait time
-    let waitMins = Math.max(1, Math.floor((throughput / 1000) * 45)); 
+    let waitMins = Math.max(1, Math.floor((throughput / 1000) * 45));
     if (throughput === 0) waitMins = 0;
-    
+
     let statusColor = '#34d399'; // Emerald
     let statusText = 'FAST';
     if (waitMins > 25) { statusColor = '#ef4444'; statusText = 'HEAVY'; }
     else if (waitMins > 10) { statusColor = '#fbbf24'; statusText = 'BUSY'; }
-    
+
     // Top border accent
     ctx.fillStyle = statusColor;
     ctx.fillRect(0, 0, canvas.width, 4);
-    
+
     // Gate ID
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 42px sans-serif';
     ctx.fillText(`GATE ${gateId.replace('Gate', '')}`, 30, 60);
-    
+
     // Wait Time Large
     ctx.fillStyle = statusColor;
     ctx.font = 'bold 56px sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(`${waitMins}m`, canvas.width - 30, 65);
-    
+
     // Subtitles
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.font = 'bold 18px sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(statusText, 30, 95);
-    
+
     ctx.textAlign = 'right';
     ctx.fillText('EST. WAIT', canvas.width - 30, 95);
 
@@ -86,21 +93,21 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     canvas.width = 1024;
     canvas.height = 256;
     const ctx = canvas.getContext('2d')!;
-    
+
     // Holographic glass background
     ctx.fillStyle = 'rgba(5, 5, 20, 0.4)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
     // Top/Bottom accent borders
     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
     ctx.fillRect(0, 0, canvas.width, 2);
     ctx.fillRect(0, canvas.height - 2, canvas.width, 2);
-    
+
     // Text
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 54px sans-serif';
     ctx.fillText(name.toUpperCase(), 40, 80);
-    
+
     ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.font = 'bold 22px sans-serif';
     ctx.fillText(`LIVE CAPACITY: ${density}%`, 40, 120);
@@ -116,24 +123,24 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     for (let c = 0; c < cols; c++) {
       for (let r = 0; r < rows; r++) {
         // Simulate historical heatmap data fading into the current exact density
-        const timeFactor = c / cols; 
+        const timeFactor = c / cols;
         let val = (density / 100) * timeFactor * (0.5 + randomFloat() * 0.5);
         if (c >= cols - 2) val = density / 100;
-        
+
         val = Math.max(0, Math.min(1, val));
-        
+
         if (val < 0.2) ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; // empty
         else if (val < 0.5) ctx.fillStyle = '#fbbf24'; // amber
         else if (val < 0.8) ctx.fillStyle = '#f97316'; // orange
         else ctx.fillStyle = '#ef4444'; // red
-        
+
         // Standard rect for maximum compatibility
         ctx.beginPath();
         ctx.rect(startX + c * (boxSize + gap), startY + r * (boxSize + gap), boxSize, boxSize);
         ctx.fill();
       }
     }
-    
+
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -186,7 +193,6 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     standChairMeshes[name] = standChairMesh;
 
     let chairCounter = 0;
-    const tmpColor = new THREE.Color(0x4a4a6a);
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         const progress = r / (ROWS - 1);
@@ -203,7 +209,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
 
         dummy.updateMatrix();
         standChairMesh.setMatrixAt(chairCounter, dummy.matrix);
-        standChairMesh.setColorAt(chairCounter, tmpColor);
+        standChairMesh.setColorAt(chairCounter, emptyChairColor);
         chairCounter++;
       }
     }
@@ -246,7 +252,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     const hudMesh = new THREE.Mesh(hudGeo, hudMat);
     hudMesh.position.set(width * 0.45, backHeight + 10, 0);
     hudMesh.rotation.y = -Math.PI / 2;
-    mesh.add(hudMesh); 
+    mesh.add(hudMesh);
     standHUDMaterials[name] = hudMat;
   };
 
@@ -267,11 +273,11 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     rp.position.set(x - Math.cos(rotY) * 7, 3.5, z - Math.sin(rotY) * 7);
     scene.add(rp);
 
-    const labelMat = new THREE.MeshBasicMaterial({ 
+    const labelMat = new THREE.MeshBasicMaterial({
       map: createGateHUDTexture(id, store.telemetry.gateThroughput[id] || 0),
-      transparent: true, 
-      opacity: 0.9, 
-      side: THREE.DoubleSide 
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide
     });
     const labelGeo = new THREE.PlaneGeometry(12, 3);
     const label = new THREE.Mesh(labelGeo, labelMat);
@@ -293,49 +299,52 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
   const setStandTargetColors = () => {
     const densities = store.telemetry.crowdDensity;
     Object.keys(standMaterials).forEach(section => {
-      const density = densities[section] || 0;
+      const density = clamp(densities[section] || 0, 0, 100);
+      const roundedDensity = Math.round(density);
       const targetColor = getHeatmapColor(density);
       const state = standColorState[section];
       state.target.copy(targetColor);
       state.targetEmissive = density > 80 ? 0.5 : 0.15;
-      
-      if (standHUDMaterials[section]) {
+
+      if (standHUDMaterials[section] && shouldRefreshNumericAsset(lastStandHUDDensity[section], roundedDensity)) {
         const oldMap = standHUDMaterials[section].map;
-        const newMap = createStandHUDTexture(section, density);
+        const newMap = createStandHUDTexture(section, roundedDensity);
         standHUDMaterials[section].map = newMap;
         standHUDMaterials[section].needsUpdate = true;
+        lastStandHUDDensity[section] = roundedDensity;
         if (oldMap) oldMap.dispose();
       }
 
-      // Sync physical chairs with heatmap
+      // Sync physical chairs with heatmap, but avoid recoloring thousands of instances for tiny telemetry jitter.
       const chairMesh = standChairMeshes[section];
-      if (chairMesh) {
-        const emptyColor = new THREE.Color(0x4a4a6a);
-        for(let i = 0; i < chairMesh.count; i++) {
-           if (randomFloat() * 100 < density) {
-             chairMesh.setColorAt(i, targetColor);
-           } else {
-             chairMesh.setColorAt(i, emptyColor);
-           }
+      if (chairMesh && shouldRefreshNumericAsset(lastChairDensity[section], roundedDensity, 5)) {
+        for (let i = 0; i < chairMesh.count; i++) {
+          if (randomFloat() * 100 < density) {
+            chairMesh.setColorAt(i, targetColor);
+          } else {
+            chairMesh.setColorAt(i, emptyChairColor);
+          }
         }
+        lastChairDensity[section] = roundedDensity;
         if (chairMesh.instanceColor) chairMesh.instanceColor.needsUpdate = true;
       }
     });
 
     const gatesThroughput = store.telemetry.gateThroughput;
     Object.keys(gateMaterials).forEach(gateId => {
-      const tp = gatesThroughput[gateId] || 0;
-      const normalizedDensity = (tp / 1000) * 100;
+      const tp = Math.max(0, gatesThroughput[gateId] || 0);
+      const normalizedDensity = clamp((tp / 1000) * 100, 0, 100);
       const targetColor = getHeatmapColor(normalizedDensity);
       const state = gateColorState[gateId];
       state.target.copy(targetColor);
       state.targetEmissive = normalizedDensity > 60 ? 0.8 : 0.4;
 
-      if (gateHUDMaterials[gateId]) {
+      if (gateHUDMaterials[gateId] && shouldRefreshNumericAsset(lastGateThroughput[gateId], tp, 25)) {
         const oldMap = gateHUDMaterials[gateId].map;
         const newMap = createGateHUDTexture(gateId, tp);
         gateHUDMaterials[gateId].map = newMap;
         gateHUDMaterials[gateId].needsUpdate = true;
+        lastGateThroughput[gateId] = tp;
         if (oldMap) oldMap.dispose();
       }
     });

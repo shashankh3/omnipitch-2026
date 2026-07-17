@@ -176,6 +176,8 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
   };
 
   const updateFootball = (dt: number, time: number) => {
+    if (!ballMesh || !redTeamMesh || !blueTeamMesh || !ballTrail) return;
+
     updateBall(dt);
     updateTeam(redTeamMesh, redTeamData, time, dt);
     updateTeam(blueTeamMesh, blueTeamData, time, dt);

@@ -10,7 +10,11 @@
 
     <!-- Scoreboard -->
     <div class="pointer-events-none absolute left-1/2 top-5 z-30 -translate-x-1/2">
-      <div class="scoreboard-shell relative flex items-center gap-4 overflow-hidden rounded-2xl px-5 py-3">
+      <div
+        class="scoreboard-shell relative flex items-center gap-4 overflow-hidden rounded-2xl px-5 py-3"
+        role="status"
+        :aria-label="`Live score: ${matchData.home} ${matchData.homeScore}, ${matchData.away} ${matchData.awayScore}, minute ${matchData.minute}`"
+      >
         <div class="scoreboard-glow"></div>
         <div class="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/50 to-transparent"></div>
 
@@ -75,7 +79,7 @@
     </div>
 
     <!-- Crowd Density -->
-    <aside class="pointer-events-none absolute bottom-6 left-6 z-30 w-72 transition-all duration-500">
+    <aside class="pointer-events-none absolute bottom-6 left-6 z-30 w-72 transition-all duration-500" aria-label="Crowd density summary">
       <div class="density-panel overflow-hidden rounded-2xl p-4 bg-[#0a0a1a]/90 backdrop-blur-2xl border border-white/8 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
         <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent"></div>
 
@@ -154,6 +158,9 @@
         @click="isLowPowerMode = !isLowPowerMode"
         class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all backdrop-blur-md"
         :class="isLowPowerMode ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-[#0a0a1a]/60 text-white/50 hover:bg-[#0a0a1a]/80 hover:text-white/80'"
+        type="button"
+        :aria-pressed="isLowPowerMode"
+        :aria-label="isLowPowerMode ? 'Disable stadium eco mode' : 'Enable stadium eco mode'"
       >
         <span class="h-1.5 w-1.5 rounded-full" :class="isLowPowerMode ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] animate-pulse' : 'bg-white/30'"></span>
         Eco Mode
@@ -164,6 +171,8 @@
     <div
       ref="canvasContainer"
       class="relative min-w-0 flex-1 touch-none overflow-hidden cursor-grab active:cursor-grabbing"
+      role="img"
+      aria-label="Interactive 3D stadium map showing live crowd density, gate load, players, and match ball animation"
     >
       <div class="pointer-events-none absolute inset-0 z-10 stadium-vignette"></div>
       <div class="pointer-events-none absolute inset-0 z-10 stadium-light-sweep"></div>
@@ -206,6 +215,12 @@ import { useStadiumPitch } from '../../composables/useStadiumPitch';
 import { useStadiumHeatmap } from '../../composables/useStadiumHeatmap';
 import { useStadiumCrowd } from '../../composables/useStadiumCrowd';
 import { useStadiumFootball } from '../../composables/useStadiumFootball';
+import {
+  MATCH_FEED_CACHE_KEY,
+  MATCH_FEED_UPDATED_EVENT,
+  readCachedMatchFeed,
+  type MatchFeedResponse
+} from '../../services/matchFeed';
 
 const canvasContainer = ref<HTMLDivElement | null>(null);
 const isLoading = ref(true);
@@ -268,7 +283,17 @@ const clearWavePoints  = computed(() => makeWavePoints(value => value < 60));
 const busyWavePoints   = computed(() => makeWavePoints(value => value >= 60 && value < 85));
 const packedWavePoints = computed(() => makeWavePoints(value => value >= 85));
 
-const matchData = ref({
+interface ScoreboardMatchData {
+  home: string;
+  away: string;
+  homeScore: number;
+  awayScore: number;
+  minute: number;
+  homeColor: string;
+  awayColor: string;
+}
+
+const DEFAULT_SCOREBOARD_MATCH: ScoreboardMatchData = {
   home: 'USA',
   away: 'MEX',
   homeScore: 2,
@@ -276,30 +301,27 @@ const matchData = ref({
   minute: 72,
   homeColor: '#fb7185',
   awayColor: '#5eead4',
-});
+};
+
+const matchData = ref<ScoreboardMatchData>({ ...DEFAULT_SCOREBOARD_MATCH });
+
+const applyMatchFeed = (feed: MatchFeedResponse | null) => {
+  if (!feed) return;
+
+  const { liveMatch } = feed;
+  matchData.value = {
+    home: liveMatch.homeTeam,
+    away: liveMatch.awayTeam,
+    homeScore: liveMatch.homeScore,
+    awayScore: liveMatch.awayScore,
+    minute: liveMatch.minute,
+    homeColor: liveMatch.primaryColor,
+    awayColor: liveMatch.secondaryColor,
+  };
+};
 
 const loadMatchData = () => {
-  const cached = localStorage.getItem('omnipitch_match_feed_v2');
-  if (!cached) return;
-
-  try {
-    const parsed = JSON.parse(cached);
-    const liveMatch = parsed?.data?.liveMatch;
-
-    if (!liveMatch) return;
-
-    matchData.value = {
-      home: liveMatch.homeTeam || 'USA',
-      away: liveMatch.awayTeam || 'MEX',
-      homeScore: liveMatch.homeScore ?? 0,
-      awayScore: liveMatch.awayScore ?? 0,
-      minute: liveMatch.minute ?? 0,
-      homeColor: liveMatch.primaryColor || '#fb7185',
-      awayColor: liveMatch.secondaryColor || '#5eead4',
-    };
-  } catch {
-    // Keep fallback demo data if local storage is malformed.
-  }
+  applyMatchFeed(readCachedMatchFeed());
 };
 
 let animationFrameId: number | undefined;
@@ -373,17 +395,23 @@ onMounted(() => {
 
   // Listen for storage events (from LiveMatchFeed writing cache) instead of polling
   window.addEventListener('storage', onStorageChange);
+  window.addEventListener(MATCH_FEED_UPDATED_EVENT, onMatchFeedUpdated);
   window.addEventListener('resize', onWindowResize);
   window.setTimeout(init3D, 100);
 });
 
 const onStorageChange = (e: StorageEvent) => {
-  if (e.key === 'omnipitch_match_feed_v2') loadMatchData();
+  if (e.key === MATCH_FEED_CACHE_KEY) loadMatchData();
+};
+
+const onMatchFeedUpdated = (event: Event) => {
+  applyMatchFeed((event as CustomEvent<MatchFeedResponse>).detail);
 };
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', onWindowResize);
   window.removeEventListener('storage', onStorageChange);
+  window.removeEventListener(MATCH_FEED_UPDATED_EVENT, onMatchFeedUpdated);
 
   if (animationFrameId) cancelAnimationFrame(animationFrameId);
   if (disposeScene) disposeScene();

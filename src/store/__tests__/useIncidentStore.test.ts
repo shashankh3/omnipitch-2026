@@ -36,7 +36,7 @@ describe('useIncidentStore', () => {
       description: 'Test',
       status: 'OPEN'
     });
-    
+
     expect(store.incidents.length).toBe(INCIDENT_SEED.length + 1);
     const incident = store.incidents.find(i => i.reportedBy === 'test')!;
     expect(incident.id).toMatch(/^inc_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
@@ -56,10 +56,45 @@ describe('useIncidentStore', () => {
     };
     store.receiveFromBroadcast(inc);
     expect(store.incidents.length).toBe(INCIDENT_SEED.length + 1);
-    
+
     // Receive same incident again
     store.receiveFromBroadcast(inc);
     expect(store.incidents.length).toBe(INCIDENT_SEED.length + 1); // Deduplicated
+  });
+
+  it('receiveFromBroadcast() validates and sanitizes untrusted broadcast payloads', () => {
+    const store = useIncidentStore();
+    const initialCount = store.incidents.length;
+
+    store.receiveFromBroadcast({
+      id: 'inc_invalid',
+      timestamp: '2026-07-14T00:00:00Z',
+      reportedBy: 'test',
+      location: { section: '1', gate: 'GateA', coordinates: [0, 0] },
+      type: 'INVALID_TYPE',
+      severity: 'LOW',
+      description: 'Invalid',
+      status: 'OPEN'
+    } as any);
+
+    expect(store.incidents.length).toBe(initialCount);
+
+    store.receiveFromBroadcast({
+      id: 'inc_sanitized\u0000',
+      timestamp: '2026-07-14T00:00:00Z',
+      reportedBy: 'remote\u0007',
+      location: { section: 'North Stand\u0000', gate: 'GateA', coordinates: ['1', '2'] },
+      type: 'MEDICAL',
+      severity: 'LOW',
+      description: 'Blocked path\u0000',
+      status: 'OPEN'
+    } as any);
+
+    const sanitized = store.incidents.find(i => i.id === 'inc_sanitized')!;
+    expect(sanitized.reportedBy).toBe('remote');
+    expect(sanitized.location.section).toBe('North Stand');
+    expect(sanitized.location.coordinates).toEqual([1, 2]);
+    expect(sanitized.description).toBe('Blocked path');
   });
 
   it('updateIncidentStatus() changes status of correct incident only', () => {
@@ -74,7 +109,7 @@ describe('useIncidentStore', () => {
       description: 'Test',
       status: 'OPEN'
     });
-    
+
     store.updateIncidentStatus('inc_1', 'RESOLVED');
     expect(store.incidents.find(i => i.id === 'inc_1')!.status).toBe('RESOLVED');
   });
@@ -83,7 +118,7 @@ describe('useIncidentStore', () => {
     const store = useIncidentStore();
     store.incidents = [];
 
-    let onCallback: (msg: { payload: any }) => void = () => {};
+    let onCallback: (msg: { payload: any }) => void = () => { };
     const mockChannel = {
       send: vi.fn(),
       on: vi.fn().mockImplementation((_event: any, _filter: any, callback: any) => {
@@ -91,18 +126,18 @@ describe('useIncidentStore', () => {
         return { subscribe: vi.fn() };
       })
     };
-    
+
     // override the mock for this test
     (supabase.channel as any).mockReturnValueOnce(mockChannel);
-    
+
     store.initRealtime();
-    
+
     const mockIncident = { id: 'inc_realtime', type: 'MEDICAL', severity: 'LOW', location: { section: '1' } };
     onCallback({ payload: { incident: mockIncident } });
-    
+
     expect(store.incidents.length).toBe(1);
     expect(store.incidents[0].id).toBe('inc_realtime');
-    
+
     // sending same again shouldn't duplicate
     onCallback({ payload: { incident: mockIncident } });
     expect(store.incidents.length).toBe(1);

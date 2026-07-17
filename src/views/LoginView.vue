@@ -57,7 +57,12 @@
           <div class="absolute right-0 bottom-0 w-64 h-64 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCI+PHBhdGggZD0iTTAgMGg4MHY4MEgwem00MCA0MGg0MHY0MEg0MHoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')] transform rotate-12 translate-x-10 translate-y-10 group-hover:rotate-6 transition-transform duration-700 ease-out"></div>
           
           <div class="absolute inset-0 p-8 flex flex-col justify-end">
-            <h2 class="text-4xl font-black italic uppercase text-white tracking-tight mb-2 group-hover:text-[#ccff00] transition-colors duration-300 transform group-hover:translate-x-2" v-html="$t('fanExperience').replace(' ', '<br/>')"></h2>
+            <h2 class="text-4xl font-black italic uppercase text-white tracking-tight mb-2 group-hover:text-[#ccff00] transition-colors duration-300 transform group-hover:translate-x-2">
+              <template v-for="(word, index) in fanExperienceWords" :key="`${word}-${index}`">
+                <br v-if="index > 0" />
+                {{ word }}
+              </template>
+            </h2>
             <p class="text-white/60 text-sm font-medium tracking-wide transform group-hover:translate-x-2 transition-transform duration-300 delay-75">{{ $t('enter3dStadium') }}</p>
           </div>
           
@@ -112,6 +117,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStadiumStore } from '../store/useStadiumStore';
 import type { UserSession } from '../types';
@@ -121,6 +127,8 @@ import { useI18n } from 'vue-i18n';
 const router = useRouter();
 const store = useStadiumStore();
 const { t: $t } = useI18n();
+
+const fanExperienceWords = computed(() => $t('fanExperience').split(' '));
 
 const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   const sessionData: UserSession = {
@@ -155,10 +163,10 @@ const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   50% { transform: rotate(5deg) scale(1.1) translate(2%, 2%); }
   100% { transform: rotate(0deg) scale(1); }
 }
-.motion-safe:animate-sweep-slow {
+.motion-safe\:animate-sweep-slow {
   animation: sweep 20s ease-in-out infinite;
 }
-.motion-safe:animate-sweep-fast {
+.motion-safe\:animate-sweep-fast {
   animation: sweep 12s ease-in-out infinite;
 }
 
@@ -167,7 +175,7 @@ const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   from { opacity: 0; transform: translateX(-40px); }
   to { opacity: 1; transform: translateX(0); }
 }
-.motion-safe:animate-fade-in-left {
+.motion-safe\:animate-fade-in-left {
   animation: fadeInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -175,7 +183,7 @@ const handleLogin = (role: 'fan' | 'volunteer' | 'organizer') => {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.motion-safe:animate-fade-in-up {
+.motion-safe\:animate-fade-in-up {
   animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
   opacity: 0; /* Ensures it stays hidden until animation starts */
 }
