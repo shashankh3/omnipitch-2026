@@ -18,15 +18,24 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
   const crowdData: CrowdAgent[] = [];
   const CELL_SIZE = 4;
   const crowdGrid = new Map<string, number[]>();
+  const activeCells: string[] = [];
 
   const cellKey = (x: number, z: number) => `${Math.floor(x / CELL_SIZE)}_${Math.floor(z / CELL_SIZE)}`;
 
   const rebuildCrowdGrid = () => {
-    crowdGrid.clear();
+    for (let i = 0; i < activeCells.length; i++) {
+      crowdGrid.get(activeCells[i])!.length = 0;
+    }
+    activeCells.length = 0;
     for (let i = 0; i < CROWD_SIZE; i++) {
       const key = cellKey(crowdData[i].x, crowdData[i].z);
-      if (!crowdGrid.has(key)) crowdGrid.set(key, []);
-      crowdGrid.get(key)!.push(i);
+      let bucket = crowdGrid.get(key);
+      if (!bucket) {
+        bucket = [];
+        crowdGrid.set(key, bucket);
+      }
+      if (bucket.length === 0) activeCells.push(key);
+      bucket.push(i);
     }
   };
 

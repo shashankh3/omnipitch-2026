@@ -52,8 +52,8 @@ export function useStadiumScene(
     const sunLight = new THREE.DirectionalLight(0xfff0d0, 1.8);
     sunLight.position.set(80, 250, 80);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
     sunLight.shadow.camera.left = -150;
     sunLight.shadow.camera.right = 150;
     sunLight.shadow.camera.top = 150;

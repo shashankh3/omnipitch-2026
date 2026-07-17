@@ -116,11 +116,20 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
   const updateTeam = (mesh: THREE.InstancedMesh, teamData: Player[], time: number, dt: number) => {
     if (prefersReducedMotion) return;
 
-    const distances = teamData.map((p, idx) => ({
-      idx,
-      dist: Math.hypot(ballData.x - p.x, ballData.z - p.z)
-    })).sort((a, b) => a.dist - b.dist);
-    const chasers = new Set(distances.slice(0, 2).map(d => d.idx));
+    let closest1 = -1, minDist1 = Infinity;
+    let closest2 = -1, minDist2 = Infinity;
+    for (let i = 0; i < teamData.length; i++) {
+      const dx = ballData.x - teamData[i].x;
+      const dz = ballData.z - teamData[i].z;
+      const distSq = dx * dx + dz * dz;
+      if (distSq < minDist1) {
+        minDist2 = minDist1; closest2 = closest1;
+        minDist1 = distSq; closest1 = i;
+      } else if (distSq < minDist2) {
+        minDist2 = distSq; closest2 = i;
+      }
+    }
+    const chasers = new Set([closest1, closest2]);
 
     for (let i = 0; i < teamData.length; i++) {
       const p = teamData[i];
@@ -136,7 +145,7 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
 
       const dx = targetX - p.x;
       const dz = targetZ - p.z;
-      const dist = Math.hypot(dx, dz);
+      const dist = Math.sqrt(dx * dx + dz * dz);
 
       if (dist > 0.1) {
         const accel = easeOutQuad(clamp(dist / 10, 0, 1)) * p.speed;
@@ -153,11 +162,13 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
       p.z = clamp(p.z, -32, 32);
 
       if (chasers.has(i)) {
-        const ballDist = Math.hypot(ballData.x - p.x, ballData.z - p.z);
-        if (ballDist < 1.8 && ballData.y < 1.5) {
+        const dx = ballData.x - p.x;
+        const dz = ballData.z - p.z;
+        const ballDistSq = dx * dx + dz * dz;
+        if (ballDistSq < 1.8 * 1.8 && ballData.y < 1.5) {
           const kdx = ballData.x - p.x;
           const kdz = ballData.z - p.z;
-          const kd = Math.hypot(kdx, kdz) || 1;
+          const kd = Math.sqrt(kdx * kdx + kdz * kdz) || 1;
           const power = 8 + randomFloat() * 6;
           ballData.vx = (kdx / kd) * power;
           ballData.vz = (kdz / kd) * power;
@@ -165,7 +176,7 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
         }
       }
 
-      const speed = Math.hypot(p.vx, p.vz);
+      const speed = Math.sqrt(p.vx * p.vx + p.vz * p.vz);
       const runBob = Math.abs(Math.sin(time * 10 + p.bobPhase)) * 0.25 * clamp(speed / 4, 0, 1);
       dummy.position.set(p.x, 1.5 + runBob, p.z);
       if (speed > 0.1) dummy.lookAt(p.x + p.vx, 1.5, p.z + p.vz);
