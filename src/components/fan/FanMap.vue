@@ -148,6 +148,18 @@
       </div>
     </aside>
 
+    <!-- Low Power Toggle -->
+    <div class="pointer-events-auto absolute bottom-6 right-6 z-40">
+      <button 
+        @click="isLowPowerMode = !isLowPowerMode"
+        class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all backdrop-blur-md"
+        :class="isLowPowerMode ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-[#0a0a1a]/60 text-white/50 hover:bg-[#0a0a1a]/80 hover:text-white/80'"
+      >
+        <span class="h-1.5 w-1.5 rounded-full" :class="isLowPowerMode ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] animate-pulse' : 'bg-white/30'"></span>
+        Eco Mode
+      </button>
+    </div>
+
     <!-- Three.js Canvas -->
     <div
       ref="canvasContainer"
@@ -197,6 +209,7 @@ import { useStadiumFootball } from '../../composables/useStadiumFootball';
 
 const canvasContainer = ref<HTMLDivElement | null>(null);
 const isLoading = ref(true);
+const isLowPowerMode = ref(false);
 const store = useStadiumStore();
 
 const densityValues = computed(() => Object.values(store.telemetry.crowdDensity ?? {}));
@@ -292,6 +305,7 @@ const loadMatchData = () => {
 let syncInterval: ReturnType<typeof setInterval> | undefined;
 let animationFrameId: number | undefined;
 const clock = new THREE.Clock();
+let disposeScene: (() => void) | undefined;
 
 const { initScene, onWindowResize } = useStadiumScene(canvasContainer);
 let setStandTargetColors: (() => void) | undefined;
@@ -300,7 +314,8 @@ const init3D = () => {
   const sceneData = initScene();
   if (!sceneData) return;
 
-  const { scene, camera, renderer, controls, prefersReducedMotion } = sceneData;
+  const { scene, camera, renderer, controls, prefersReducedMotion, dispose } = sceneData;
+  disposeScene = dispose;
 
   const { initPitch } = useStadiumPitch(scene);
   const {
@@ -324,12 +339,17 @@ const init3D = () => {
   const animate = () => {
     animationFrameId = requestAnimationFrame(animate);
 
+    // Skip frames in low power mode (cap at ~30fps roughly)
+    if (isLowPowerMode.value) {
+      if (Math.random() > 0.5) return;
+    }
+
     const deltaTime = Math.min(clock.getDelta(), 0.05);
     const elapsedTime = clock.getElapsedTime();
 
     controls.update();
 
-    if (!prefersReducedMotion) {
+    if (!prefersReducedMotion && !isLowPowerMode.value) {
       updateStandColorsSmooth(deltaTime);
     }
 
@@ -360,6 +380,7 @@ onBeforeUnmount(() => {
 
   if (syncInterval) clearInterval(syncInterval);
   if (animationFrameId) cancelAnimationFrame(animationFrameId);
+  if (disposeScene) disposeScene();
 });
 </script>
 

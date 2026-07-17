@@ -1,6 +1,11 @@
 <template>
   <div class="fan-dashboard flex flex-col h-screen overflow-hidden bg-[#050510] text-white relative transition-colors duration-500">
 
+    <!-- Offline Banner -->
+    <div v-if="store.isOfflineMode" class="absolute top-0 left-0 right-0 z-[100] bg-rose-500 text-white text-xs font-bold uppercase tracking-widest py-1.5 flex justify-center shadow-lg animate-pulse">
+      [WARNING: Network Degraded. Engaging Local Deterministic Engine]
+    </div>
+
     <!-- Heat Alert Banner -->
     <div v-if="telemetry.wbgtTemperature > 32" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-50">
       <div class="bg-amber-500/20 backdrop-blur-xl border border-amber-400/30 text-amber-200 font-semibold px-6 py-2.5 rounded-2xl shadow-[0_4px_24px_rgba(245,158,11,0.2)] flex items-center gap-3">
@@ -60,8 +65,16 @@
     </div>
 
     <!-- Top Bar -->
-    <header class="absolute top-6 right-6 z-40 flex flex-col items-end gap-3">
+    <header class="absolute top-6 right-6 z-40 flex flex-col items-end gap-3" :class="{'mt-4': store.isOfflineMode}">
       <div class="flex items-center gap-4">
+        <button 
+          @click="isScreenReaderMode = !isScreenReaderMode"
+          class="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-2.5 flex items-center gap-2 hover:bg-white/20 transition-all text-white/70 hover:text-white ea-button shadow-lg"
+          aria-label="Toggle Screen Reader Mode"
+        >
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z"/></svg>
+          <span class="text-xs font-bold uppercase tracking-widest hidden sm:inline">a11y Mode</span>
+        </button>
         <div class="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl px-6 py-2.5 flex items-center gap-2 ea-tile shadow-lg">
           <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] motion-safe:animate-pulse"></div>
           <span class="text-sm text-white/70 font-bold uppercase tracking-widest">{{ $t('systemsOnline') }}</span>
@@ -74,7 +87,7 @@
     </header>
 
     <!-- Massive EA Typography - Top Left -->
-    <div class="absolute top-6 left-6 z-40 pointer-events-none drop-shadow-2xl">
+    <div class="absolute top-6 left-6 z-40 pointer-events-none drop-shadow-2xl" :class="{'mt-4': store.isOfflineMode}">
       <h1 class="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter leading-none mb-1 opacity-90">
         OMNI<span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">PITCH</span> <span class="text-[#ccff00]">26</span>
       </h1>
@@ -83,8 +96,50 @@
 
     <!-- 3D Stadium (Full Bleed) -->
     <main class="flex-1 relative">
-      <FanMap />
+      <FanMap :aria-hidden="isScreenReaderMode" :class="{ 'opacity-0 pointer-events-none': isScreenReaderMode }" class="transition-opacity duration-300" />
+      
+      <!-- Screen Reader Data Grid (a11y) -->
+      <div v-if="isScreenReaderMode" class="absolute inset-0 z-50 bg-[#050510] overflow-auto p-6 md:p-12 mt-20 md:mt-24 pointer-events-auto">
+        <h2 class="text-2xl font-bold text-white mb-6">Stadium Data (Screen Reader View)</h2>
+        
+        <h3 class="text-xl text-emerald-400 mb-4 mt-8">Gate Throughput</h3>
+        <table class="w-full text-left text-white border border-white/20">
+          <thead>
+            <tr class="bg-white/10 border-b border-white/20">
+              <th class="p-3">Gate</th>
+              <th class="p-3">Flow Rate (Per Min)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="gate in allGates" :key="gate.name" class="border-b border-white/10">
+              <td class="p-3">{{ gate.name }}</td>
+              <td class="p-3">{{ gate.throughput }}</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <h3 class="text-xl text-amber-400 mb-4 mt-8">Crowd Density</h3>
+        <table class="w-full text-left text-white border border-white/20 mb-12">
+          <thead>
+            <tr class="bg-white/10 border-b border-white/20">
+              <th class="p-3">Zone / Section</th>
+              <th class="p-3">Capacity %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(val, zone) in telemetry.crowdDensity" :key="zone" class="border-b border-white/10">
+              <td class="p-3">{{ zone }}</td>
+              <td class="p-3">{{ val }}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </main>
+
+    <!-- Hardware Badge -->
+    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] text-white/30 tracking-widest uppercase z-50 whitespace-nowrap pointer-events-none">
+      Data Source: OmniPitch Software Simulation Node (Hardware-Agnostic)
+    </div>
 
     <!-- Floating Match Feed -->
     <div class="absolute top-32 left-6 bottom-[280px] z-40 hidden md:flex flex-col w-72 flex-shrink-0 transition-all duration-500">
@@ -200,6 +255,7 @@ const router = useRouter();
 const store = useStadiumStore();
 const { t: $t } = useI18n();
 const isChatOpen = ref(true);
+const isScreenReaderMode = ref(false);
 
 const { isModalOpen, sensoryRoom, stepFreeRoute, features, lang } = useSensoryRoom();
 

@@ -1,11 +1,17 @@
 <template>
   <div class="min-h-screen flex flex-col bg-[#030308] text-white font-sans transition-colors duration-500 relative overflow-hidden">
     
+    <!-- Offline Banner -->
+    <div v-if="isOffline" class="absolute top-0 left-0 right-0 z-[100] bg-rose-500 text-white text-xs font-bold uppercase tracking-widest py-1.5 flex justify-center shadow-lg animate-pulse">
+      [WARNING: Network Degraded. Engaging Local Deterministic Engine]
+    </div>
+
     <!-- Health Status Strip -->
     <div
       class="flex items-center gap-4 px-4 py-2 text-xs
              border-b border-slate-800/60
              bg-slate-950/80 backdrop-blur-sm relative z-50"
+      :class="{'mt-6': isOffline}"
       role="status"
       aria-live="polite"
       aria-label="System health status"
@@ -79,8 +85,13 @@
       </div>
     </header>
 
-    <main class="flex-1 p-4 md:p-6 lg:p-8 max-w-[1800px] mx-auto w-full relative z-10 motion-safe:animate-fade-in-up">
+    <main class="flex-1 p-4 md:p-6 lg:p-8 max-w-[1800px] mx-auto w-full relative z-10 motion-safe:animate-fade-in-up pb-10">
       <OperationsDashboard />
+      
+      <!-- Hardware Badge -->
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 text-[9px] text-white/30 tracking-widest uppercase z-50 whitespace-nowrap pointer-events-none pb-2 text-center w-full">
+        Data Source: OmniPitch Software Simulation Node (Hardware-Agnostic)
+      </div>
     </main>
   </div>
 </template>

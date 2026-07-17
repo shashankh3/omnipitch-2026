@@ -80,6 +80,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import DOMPurify from 'dompurify';
 import { useStadiumStore } from '../../store/useStadiumStore';
 import { logger } from '../../services/logger';
 import { processVisionIncident } from '../../services/gemini';
@@ -149,13 +150,13 @@ const submitIncident = async () => {
   await store.addIncident({
     reportedBy: store.currentSession?.id || 'unknown',
     location: {
-      section: locationContext.value,
+      section: DOMPurify.sanitize(locationContext.value),
       gate: 'Unknown',
       coordinates: [43.6821, -79.6122]
     },
     type: type as Incident['type'],
     severity: severity as Incident['severity'],
-    description: description,
+    description: DOMPurify.sanitize(description),
     status: 'OPEN'
   });
   

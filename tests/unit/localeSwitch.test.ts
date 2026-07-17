@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia';
 
 describe('Locale Switching Behavior', () => {
   beforeEach(() => {
+    localStorage.clear();
     setActivePinia(createPinia());
     document.documentElement.lang = 'en'; // Reset before each test
   });

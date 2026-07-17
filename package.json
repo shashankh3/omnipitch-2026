@@ -20,7 +20,7 @@
     "@types/three": "^0.185.0",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "apexcharts": "^5.16.0",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.12",
     "leaflet": "^1.9.4",
     "pinia": "^3.0.4",
     "three": "^0.185.1",

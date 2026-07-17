@@ -66,7 +66,34 @@ export function useStadiumScene(
     fillLight.position.set(-80, 100, -80);
     scene.add(fillLight);
 
-    return { scene, camera, renderer, controls, prefersReducedMotion };
+    const dispose = () => {
+      if (renderer) {
+        renderer.dispose();
+      }
+      if (controls) {
+        controls.dispose();
+      }
+      if (scene) {
+        scene.traverse((object) => {
+          if ((object as THREE.Mesh).isMesh) {
+            const mesh = object as THREE.Mesh;
+            if (mesh.geometry) mesh.geometry.dispose();
+            if (mesh.material) {
+              if (Array.isArray(mesh.material)) {
+                mesh.material.forEach(m => m.dispose());
+              } else {
+                mesh.material.dispose();
+              }
+            }
+          }
+        });
+      }
+      if (canvasContainer.value && renderer && renderer.domElement) {
+        canvasContainer.value.removeChild(renderer.domElement);
+      }
+    };
+
+    return { scene, camera, renderer, controls, prefersReducedMotion, dispose };
   };
 
   const onWindowResize = () => {
