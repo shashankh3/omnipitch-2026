@@ -177,9 +177,26 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
       }
 
       const speed = Math.sqrt(p.vx * p.vx + p.vz * p.vz);
-      const runBob = Math.abs(Math.sin(time * 10 + p.bobPhase)) * 0.25 * clamp(speed / 4, 0, 1);
+      const speedNorm = clamp(speed / 6, 0, 1);
+
+      const bobSin = Math.sin(time * 15 + p.bobPhase);
+      const runBob = Math.abs(bobSin) * 0.3 * speedNorm;
+      
+      dummy.scale.set(1, 1, 1);
       dummy.position.set(p.x, 1.5 + runBob, p.z);
-      if (speed > 0.1) dummy.lookAt(p.x + p.vx, 1.5, p.z + p.vz);
+      
+      if (speed > 0.1) dummy.lookAt(p.x + p.vx, dummy.position.y, p.z + p.vz);
+
+      const forwardLean = speedNorm * 0.35;
+      dummy.rotateX(forwardLean);
+      
+      const runWobble = Math.cos(time * 7.5 + p.bobPhase) * 0.15 * speedNorm;
+      dummy.rotateZ(runWobble);
+
+      const stretch = 1 + (Math.abs(bobSin) - 0.5) * 0.25 * speedNorm;
+      const squash = 1 / Math.sqrt(stretch);
+      dummy.scale.set(squash, stretch, squash);
+
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
