@@ -30,9 +30,15 @@ export const useIncidentStore = defineStore('incident', {
       // Subscribe to incident broadcasts
       supabase.channel('stadium_incidents')
         .on('broadcast', { event: 'new_incident' }, ({ payload }) => {
+          const inc = payload?.incident;
+          // Validate required fields before trusting broadcast
+          if (!inc?.id || !inc?.type || !inc?.severity || !inc?.location?.section) return;
+          const VALID_TYPES = ['MEDICAL', 'CROWD_BOTTLENECK', 'FACILITY_DAMAGE', 'WEATHER_HAZARD'];
+          const VALID_SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+          if (!VALID_TYPES.includes(inc.type) || !VALID_SEVERITIES.includes(inc.severity)) return;
           // Prevent duplicates
-          if (!this.incidents.find(i => i.id === payload.incident.id)) {
-            this.incidents.push(payload.incident);
+          if (!this.incidents.find((i: Incident) => i.id === inc.id)) {
+            this.incidents.push(inc);
           }
         })
         .subscribe();

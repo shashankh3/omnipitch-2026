@@ -145,11 +145,20 @@ import goalImg from '../../assets/soccer_goal_action.webp';
 import fansImg from '../../assets/soccer_fans_cheering.webp';
 import { getSimulatedMatchFeed } from '../../services/gemini';
 
+
+interface Slide {
+  id: number;
+  text: string;
+  isGoal: boolean;
+  image: string;
+  imageClass: string;
+}
+
 const isLoading = ref(false);
 const dataLoaded = ref(false);
 const matchMinute = ref(90);
 const slideIndex = ref(0);
-const slides = ref<any[]>([]);
+const slides = ref<Slide[]>([]);
 
 const feedData = ref({
   liveMatch: { homeTeam: 'Argentina', awayTeam: 'Egypt', homeScore: 3, awayScore: 2, minute: 90, primaryColor: '#43a1d5', secondaryColor: '#c09300', slides: [{ id: 1, text: 'Incredible atmosphere in the stadium!', isGoal: false, image: fansImg, imageClass: 'object-center' }] },
@@ -196,7 +205,7 @@ const fetchFeed = async (forceRefetch = false) => {
       imageClass: idx % 2 === 0 ? 'object-[center_30%]' : 'object-center'
     }));
   } catch (error) {
-    logger.error('Failed to translate feed item', 2);
+    logger.error('Failed to fetch match feed', 2);
   } finally {
     isLoading.value = false;
   }

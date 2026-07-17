@@ -97,7 +97,7 @@ describe('useIncidentStore', () => {
     
     store.initRealtime();
     
-    const mockIncident = { id: 'inc_realtime', type: 'MEDICAL' };
+    const mockIncident = { id: 'inc_realtime', type: 'MEDICAL', severity: 'LOW', location: { section: '1' } };
     onCallback({ payload: { incident: mockIncident } });
     
     expect(store.incidents.length).toBe(1);

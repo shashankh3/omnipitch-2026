@@ -72,17 +72,6 @@ export default defineConfig({
                 statuses: [0, 200]
               }
             }
-          },
-          {
-            urlPattern: /^https:\/\/.*\.tile\.openstreetmap\.org\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'map-tiles',
-              expiration: {
-                maxEntries: 500,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 1 week
-              }
-            }
           }
         ]
       }
@@ -113,7 +102,6 @@ export default defineConfig({
             if (id.includes('three')) return 'three-vendor';
             if (id.includes('apexcharts')) return 'charts-vendor';
             if (id.includes('@supabase')) return 'supabase-vendor';
-            if (id.includes('leaflet')) return 'leaflet-vendor';
             if (id.includes('@google/generative-ai')) return 'ai-vendor';
             if (id.includes('vue') || id.includes('pinia')) return 'vue-vendor';
           }

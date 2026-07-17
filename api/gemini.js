@@ -40,8 +40,10 @@ function isRateLimited(ip) {
   const bucket = rateLimitMap.get(ip);
   const elapsed = now - bucket.lastRefill;
   const refilled = Math.floor((elapsed / WINDOW_MS) * REFILL_RATE);
-  bucket.tokens = Math.min(CAPACITY, bucket.tokens + refilled);
-  bucket.lastRefill = now;
+  if (refilled > 0) {
+    bucket.tokens = Math.min(CAPACITY, bucket.tokens + refilled);
+    bucket.lastRefill = now;
+  }
   
   if (bucket.tokens <= 0) return true;
   bucket.tokens -= 1;
@@ -68,7 +70,7 @@ export default async function handler(req, res) {
       return res.status(429).json({ error: 'Rate limit exceeded', code: 429 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'Request could not be processed', code: 500 });
     }

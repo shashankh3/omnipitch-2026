@@ -106,7 +106,7 @@
     
     <!-- Footer / Branding watermark -->
     <div class="absolute bottom-6 left-12 z-10 pointer-events-none opacity-20">
-      <p class="font-mono text-[10px] uppercase tracking-[0.4em] text-white">v.2.0.4.52 // Zero Trust Secured</p>
+      <p class="font-mono text-[10px] uppercase tracking-[0.4em] text-white">v.2.0.4.52 // OmniPitch 2026</p>
     </div>
   </div>
 </template>

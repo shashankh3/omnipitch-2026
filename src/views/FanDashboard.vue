@@ -3,7 +3,7 @@
 
     <!-- Offline Banner -->
     <div v-if="store.isOfflineMode" class="absolute top-0 left-0 right-0 z-[100] bg-rose-500 text-white text-xs font-bold uppercase tracking-widest py-1.5 flex justify-center shadow-lg animate-pulse">
-      [WARNING: Network Degraded. Engaging Local Deterministic Engine]
+      {{ $t('networkDegraded') }}
     </div>
 
     <!-- Heat Alert Banner -->
@@ -100,14 +100,14 @@
       
       <!-- Screen Reader Data Grid (a11y) -->
       <div v-if="isScreenReaderMode" class="absolute inset-0 z-50 bg-[#050510] overflow-auto p-6 md:p-12 mt-20 md:mt-24 pointer-events-auto">
-        <h2 class="text-2xl font-bold text-white mb-6">Stadium Data (Screen Reader View)</h2>
+        <h2 class="text-2xl font-bold text-white mb-6">{{ $t('screenReaderView') }}</h2>
         
-        <h3 class="text-xl text-emerald-400 mb-4 mt-8">Gate Throughput</h3>
+        <h3 class="text-xl text-emerald-400 mb-4 mt-8">{{ $t('srGateThroughput') }}</h3>
         <table class="w-full text-left text-white border border-white/20">
           <thead>
             <tr class="bg-white/10 border-b border-white/20">
-              <th class="p-3">Gate</th>
-              <th class="p-3">Flow Rate (Per Min)</th>
+              <th class="p-3">{{ $t('srGate') }}</th>
+              <th class="p-3">{{ $t('srFlowRate') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -118,12 +118,12 @@
           </tbody>
         </table>
         
-        <h3 class="text-xl text-amber-400 mb-4 mt-8">Crowd Density</h3>
+        <h3 class="text-xl text-amber-400 mb-4 mt-8">{{ $t('srCrowdDensity') }}</h3>
         <table class="w-full text-left text-white border border-white/20 mb-12">
           <thead>
             <tr class="bg-white/10 border-b border-white/20">
-              <th class="p-3">Zone / Section</th>
-              <th class="p-3">Capacity %</th>
+              <th class="p-3">{{ $t('srZoneSection') }}</th>
+              <th class="p-3">{{ $t('srCapacity') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -173,8 +173,10 @@
       role="dialog"
       aria-modal="true"
       aria-labelledby="sensory-modal-title"
+      @keydown.escape="isModalOpen = false"
+      @click.self="isModalOpen = false"
     >
-      <div class="bg-[#0a0a1a] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
+      <div ref="quietZoneModalRef" class="bg-[#0a0a1a] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl relative" tabindex="-1">
         <button
           @click="isModalOpen = false"
           class="absolute top-4 right-4 text-white/50 hover:text-white"
@@ -203,6 +205,7 @@
     <div
       class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-[#0a0a1a]/95 backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-50 flex flex-col border-l border-white/5"
       :class="isChatOpen ? 'translate-x-0' : 'translate-x-full'"
+      @keydown.escape="isChatOpen = false"
     >
       <header class="p-6 flex justify-between items-center border-b border-white/5">
         <div class="flex items-center gap-3">
@@ -240,7 +243,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import FanMap from '../components/fan/FanMap.vue';
@@ -256,8 +259,17 @@ const store = useStadiumStore();
 const { t: $t } = useI18n();
 const isChatOpen = ref(true);
 const isScreenReaderMode = ref(false);
+const quietZoneModalRef = ref<HTMLElement | null>(null);
 
 const { isModalOpen, sensoryRoom, stepFreeRoute, features, lang } = useSensoryRoom();
+
+// Focus management for modals
+watch(isModalOpen, async (open) => {
+  if (open) {
+    await nextTick();
+    quietZoneModalRef.value?.focus();
+  }
+});
 
 const telemetry = computed(() => store.telemetry);
 

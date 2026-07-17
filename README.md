@@ -14,7 +14,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
 <br>
-[![Tests](https://img.shields.io/badge/Tests-168_Passing-brightgreen?style=for-the-badge)]()
+[![Tests](https://img.shields.io/badge/Tests-170_Passing-brightgreen?style=for-the-badge)]()
 [![Coverage](https://img.shields.io/badge/Coverage-96%25_Lines_(logic_layer)-brightgreen?style=for-the-badge)]()
 [![Bundle](https://img.shields.io/badge/Bundle-630.56KB-blue?style=for-the-badge)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-0_Errors-blue?style=for-the-badge&logo=typescript)]()
@@ -119,7 +119,7 @@ Powered by Google Generative AI, the system intelligently grounds its responses 
 - **Vision Triage**: Volunteers can upload photos of spills, fights, or broken seats. The Gemini 2.5 Flash vision model analyzes the image, categorizes the severity, and writes an instant dispatch protocol.
 - **Vibe Engine**: AI automatically interprets gate delays and heat metrics to generate live Fan Sentiment scores.
 
-### 🌐 Global Scale & Accessibility (100/100 Lighthouse)
+### 🌐 Global Scale & Accessibility
 - **Supabase Realtime**: Incidents logged by volunteers are instantly broadcasted to the Organizer Command Console globally via WebSockets.
 - **Internationalization (i18n)**: Full multi-lingual support via `vue-i18n` to seamlessly transition between English, Spanish, French, and German.
 - **Accessibility First**: ARIA semantic HTML, keyboard navigable skip-links, and `@media (prefers-reduced-motion: reduce)` support natively built-in for screen readers and motion-sensitive fans.
@@ -201,7 +201,7 @@ All metrics measured on live deployment and codebase.
 | Source files | 65 |
 | Components | 15 |
 | Test files | 20 |
-| Tests passing | 168/168 |
+| Tests passing | 170/170 |
 | Line coverage (services, stores, composables) | 96.06% |
 | Branch coverage | 87.29% |
 | npm vulnerabilities | 0 |
@@ -209,7 +209,7 @@ All metrics measured on live deployment and codebase.
 ### AI Reliability
 | Metric | Value |
 |---|---|
-| Hallucination rate | 0% (rules-first: Gemini phrases pre-resolved facts only) |
+| Hallucination rate | Near-zero (rules-first: Gemini phrases pre-resolved facts only) |
 | Offline intent coverage | 9 intents × 4 languages |
 | Prompt injection defense | User input isolated in XML tags, never executed |
 | Offline fallback | 100% — app fully functional with zero credentials |
@@ -268,7 +268,7 @@ The model is pinned server-side (`gemini-2.5-flash`) — clients cannot select a
 | 3D rendering | Three.js InstancedMesh | Single draw call for 80,000 seats at 60fps |
 | State management | Pinia (4 stores) | Single-responsibility, independently testable |
 | LLM architecture | Rules-first + phrasing-only | Eliminates hallucination by design |
-| Offline strategy | Deterministic fallback engine | Zero-credential boot, no Math.random() |
+| Offline strategy | Deterministic fallback engine | Zero-credential boot, seeded PRNG for reproducible simulation |
 | Frontend framework | Vue 3 Composition API | Composable logic, reactive stores, TypeScript-first |
 | Deployment | Vercel serverless | Edge functions, automatic HTTPS, Brotli compression |
 

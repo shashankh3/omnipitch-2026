@@ -82,7 +82,7 @@ const currentLangLabel = computed(() => {
 });
 
 const selectLanguage = (code: string) => {
-  store.setLanguage(code as any);
+  store.setLanguage(code as 'en' | 'es' | 'fr' | 'de');
   locale.value = code;
   isOpen.value = false;
 };

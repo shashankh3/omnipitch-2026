@@ -1,28 +1,28 @@
 describe('OmniPitch 2026 E2E Tests', () => {
   it('successfully loads the login view', () => {
     cy.visit('/')
-    cy.contains('OmniPitch 2026')
-    cy.contains('Select Persona')
+    cy.contains('OMNIPITCH')
+    cy.get('[aria-label="Enter Fan Experience Portal"]').should('exist')
   })
 
   it('navigates to Fan Dashboard', () => {
     cy.visit('/')
-    cy.contains('Fan Dashboard').click()
+    cy.get('[aria-label="Enter Fan Experience Portal"]').click()
     cy.url().should('include', '/fan')
-    cy.contains('OmniPitch Fan Experience')
+    cy.contains('OMNIPITCH')
   })
 
   it('navigates to Volunteer Portal', () => {
     cy.visit('/')
-    cy.contains('Volunteer Portal').click()
+    cy.get('[aria-label="Enter Volunteer Portal"]').click()
     cy.url().should('include', '/volunteer')
-    cy.contains('Volunteer Dashboard')
+    cy.contains('OMNIPITCH')
   })
 
   it('navigates to Command Center', () => {
     cy.visit('/')
-    cy.contains('Command Center').click()
+    cy.get('[aria-label="Enter Organizer Command Center"]').click()
     cy.url().should('include', '/organizer')
-    cy.contains('Operations Overview')
+    cy.contains('OMNIPITCH')
   })
 })

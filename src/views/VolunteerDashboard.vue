@@ -3,7 +3,7 @@
     
     <!-- Offline Warning Banner -->
     <div v-if="store.isOfflineMode" class="absolute top-0 left-0 right-0 z-[100] bg-rose-500 text-white text-xs font-bold uppercase tracking-widest py-1.5 flex justify-center shadow-lg animate-pulse">
-      [WARNING: Network Degraded. Engaging Local Deterministic Engine]
+      {{ $t('networkDegraded') }}
     </div>
 
     <!-- Dynamic EA-Style Background (Shared with Login) -->
@@ -50,6 +50,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { useStadiumStore } from '../store/useStadiumStore';
 import TaskInbox from '../components/volunteer/TaskInbox.vue';
 import IncidentLogger from '../components/volunteer/IncidentLogger.vue';
 import BaseButton from '../components/common/BaseButton.vue';
@@ -58,6 +59,7 @@ import LanguageSelector from '../components/common/LanguageSelector.vue';
 import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
+const store = useStadiumStore();
 const { t: $t } = useI18n();
 
 const logout = () => {

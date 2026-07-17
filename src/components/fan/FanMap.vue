@@ -302,8 +302,8 @@ const loadMatchData = () => {
   }
 };
 
-let syncInterval: ReturnType<typeof setInterval> | undefined;
 let animationFrameId: number | undefined;
+let frameCounter = 0;
 const clock = new THREE.Clock();
 let disposeScene: (() => void) | undefined;
 
@@ -339,9 +339,10 @@ const init3D = () => {
   const animate = () => {
     animationFrameId = requestAnimationFrame(animate);
 
-    // Skip frames in low power mode (cap at ~30fps roughly)
+    // Skip every other frame in low power mode (cap at ~30fps)
     if (isLowPowerMode.value) {
-      if (Math.random() > 0.5) return;
+      frameCounter++;
+      if (frameCounter % 2 !== 0) return;
     }
 
     const deltaTime = Math.min(clock.getDelta(), 0.05);
@@ -369,16 +370,21 @@ watch(
 
 onMounted(() => {
   loadMatchData();
-  syncInterval = setInterval(loadMatchData, 5000);
 
+  // Listen for storage events (from LiveMatchFeed writing cache) instead of polling
+  window.addEventListener('storage', onStorageChange);
   window.addEventListener('resize', onWindowResize);
   window.setTimeout(init3D, 100);
 });
 
+const onStorageChange = (e: StorageEvent) => {
+  if (e.key === 'omnipitch_match_feed_v2') loadMatchData();
+};
+
 onBeforeUnmount(() => {
   window.removeEventListener('resize', onWindowResize);
+  window.removeEventListener('storage', onStorageChange);
 
-  if (syncInterval) clearInterval(syncInterval);
   if (animationFrameId) cancelAnimationFrame(animationFrameId);
   if (disposeScene) disposeScene();
 });

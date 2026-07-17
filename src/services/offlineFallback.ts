@@ -1,4 +1,6 @@
-export function getMockLLMResponse(_context: any, question: string, language: string): string {
+import type { StadiumTelemetry } from '../types';
+
+export function getMockLLMResponse(_context: StadiumTelemetry, question: string, language: string): string {
   const q = question.replace(/[\x00-\x1F\x7F]/g, '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
   let intent = 'general';
@@ -8,7 +10,7 @@ export function getMockLLMResponse(_context: any, question: string, language: st
   else if (q.includes('first aid') || q.includes('primeros auxilios') || q.includes('premiers secours') || q.includes('erste hilfe') || q.includes('medical') || q.includes('doctor')) intent = 'first_aid';
   else if (q.includes('toilet') || q.includes('restroom') || q.includes('bathroom') || q.includes('bano') || q.includes('toilettes') || q.includes('toilette')) intent = 'toilet';
   else if (q.includes('park') || q.includes('estacionamiento') || q.includes('parking') || q.includes('parkplatz')) intent = 'parking';
-  else if (q.includes('ticket') || q.includes('boleto') || q.includes('billet') || q.includes('ticket')) intent = 'ticket_help';
+  else if (q.includes('ticket') || q.includes('boleto') || q.includes('billet')) intent = 'ticket_help';
   else if (q.includes('crowd') || q.includes('busy') || q.includes('multitud') || q.includes('foule') || q.includes('menge')) intent = 'crowd_status';
 
   const responses: Record<string, Record<string, string>> = {

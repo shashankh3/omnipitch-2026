@@ -56,7 +56,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useStadiumStore } from '../../store/useStadiumStore';
 import { getFanAssistance } from '../../services/gemini';
 import { resolveContext } from '../../services/decisionEngine';
@@ -65,11 +66,14 @@ import { useHealthStatus } from '../../composables/useHealthStatus';
 
 const store = useStadiumStore();
 const { badgeLabel } = useHealthStatus();
+const { t: $t } = useI18n();
 const query = ref('');
 const isLoading = ref(false);
-const messages = ref<{role: 'user'|'ai'|'system', text: string}[]>([
-  { role: 'ai', text: 'Welcome to OmniPitch! 🏟️\n\nI\'m your AI Stadium Copilot powered by Gemini. I can help with:\n\n• Finding your seat & navigation\n• Crowd density & best routes\n• Food, restrooms & facilities\n• Weather alerts & safety info\n\nHow can I help you today?' }
-]);
+const messages = ref<{role: 'user'|'ai'|'system', text: string}[]>([]);
+
+onMounted(() => {
+  messages.value.push({ role: 'ai', text: $t('chatWelcome') });
+});
 
 const getChatClass = (role: string) => {
   if (role === 'user') return 'self-end bg-gradient-to-br from-amber-500/90 to-orange-600/90 text-white rounded-2xl rounded-br-sm';
@@ -113,14 +117,7 @@ const sendMessage = async () => {
       resolvedFacts
     );
 
-    if (response === "API_KEY_MISSING") {
-      messages.value.push({
-        role: 'system',
-        text: '⚠️ Gemini API Key Missing\n\nCreate a .env file in the project root:\n\nVITE_GEMINI_API_KEY="your_key"'
-      });
-    } else {
-      messages.value.push({ role: 'ai', text: response });
-    }
+    messages.value.push({ role: 'ai', text: response });
   } catch (error) {
     messages.value.push({ role: 'system', text: 'Network error. Please try again.' });
   } finally {

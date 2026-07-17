@@ -7,7 +7,7 @@ export function useSensoryRoom() {
   const isModalOpen = ref(false);
 
   const sensoryRoom = computed(() =>
-    STADIUM_ZONES.find((z: any) => z.type === 'sensory_room')
+    STADIUM_ZONES.find((z) => z.type === 'sensory_room')
   );
 
   const lang = computed(() => sessionStore.currentSession?.language ?? 'en');

@@ -13,7 +13,9 @@ export const getHeatmapColor = (density: number): THREE.Color => {
   return colors.clear;
 };
 
-export function useStadiumHeatmap(scene: THREE.Scene, store: any) {
+import { useStadiumStore } from '../store/useStadiumStore';
+
+export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof useStadiumStore>) {
   const standMaterials: Record<string, THREE.MeshStandardMaterial> = {};
   const standColorState: Record<string, { current: THREE.Color; target: THREE.Color; currentEmissive: number; targetEmissive: number }> = {};
   const stands: Record<string, THREE.Mesh> = {};

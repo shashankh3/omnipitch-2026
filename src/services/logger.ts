@@ -1,4 +1,4 @@
-type LogMeta = Record<string, string | number | boolean | any>;
+type LogMeta = Record<string, string | number | boolean | unknown>;
 
 const BANNED_KEYS = ['apiKey', 'key', 'token', 'password',
                      'question', 'email', 'GEMINI_API_KEY'];
@@ -24,7 +24,7 @@ export const logger = {
   warn(event: string, meta?: LogMeta) {
     console.warn(`[OmniPitch:WARN] ${event}`, meta ? sanitizeMeta(meta) : '');
   },
-  error(event: string, code?: number | any) {
+  error(event: string, code?: number) {
     // Never log the raw Error object — only event name + numeric code
     console.error(`[OmniPitch:ERROR] ${event}`, code !== undefined ? code : '');
   },

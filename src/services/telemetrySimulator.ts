@@ -14,7 +14,7 @@ export function getSimulatedTelemetry(
     .map(Number)
     .sort((a, b) => Math.abs(a - minutesToKickoff) - Math.abs(b - minutesToKickoff));
   const closestKey = String(keys[0]);
-  const multipliers = (MOCK_TELEMETRY.byMinutesToKickoff as any)[closestKey];
+  const multipliers = (MOCK_TELEMETRY.byMinutesToKickoff as Record<string, { crowdDensityMultiplier: number, gateMultiplier: number }>)[closestKey];
 
   const base = MOCK_TELEMETRY.baseline;
 

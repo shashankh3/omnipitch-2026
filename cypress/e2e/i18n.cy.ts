@@ -1,12 +1,11 @@
 describe('OmniPitch i18n and Language Switching', () => {
   beforeEach(() => {
-    // Navigate to the app root
-    cy.visit('http://localhost:5173/');
+    cy.visit('/');
   });
 
   it('changes language on the login page', () => {
     // Default is English
-    cy.contains('Select Persona').should('exist');
+    cy.contains('Fan Experience').should('exist');
     cy.get('html').should('have.attr', 'lang', 'en');
 
     // Open language selector
@@ -16,7 +15,7 @@ describe('OmniPitch i18n and Language Switching', () => {
     cy.contains('Español').click();
 
     // Verify language changed
-    cy.contains('Seleccionar Perfil').should('exist');
+    cy.contains('Experiencia del Fan').should('exist');
     cy.get('html').should('have.attr', 'lang', 'es');
   });
 
@@ -26,7 +25,7 @@ describe('OmniPitch i18n and Language Switching', () => {
     cy.contains('Español').click();
 
     // Click Fan Experience login
-    cy.contains('Experiencia del Aficionado').click();
+    cy.get('[aria-label="Enter Fan Experience Portal"]').click();
 
     // Verify we are on fan dashboard and it is still in Spanish
     cy.url().should('include', '/fan');

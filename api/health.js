@@ -8,14 +8,12 @@ function setSecurityHeaders(res) {
   );
   res.setHeader('X-XSS-Protection', '0');
   
-  // CORS Headers for Vercel
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS: pinned to deployment origin; ALLOWED_ORIGIN env var for local dev
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://omnipitch-2026.vercel.app';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
 export default async function handler(req, res) {
@@ -26,22 +24,11 @@ export default async function handler(req, res) {
     return;
   }
 
-  const geminiStatus = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY ? 'configured' : 'missing';
+  const geminiStatus = process.env.GEMINI_API_KEY ? 'configured' : 'missing';
   const supabaseStatus = process.env.VITE_SUPABASE_URL ? 'configured' : 'missing';
   
-  let llmMode = 'offline';
-  if (geminiStatus === 'configured') {
-    try {
-      const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
-      const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
-        { signal: AbortSignal.timeout(3000) }
-      );
-      if (r.ok) llmMode = 'live';
-    } catch {
-      llmMode = 'offline';
-    }
-  }
+  // Determine LLM mode from env var presence only — no outbound API call
+  const llmMode = geminiStatus === 'configured' ? 'live' : 'offline';
   
   res.status(200).json({
     status: 'ok',
