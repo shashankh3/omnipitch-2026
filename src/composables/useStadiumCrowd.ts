@@ -110,7 +110,6 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
     const ANCHOR_FORCE = 0.8;
     const WANDER_FORCE = 1.2;
     const MAX_SPEED = 1.2;
-    const DAMPING = 0.9;
 
     for (let i = 0; i < CROWD_SIZE; i++) {
       const a = crowdData[i];
@@ -137,8 +136,9 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
       fx += Math.cos(a.wanderAngle) * WANDER_FORCE * 0.3;
       fz += Math.sin(a.wanderAngle) * WANDER_FORCE * 0.3;
 
-      a.vx = (a.vx + fx * dt) * DAMPING;
-      a.vz = (a.vz + fz * dt) * DAMPING;
+      const DAMPING_FACTOR = Math.exp(-6 * dt);
+      a.vx = (a.vx + fx * dt) * DAMPING_FACTOR;
+      a.vz = (a.vz + fz * dt) * DAMPING_FACTOR;
 
       const speed = Math.sqrt(a.vx * a.vx + a.vz * a.vz);
       if (speed > MAX_SPEED) {

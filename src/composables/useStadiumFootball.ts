@@ -92,8 +92,9 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
       ballData.y = BALL_RADIUS;
       ballData.vy = Math.abs(ballData.vy) * RESTITUTION;
       if (ballData.vy < 0.5) ballData.vy = 0;
-      ballData.vx *= 0.97;
-      ballData.vz *= 0.97;
+      const ballDamp = Math.exp(-1.8 * dt);
+      ballData.vx *= ballDamp;
+      ballData.vz *= ballDamp;
     }
 
     if (ballData.x > 51 || ballData.x < -51) { ballData.vx *= -0.8; ballData.x = clamp(ballData.x, -51, 51); }
@@ -149,11 +150,13 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
 
       if (dist > 0.1) {
         const accel = easeOutQuad(clamp(dist / 10, 0, 1)) * p.speed;
-        p.vx = lerp(p.vx, (dx / dist) * accel, 0.08);
-        p.vz = lerp(p.vz, (dz / dist) * accel, 0.08);
+        const lerpFactor = 1 - Math.exp(-5 * dt);
+        p.vx = lerp(p.vx, (dx / dist) * accel, lerpFactor);
+        p.vz = lerp(p.vz, (dz / dist) * accel, lerpFactor);
       } else {
-        p.vx *= 0.8;
-        p.vz *= 0.8;
+        const dampFactor = Math.exp(-12 * dt);
+        p.vx *= dampFactor;
+        p.vz *= dampFactor;
       }
 
       p.x += p.vx * dt;
