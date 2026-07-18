@@ -67,6 +67,7 @@
           <!-- Action -->
           <div class="col-span-3 flex justify-end gap-2">
             <button 
+              type="button"
               v-if="incident.status === 'OPEN'" 
               @click="updateStatus(incident.id, 'IN_PROGRESS')"
               class="px-3 py-1.5 bg-neon-lime/10 hover:bg-neon-lime/20 text-neon-lime text-xs font-bold rounded-lg border border-neon-lime/30 transition-colors"
@@ -74,6 +75,7 @@
               Acknowledge
             </button>
             <button 
+              type="button"
               v-if="incident.status === 'IN_PROGRESS'" 
               @click="updateStatus(incident.id, 'RESOLVED')"
               class="px-3 py-1.5 bg-neon-orange/10 hover:bg-neon-orange/20 text-neon-orange text-xs font-bold rounded-lg border border-neon-orange/30 transition-colors"

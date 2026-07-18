@@ -1,7 +1,7 @@
 import zonesRaw from '../data/stadiumZones.json';
 import facilitiesRaw from '../data/facilitiesData.json';
 import incidentSeedRaw from '../data/incidentSeed.json';
-import mockTelemetryRaw from '../data/mockTelemetry.json';
+import { MOCK_TELEMETRY_JSON as mockTelemetryRaw } from '../data/mockTelemetry';
 
 import type { Incident } from '../types';
 

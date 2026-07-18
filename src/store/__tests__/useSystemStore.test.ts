@@ -91,4 +91,42 @@ describe('useSystemStore', () => {
     expect(store.llmMode).toBe('live');
     expect(store.isOfflineMode).toBe(false);
   });
+
+  it('checkHealth() updates llmMode from valid response', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ llm: 'live' })
+    } as any);
+    const store = useSystemStore();
+    await store.checkHealth();
+    expect(store.llmMode).toBe('live');
+    expect(store.isOfflineMode).toBe(false);
+  });
+
+  it('checkHealth() defaults to offline if llm key is missing', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({})
+    } as any);
+    const store = useSystemStore();
+    await store.checkHealth();
+    expect(store.llmMode).toBe('offline');
+  });
+
+  it('checkHealth() throws if res is not ok', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false
+    } as any);
+    const store = useSystemStore();
+    await store.checkHealth();
+    expect(store.isOfflineMode).toBe(true);
+    expect(store.llmMode).toBe('offline');
+  });
+
+  it('dismissAlert() dismisses an existing alert', () => {
+    const store = useSystemStore();
+    store.proactiveAlerts = [{ id: 'a1', zoneId: 'z1', intent: 'heat', mode: 'HIGH', timestamp: '2026', dismissed: false }];
+    store.dismissAlert('a1');
+    expect(store.proactiveAlerts[0].dismissed).toBe(true);
+  });
 });

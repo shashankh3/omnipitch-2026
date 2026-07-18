@@ -94,6 +94,13 @@ function sanitizeInput(input: string, maxLength = 2000): string {
 /**
  * Executes a localized, grounded conversational assistance cycle for fans.
  * Uses rules-first decision engine context if provided.
+ * @param userQuery The natural language question from the user.
+ * @param userLang The user's preferred language code (e.g., 'en', 'es').
+ * @param telemetry Live stadium telemetry.
+ * @param needsStepFree Whether the user requires step-free routing.
+ * @param resolvedFacts Optional deterministic routing/facility facts from decision engine.
+ * @returns The localized response string.
+ * @throws Never. Returns fallback mock on API error.
  */
 export async function getFanAssistance(
   userQuery: string,
@@ -158,6 +165,11 @@ export async function getFanAssistance(
 
 /**
  * Executes Multimodal Vision Analysis for automated volunteer dispatching.
+ * @param base64Image The base64 encoded image string.
+ * @param mimeType The mime type of the image.
+ * @param locationContext Description of where the incident was reported.
+ * @returns An object containing incident type, severity, and dispatch order.
+ * @throws Never. Returns fallback object on API error.
  */
 export async function processVisionIncident(
   base64Image: string,
@@ -200,6 +212,10 @@ export async function processVisionIncident(
 
 /**
  * Generates operational recommendations for the Organizer Command Center.
+ * @param query The natural language request from the organizer.
+ * @param telemetry Live stadium telemetry data.
+ * @returns A concise operational recommendation string.
+ * @throws Never. Returns fallback string on API error.
  */
 export async function getOrganizerRecommendation(
   query: string,
@@ -236,6 +252,8 @@ export async function getOrganizerRecommendation(
 
 /**
  * Generates a simulated live football match feed.
+ * @returns A MatchFeedResponse object containing live, completed, and upcoming matches.
+ * @throws Never. Returns fallback object on API error.
  */
 export async function getSimulatedMatchFeed(): Promise<MatchFeedResponse> {
   const store = useStadiumStore();
@@ -318,6 +336,9 @@ export async function getSimulatedMatchFeed(): Promise<MatchFeedResponse> {
 
 /**
  * Translates an English PA announcement into multiple languages.
+ * @param text The English PA announcement text.
+ * @returns A string containing the translated broadcast display.
+ * @throws Never. Returns fallback error string on API error.
  */
 export async function translateAnnouncement(text: string): Promise<string> {
   const store = useStadiumStore();
@@ -346,6 +367,9 @@ export async function translateAnnouncement(text: string): Promise<string> {
 
 /**
  * Generates a Live Fan Sentiment Analysis based on stadium conditions.
+ * @param telemetry Live stadium telemetry data.
+ * @returns A summary string of the fan sentiment.
+ * @throws Never. Returns fallback string on API error.
  */
 export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise<string> {
   const store = useStadiumStore();
@@ -374,6 +398,9 @@ export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise
 
 /**
  * Generates a step-by-step checklist for a volunteer task.
+ * @param incidentDesc A description of the incident context.
+ * @returns An array of string steps for the volunteer protocol.
+ * @throws Never. Returns fallback checklist on API error.
  */
 export async function getTaskChecklist(incidentDesc: string): Promise<string[]> {
   const store = useStadiumStore();

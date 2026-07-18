@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Mock } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useIncidentStore } from '../useIncidentStore';
 import { INCIDENT_SEED } from '../../services/dataLoader';
 import { supabase } from '../../services/supabase';
+import type { Incident } from '../../types';
 
 vi.mock('../../services/supabase', () => ({
   supabase: {
@@ -30,7 +32,7 @@ describe('useIncidentStore', () => {
     const store = useIncidentStore();
     store.addIncident({
       reportedBy: 'test',
-      location: { section: '1', gate: 'GateA', coordinates: [0, 0] },
+      location: { section: '1', gate: 'GateA', coordinates: [0, 0] as [number, number] },
       type: 'MEDICAL',
       severity: 'LOW',
       description: 'Test',
@@ -48,11 +50,11 @@ describe('useIncidentStore', () => {
       id: 'inc_123',
       timestamp: '2026-07-14T00:00:00Z',
       reportedBy: 'test',
-      location: { section: '1', gate: 'GateA', coordinates: [0, 0] } as any,
-      type: 'MEDICAL' as any,
-      severity: 'LOW' as any,
+      location: { section: '1', gate: 'GateA', coordinates: [0, 0] as [number, number] },
+      type: 'MEDICAL',
+      severity: 'LOW',
       description: 'Test',
-      status: 'OPEN' as any
+      status: 'OPEN'
     };
     store.receiveFromBroadcast(inc);
     expect(store.incidents.length).toBe(INCIDENT_SEED.length + 1);
@@ -70,12 +72,12 @@ describe('useIncidentStore', () => {
       id: 'inc_invalid',
       timestamp: '2026-07-14T00:00:00Z',
       reportedBy: 'test',
-      location: { section: '1', gate: 'GateA', coordinates: [0, 0] },
+      location: { section: '1', gate: 'GateA', coordinates: [0, 0] as [number, number] },
       type: 'INVALID_TYPE',
       severity: 'LOW',
       description: 'Invalid',
       status: 'OPEN'
-    } as any);
+    } as unknown as Incident);
 
     expect(store.incidents.length).toBe(initialCount);
 
@@ -88,7 +90,7 @@ describe('useIncidentStore', () => {
       severity: 'LOW',
       description: 'Blocked path\u0000',
       status: 'OPEN'
-    } as any);
+    } as unknown as Incident);
 
     const sanitized = store.incidents.find(i => i.id === 'inc_sanitized')!;
     expect(sanitized.reportedBy).toBe('remote');
@@ -103,7 +105,7 @@ describe('useIncidentStore', () => {
       id: 'inc_1',
       timestamp: '2026-07-14T00:00:00Z',
       reportedBy: 'test',
-      location: { section: '1', gate: 'GateA', coordinates: [0, 0] },
+      location: { section: '1', gate: 'GateA', coordinates: [0, 0] as [number, number] },
       type: 'MEDICAL',
       severity: 'LOW',
       description: 'Test',
@@ -118,21 +120,21 @@ describe('useIncidentStore', () => {
     const store = useIncidentStore();
     store.incidents = [];
 
-    let onCallback: (msg: { payload: any }) => void = () => { };
+    let onCallback: (msg: { payload: { incident: Incident } }) => void = () => { };
     const mockChannel = {
       send: vi.fn(),
-      on: vi.fn().mockImplementation((_event: any, _filter: any, callback: any) => {
+      on: vi.fn().mockImplementation((_event: string, _filter: Record<string, unknown>, callback: (msg: { payload: { incident: Incident } }) => void) => {
         onCallback = callback;
         return { subscribe: vi.fn() };
       })
     };
 
     // override the mock for this test
-    (supabase.channel as any).mockReturnValueOnce(mockChannel);
+    (supabase.channel as Mock).mockReturnValueOnce(mockChannel);
 
     store.initRealtime();
 
-    const mockIncident = { id: 'inc_realtime', type: 'MEDICAL', severity: 'LOW', location: { section: '1' } };
+    const mockIncident = { id: 'inc_realtime', type: 'MEDICAL', severity: 'LOW', location: { section: '1' } } as unknown as Incident;
     onCallback({ payload: { incident: mockIncident } });
 
     expect(store.incidents.length).toBe(1);

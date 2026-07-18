@@ -24,6 +24,7 @@
         {{ alert.message[currentLanguage] || alert.message.en }}
       </span>
       <button
+        type="button"
         @click="dismiss(alert.id)"
         class="ml-2 opacity-60 hover:opacity-100 transition-opacity"
         :aria-label="`Dismiss alert: ${alert.message.en}`"
@@ -37,7 +38,7 @@
     </div>
     <h1 class="text-3xl font-black italic uppercase text-white tracking-tight mb-3">System Fault Detected</h1>
     <p class="text-white/60 max-w-md mb-8">An unexpected core telemetry failure occurred in the OmniPitch ecosystem. Safe mode engaged.</p>
-    <button @click="resetError" class="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-xl font-bold uppercase tracking-widest text-sm transition-all shadow-lg active:scale-95">
+    <button type="button" @click="resetError" class="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-xl font-bold uppercase tracking-widest text-sm transition-all shadow-lg active:scale-95">
       Reboot System
     </button>
   </div>

@@ -347,4 +347,65 @@ describe('OmniPitch 2026 — Gemini AI Service Test Suite', () => {
       expect(res).toBeDefined();
     });
   });
+
+  describe('Edge Case Normalization and Parsing Coverage', () => {
+    it('processVisionIncident() should fallback if response is not JSON or malformed', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ text: 'Not a json object' })
+      } as any);
+      const res = await processVisionIncident('data', 'mime', 'sec');
+      expect(res.severity).toBe('MEDIUM');
+    });
+
+    it('processVisionIncident() should fallback if incident type is invalid', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ text: JSON.stringify({ type: 'INVALID', severity: 'HIGH', dispatchOrder: 'test' }) })
+      } as any);
+      const res = await processVisionIncident('data', 'mime', 'sec');
+      expect(res.type).toBe('FACILITY_DAMAGE');
+    });
+
+    it('getTaskChecklist() should fallback if response is not an array', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ text: JSON.stringify({ step1: 'test' }) })
+      } as any);
+      const res = await getTaskChecklist('incident');
+      expect(Array.isArray(res)).toBe(true);
+      expect(res.length).toBe(3);
+    });
+
+    it('getTaskChecklist() should fallback if array has fewer than 3 string elements', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ text: JSON.stringify(["Only one step"]) })
+      } as any);
+      const res = await getTaskChecklist('incident');
+      expect(res.length).toBe(3);
+    });
+
+    it('getFanAssistance() should handle resolvedFacts', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ text: 'Resolved facts handled' })
+      } as any);
+      const facts = { resolvedFacility: 'Toilet', resolvedRoute: ['A', 'B'], crowdLevel: 'low', isStepFree: true, urgencyFlag: false, accessibilityMode: 'none', alternativeFacility: null };
+      const res = await getFanAssistance('Where is Toilet?', 'en', {} as any, false, facts);
+      expect(res).toBe('Resolved facts handled');
+    });
+
+    it('getSimulatedMatchFeed() should extract JSON array or object properly using extractJsonPayload', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          text: '```json\n[{"bad": "data"}]\n```'
+        })
+      } as any);
+      const res = await getSimulatedMatchFeed();
+      // It falls back because normalizeMatchFeed expects a specific object schema, not an array
+      expect(res.liveMatch).toBeDefined();
+    });
+  });
 });

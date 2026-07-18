@@ -1,6 +1,7 @@
 <template>
   <div class="relative inline-block text-left" ref="dropdownRef">
     <button
+      type="button"
       @click="isOpen = !isOpen"
       class="flex items-center justify-between w-24 px-3 py-2 text-sm font-bold tracking-wider text-white uppercase transition-all duration-300 bg-white/5 border border-white/20 rounded-xl hover:bg-white/10 hover:border-[#ccff00]/50 hover:shadow-[0_0_15px_rgba(204,255,0,0.15)] focus:outline-none focus:ring-2 focus:ring-[#ccff00]/50 ea-button group"
       :aria-expanded="isOpen"
@@ -39,6 +40,7 @@
       >
         <div class="py-1">
           <button
+            type="button"
             v-for="lang in languages"
             :key="lang.code"
             @click="selectLanguage(lang.code)"

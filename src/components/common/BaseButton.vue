@@ -4,6 +4,7 @@
     :class="[variantClasses[variant], { 'w-full': block }]"
     @click="$emit('click')"
     :aria-label="ariaLabel"
+    :type="type"
   >
     <slot></slot>
   </button>
@@ -16,12 +17,16 @@ withDefaults(defineProps<{
   variant?: 'primary' | 'secondary' | 'danger' | 'warning' | 'success';
   block?: boolean;
   ariaLabel?: string;
+  type?: 'button' | 'submit' | 'reset';
 }>(), {
   variant: 'primary',
-  block: false
+  block: false,
+  type: 'button'
 });
 
-defineEmits(['click']);
+defineEmits<{
+  (e: 'click'): void
+}>();
 
 const variantClasses = computed(() => {
   return {

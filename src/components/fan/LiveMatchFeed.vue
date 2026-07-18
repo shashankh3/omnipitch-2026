@@ -15,6 +15,7 @@
       </div>
       <div class="flex items-center gap-2 relative z-10">
         <button
+          type="button"
           @click="forceRefresh"
           class="text-[9px] text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1 font-bold focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="isLoading"

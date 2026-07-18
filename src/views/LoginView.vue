@@ -46,6 +46,7 @@
         
         <!-- Hero Tile: Fan Experience -->
         <button 
+          type="button"
           @click="handleLogin('fan')" 
           class="col-span-2 group relative h-64 rounded-2xl overflow-hidden glass-panel border border-white/10 text-left transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(204,255,0,0.15)] hover:border-[#ccff00]/50 outline-none focus:ring-4 focus:ring-[#ccff00]/30 ea-tile"
           aria-label="Enter Fan Experience Portal"
@@ -57,12 +58,12 @@
           <div class="absolute right-0 bottom-0 w-64 h-64 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCI+PHBhdGggZD0iTTAgMGg4MHY4MEgwem00MCA0MGg0MHY0MEg0MHoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')] transform rotate-12 translate-x-10 translate-y-10 group-hover:rotate-6 transition-transform duration-700 ease-out"></div>
           
           <div class="absolute inset-0 p-8 flex flex-col justify-end">
-            <h2 class="text-4xl font-black italic uppercase text-white tracking-tight mb-2 group-hover:text-[#ccff00] transition-colors duration-300 transform group-hover:translate-x-2">
+            <div class="text-4xl font-black italic uppercase text-white tracking-tight mb-2 group-hover:text-[#ccff00] transition-colors duration-300 transform group-hover:translate-x-2" aria-level="2" role="heading">
               <template v-for="(word, index) in fanExperienceWords" :key="`${word}-${index}`">
                 <br v-if="index > 0" />
                 {{ word }}
               </template>
-            </h2>
+            </div>
             <p class="text-white/60 text-sm font-medium tracking-wide transform group-hover:translate-x-2 transition-transform duration-300 delay-75">{{ $t('enter3dStadium') }}</p>
           </div>
           
@@ -74,6 +75,7 @@
 
         <!-- Volunteer Tile -->
         <button 
+          type="button"
           @click="handleLogin('volunteer')" 
           class="col-span-1 group relative h-48 rounded-2xl overflow-hidden glass-panel border border-white/10 text-left transition-all duration-500 hover:scale-[1.05] hover:-translate-y-1 hover:shadow-2xl hover:border-white/40 outline-none focus:ring-4 focus:ring-white/20 ea-tile"
           aria-label="Enter Volunteer Portal"
@@ -83,7 +85,7 @@
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div>
-              <h3 class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300">{{ $t('volunteer') }}</h3>
+              <div class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300" aria-level="3" role="heading">{{ $t('volunteer') }}</div>
               <p class="text-white/40 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">{{ $t('groundCrew') }}</p>
             </div>
           </div>
@@ -91,6 +93,7 @@
 
         <!-- Organizer Tile -->
         <button 
+          type="button"
           @click="handleLogin('organizer')" 
           class="col-span-1 group relative h-48 rounded-2xl overflow-hidden glass-panel border border-white/10 text-left transition-all duration-500 hover:scale-[1.05] hover:-translate-y-1 hover:shadow-2xl hover:border-white/40 outline-none focus:ring-4 focus:ring-white/20 ea-tile"
           aria-label="Enter Organizer Command Center"
@@ -100,7 +103,7 @@
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
             </div>
             <div>
-              <h3 class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300">{{ $t('organizer') }}</h3>
+              <div class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300" aria-level="3" role="heading">{{ $t('organizer') }}</div>
               <p class="text-white/40 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">{{ $t('cmdCenter') }}</p>
             </div>
           </div>

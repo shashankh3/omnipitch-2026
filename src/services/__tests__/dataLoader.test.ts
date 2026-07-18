@@ -11,21 +11,21 @@ describe('DataLoader', () => {
   });
 
   it('Every facility has a zoneId that exists in STADIUM_ZONES', () => {
-    const zoneIds = STADIUM_ZONES.map((z: any) => z.id);
-    FACILITIES.forEach((f: any) => {
+    const zoneIds = STADIUM_ZONES.map((z) => z.id);
+    FACILITIES.forEach((f) => {
       expect(zoneIds).toContain(f.zoneId);
     });
   });
 
   it('INCIDENT_SEED has no entry with timestamp === "SEED"', () => {
-    INCIDENT_SEED.forEach((inc: any) => {
+    INCIDENT_SEED.forEach((inc) => {
       expect(inc.timestamp).not.toBe('SEED');
     });
   });
 
   it('All crowd base levels are: low | medium | high | critical', () => {
     const levels = ['low', 'medium', 'high', 'critical'];
-    FACILITIES.forEach((f: any) => {
+    FACILITIES.forEach((f) => {
       expect(levels).toContain(f.crowdBaseLevel);
     });
   });
