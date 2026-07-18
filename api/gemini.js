@@ -1,5 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
 const rateLimitMap = new Map(); // key: IP string, value: { tokens: number, lastRefill: number }
 const CAPACITY = 20; // Increased to 20 to prevent starving on initial load
 const REFILL_RATE = 10;
@@ -8,13 +6,16 @@ const MAX_STRING_LENGTH = 4_000;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
+const TEXT_MODEL = 'accounts/fireworks/models/deepseek-v4-flash';
+const VISION_MODEL = 'accounts/fireworks/models/qwen2p5-vl-32b-instruct'; // Deepseek v4 flash is text-only
+
 function setSecurityHeaders(res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com"
+    "default-src 'self'; connect-src 'self' https://api.fireworks.ai"
   );
   res.setHeader('X-XSS-Protection', '0');
 
@@ -85,14 +86,6 @@ function sanitizeMessages(messages) {
   return sanitized;
 }
 
-function sanitizeTools(tools) {
-  if (tools === undefined) return undefined;
-  if (!Array.isArray(tools) || tools.length > 1) return undefined;
-  return tools.every(tool => isPlainObject(tool) && isPlainObject(tool.googleSearch))
-    ? [{ googleSearch: {} }]
-    : undefined;
-}
-
 export default async function handler(req, res) {
   setSecurityHeaders(res);
 
@@ -113,39 +106,85 @@ export default async function handler(req, res) {
       return res.status(429).json({ error: 'Rate limit exceeded', code: 429 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.FIREWORKS_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'Request could not be processed', code: 500 });
     }
 
-    const model = 'gemini-2.5-flash';
     const messages = sanitizeMessages(req.body?.messages);
-    const tools = sanitizeTools(req.body?.tools);
+    const expectJson = req.body?.expectJson === true;
 
     if (!messages) {
       return res.status(400).json({ error: 'Invalid input', code: 400 });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
-    const config = tools ? { tools } : undefined;
+    let openAiMessages = [];
+    let hasVision = false;
+
+    if (messages.length > 0) {
+      openAiMessages.push({ role: 'system', content: messages[0] });
+    }
+
+    if (messages.length > 1) {
+      let userContent = [];
+      for (let i = 1; i < messages.length; i++) {
+        const msg = messages[i];
+        if (typeof msg === 'string') {
+          userContent.push({ type: 'text', text: msg });
+        } else if (msg.inlineData) {
+          hasVision = true;
+          userContent.push({
+            type: 'image_url',
+            image_url: { url: `data:${msg.inlineData.mimeType};base64,${msg.inlineData.data}` }
+          });
+        }
+      }
+      openAiMessages.push({ role: 'user', content: userContent });
+    }
+
+    const model = hasVision ? VISION_MODEL : TEXT_MODEL;
+
+    const requestBody = {
+      model,
+      messages: openAiMessages,
+      max_tokens: 1024,
+      temperature: 0.6,
+    };
+
+    if (expectJson) {
+      requestBody.response_format = { type: 'json_object' };
+    }
 
     const start = Date.now();
-    const result = await ai.models.generateContent({
-      model,
-      contents: messages,
-      config
+    
+    const fwRes = await fetch('https://api.fireworks.ai/inference/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
     });
+
+    if (fwRes.status === 429) {
+      res.setHeader('Retry-After', '60');
+      return res.status(429).json({ error: 'Rate limit exceeded', code: 429 });
+    }
+    
+    if (fwRes.status === 401) {
+      return res.status(401).json({ error: 'Unauthorized', code: 401 });
+    }
+
+    if (!fwRes.ok) {
+      throw new Error(`Fireworks API returned ${fwRes.status} ${fwRes.statusText}`);
+    }
+
+    const data = await fwRes.json();
     const latency = Date.now() - start;
-    console.info('gemini_latency', { latencyMs: latency });
+    console.info('llm_latency', { latencyMs: latency });
     res.setHeader('X-Response-Time', `${latency}ms`);
 
-    let responseText = '';
-    try {
-      responseText = result.text;
-    } catch (e) {
-      // Catch empty candidates / blockReason (which throws when accessing .text)
-      return res.status(200).json({ text: "I can't help with that request." });
-    }
+    let responseText = data.choices?.[0]?.message?.content || '';
     
     if (!responseText) {
       return res.status(200).json({ text: "I can't help with that request." });
@@ -159,8 +198,8 @@ export default async function handler(req, res) {
       console.error('DIAGNOSTICS - Error statusText:', error.statusText);
       console.error('DIAGNOSTICS - Full Error Details:', error);
     }
-    const safeErrorMsg = (error.message || '').replace(new RegExp(process.env.GEMINI_API_KEY || 'MISSING_KEY', 'g'), '***');
-    console.error('Gemini API Error:', safeErrorMsg);
+    const safeErrorMsg = (error.message || '').replace(new RegExp(process.env.FIREWORKS_API_KEY || 'MISSING_KEY', 'g'), '***');
+    console.error('LLM API Error:', safeErrorMsg);
     res.status(500).json({ error: 'Request could not be processed', code: 500 });
   }
 }

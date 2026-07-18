@@ -75,11 +75,11 @@ class GeminiHttpError extends Error {
 /**
  * Helper to call our local Express proxy instead of hitting Gemini directly from the client.
  */
-async function callGeminiProxy(messages: (string | GeminiMessage)[], tools?: { googleSearch: Record<string, never> }[]) {
+async function callGeminiProxy(messages: (string | GeminiMessage)[], expectJson: boolean = false) {
   const res = await fetch('/api/gemini', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, tools })
+    body: JSON.stringify({ messages, expectJson })
   });
   
   if (res.status === 429) throw new GeminiHttpError('RATE_LIMIT', 429);
@@ -174,7 +174,7 @@ export async function getFanAssistance(
   try {
     const safeQuery = sanitizeInput(userQuery);
     const messages = resolvedFacts ? [systemContext] : [systemContext, safeQuery];
-    const result = await callGeminiProxy(messages);
+    const result = await callGeminiProxy(messages, false);
     return result.response.text();
   } catch (error: any) {
     const status = error.status || 500;
@@ -229,7 +229,7 @@ export async function processVisionIncident(
   };
 
   try {
-    const result = await callGeminiProxy([visionPrompt, imagePart]);
+    const result = await callGeminiProxy([visionPrompt, imagePart], true);
     const parsed = JSON.parse(extractJsonPayload(result.response.text())) as unknown;
     return normalizeVisionIncident(parsed) ?? fallback;
   } catch (error) {
@@ -270,7 +270,7 @@ export async function getOrganizerRecommendation(
   `;
 
   try {
-    const result = await callGeminiProxy([prompt]);
+    const result = await callGeminiProxy([prompt], false);
     return result.response.text();
   } catch (error) {
     logger.error('gemini_api_error', 1); logger.ai('llm_fallback');
@@ -323,12 +323,10 @@ export async function getSimulatedMatchFeed(): Promise<MatchFeedResponse> {
 
   const prompt = `
     You are a sports data feed generator for the FIFA World Cup 2026. Today's date is ${new Date().toDateString()}.
-    Using Google Search Grounding, search official sources (ESPN.com, FIFA.com, or BBC) for REAL matches.
-    CRITICAL INSTRUCTION: If there are NO live matches happening RIGHT NOW today, you MUST search for the results of the most recently COMPLETED matches (e.g., the Round of 16 matches that finished a few days ago). 
-    DO NOT predict or hallucinate scores for future matches (e.g., matches scheduled for later in July). ONLY output scores for matches that have already finished or are actively being played.
-    Extract the real teams and real scores from that reliable source.
-    Generate a JSON object representing one of these matches (live or recently completed) and two other recent matches.
-    You must output STRICT JSON ONLY matching this schema without markdown wrappers. Do NOT include search citations or markdown formatting in your response.
+    Generate a PLAUSIBLE fictional World Cup 2026 match feed with realistic team pairings, scores, and colorful commentary.
+    CRITICAL INSTRUCTION: Do NOT try to search the web or cite real sources. Create compelling, realistic, simulated data.
+    Generate a JSON object representing one live match and two other recent matches.
+    You must output STRICT JSON ONLY matching this schema without markdown wrappers. Do NOT include any text outside the JSON.
     {
       "liveMatch": {
         "homeTeam": "String (e.g. USA)",
@@ -359,7 +357,7 @@ export async function getSimulatedMatchFeed(): Promise<MatchFeedResponse> {
   `;
 
   try {
-    const result = await callGeminiProxy([prompt], [{ googleSearch: {} }]);
+    const result = await callGeminiProxy([prompt], true);
     const parsed = JSON.parse(extractJsonPayload(result.response.text())) as unknown;
     const finalData = normalizeMatchFeed(parsed, fallbackResponse) ?? fallbackResponse;
     cachedMatchFeed = { data: finalData, expires: Date.now() + 60_000 };
@@ -395,7 +393,7 @@ export async function translateAnnouncement(text: string): Promise<string> {
     <announcement>${sanitizeInput(text)}</announcement>
   `;
   try {
-    const result = await callGeminiProxy([prompt]);
+    const result = await callGeminiProxy([prompt], false);
     return result.response.text();
   } catch (e) {
     logger.error('gemini_api_error', 1); logger.ai('llm_fallback');
@@ -432,7 +430,7 @@ export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise
     (heat stress and gate congestion). Do not invent events, tweets, or data not provided.
   `;
   try {
-    const result = await callGeminiProxy([prompt]);
+    const result = await callGeminiProxy([prompt], false);
     const finalData = result.response.text();
     cachedSentiment = { data: finalData, expires: Date.now() + 60_000 };
     return finalData;
@@ -467,7 +465,7 @@ export async function getTaskChecklist(incidentDesc: string): Promise<string[]> 
     Output RAW JSON ONLY. No markdown wrappers.
   `;
   try {
-    const result = await callGeminiProxy([prompt]);
+    const result = await callGeminiProxy([prompt], true);
     const parsed = JSON.parse(extractJsonPayload(result.response.text())) as unknown;
     return normalizeChecklist(parsed) ?? fallback;
   } catch (e) {

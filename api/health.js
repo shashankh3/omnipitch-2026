@@ -24,16 +24,16 @@ export default async function handler(req, res) {
     return;
   }
 
-  const geminiStatus = process.env.GEMINI_API_KEY ? 'configured' : 'missing';
+  const fireworksStatus = process.env.FIREWORKS_API_KEY ? 'configured' : 'missing';
   const supabaseStatus = process.env.VITE_SUPABASE_URL ? 'configured' : 'missing';
   
   // Determine LLM mode from env var presence only — no outbound API call
-  const llmMode = geminiStatus === 'configured' ? 'live' : 'offline';
+  const llmMode = fireworksStatus === 'configured' ? 'live' : 'offline';
   
   res.status(200).json({
     status: 'ok',
     llm: llmMode,
-    gemini: geminiStatus,
+    fireworks: fireworksStatus,
     supabase: supabaseStatus,
     timestamp: new Date().toISOString()
   });

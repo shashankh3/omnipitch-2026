@@ -1,20 +1,20 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import handler from '../../api/gemini.js';
 
-// Mock the Google Generative AI SDK
-vi.mock('@google/genai', () => {
-  return {
-    GoogleGenAI: class {
-      models = {
-        generateContent: vi.fn().mockResolvedValue({
-          text: 'Mocked text'
-        })
-      };
-    }
-  };
-});
-
 describe('rateLimiter', () => {
+  beforeAll(() => {
+    process.env.FIREWORKS_API_KEY = 'test_key';
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: 'Mocked text' } }] })
+    });
+  });
+
+  afterAll(() => {
+    delete process.env.FIREWORKS_API_KEY;
+    vi.restoreAllMocks();
+  });
+
   it('First 20 requests from same IP -> all pass (not rate limited)', async () => {
     let passed = 0;
     for (let i = 0; i < 20; i++) {
@@ -43,4 +43,3 @@ describe('rateLimiter', () => {
     expect(res.status).not.toHaveBeenCalledWith(429);
   });
 });
-

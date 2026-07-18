@@ -23,7 +23,7 @@ vi.mock('../../../services/gemini', () => ({
 describe('LiveMatchFeed', () => {
   it('renders header and demo match data initially', () => {
     const wrapper = mount(LiveMatchFeed)
-    expect(wrapper.text()).toContain('Live Matches')
+    expect(wrapper.text()).toContain('Simulated Matches')
     // Demo data is shown immediately (Argentina vs Egypt)
     expect(wrapper.text()).toContain('Argentina')
     expect(wrapper.text()).toContain('Egypt')

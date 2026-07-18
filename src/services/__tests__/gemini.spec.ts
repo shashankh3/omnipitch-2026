@@ -3,7 +3,7 @@ import { getFanAssistance, getSimulatedMatchFeed, processVisionIncident, getTask
 import { createPinia, setActivePinia } from 'pinia';
 import { useSystemStore } from '../../store/useSystemStore';
 
-describe('OmniPitch 2026 — Gemini AI Service Test Suite', () => {
+describe('OmniPitch 2026 — Fireworks AI Service Test Suite', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.stubGlobal('fetch', vi.fn());

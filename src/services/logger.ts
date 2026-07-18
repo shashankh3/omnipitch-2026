@@ -1,7 +1,7 @@
 type LogMeta = Record<string, string | number | boolean | unknown>;
 
 const BANNED_KEYS = ['apiKey', 'key', 'token', 'password',
-                     'question', 'email', 'GEMINI_API_KEY'];
+                     'question', 'email', 'FIREWORKS_API_KEY'];
 
 function sanitizeMeta(meta: LogMeta): LogMeta {
   const safe: LogMeta = {};
