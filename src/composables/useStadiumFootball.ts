@@ -277,7 +277,7 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
       
       if (Math.hypot(dx, dz) > 0.6) {
         const desiredHeading = Math.atan2(dz, dx);
-        let angleDiff = wrapAngle(desiredHeading - p.heading);
+        const angleDiff = wrapAngle(desiredHeading - p.heading);
         
         // Turn rate limits (wider turns at high speeds)
         const maxTurn = Math.max(1.8, 8.0 - (currentSpeed * 0.4)) * dt; 
