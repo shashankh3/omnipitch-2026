@@ -6,8 +6,10 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
   let redTeamMesh: THREE.InstancedMesh;
   let blueTeamMesh: THREE.InstancedMesh;
   let ballMesh: THREE.Mesh;
-  const ballTrailPoints: THREE.Vector3[] = [];
   let ballTrail: THREE.Line;
+  const BALL_TRAIL_LENGTH = 20;
+  const ballTrailPositions = new Float32Array(BALL_TRAIL_LENGTH * 3);
+  let ballTrailPointCount = 0;
   const dummy = new THREE.Object3D();
 
   interface Player {
@@ -62,7 +64,19 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
       const off = formationOffsets[i];
       redTeamData.push({ x: off.x - 10, z: off.z, vx: 0, vz: 0, homeX: off.x - 10, homeZ: off.z, speed: 6 + randomFloat() * 2, role: 'support', bobPhase: randomFloat() * Math.PI * 2 });
       blueTeamData.push({ x: -off.x + 10, z: -off.z, vx: 0, vz: 0, homeX: -off.x + 10, homeZ: -off.z, speed: 6 + randomFloat() * 2, role: 'support', bobPhase: randomFloat() * Math.PI * 2 });
+
+      dummy.position.set(off.x - 10, 1.5, off.z);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.set(1, 1, 1);
+      dummy.updateMatrix();
+      redTeamMesh.setMatrixAt(i, dummy.matrix);
+
+      dummy.position.set(-off.x + 10, 1.5, -off.z);
+      dummy.updateMatrix();
+      blueTeamMesh.setMatrixAt(i, dummy.matrix);
     }
+    redTeamMesh.instanceMatrix.needsUpdate = true;
+    blueTeamMesh.instanceMatrix.needsUpdate = true;
 
     // Ball
     ballMesh = new THREE.Mesh(
@@ -70,13 +84,17 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
       new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfacc15, emissiveIntensity: 0.4, roughness: 0.2 })
     );
     ballMesh.castShadow = true;
+    ballMesh.position.set(ballData.x, ballData.y, ballData.z);
     scene.add(ballMesh);
 
     // Ball trail
     const trailGeo = new THREE.BufferGeometry();
-    const trailPositions = new Float32Array(20 * 3);
-    trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+    const trailAttribute = new THREE.BufferAttribute(ballTrailPositions, 3);
+    trailAttribute.setUsage(THREE.DynamicDrawUsage);
+    trailGeo.setAttribute('position', trailAttribute);
+    trailGeo.setDrawRange(0, 0);
     ballTrail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.35 }));
+    ballTrail.frustumCulled = false;
     scene.add(ballTrail);
   };
 
@@ -104,13 +122,19 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
     ballMesh.rotation.x += ballData.vz * dt * 0.5;
     ballMesh.rotation.z -= ballData.vx * dt * 0.5;
 
-    ballTrailPoints.push(new THREE.Vector3(ballData.x, ballData.y, ballData.z));
-    if (ballTrailPoints.length > 20) ballTrailPoints.shift();
-    const posAttr = ballTrail.geometry.getAttribute('position') as THREE.BufferAttribute;
-    for (let i = 0; i < ballTrailPoints.length; i++) {
-      posAttr.setXYZ(i, ballTrailPoints[i].x, ballTrailPoints[i].y, ballTrailPoints[i].z);
+    if (ballTrailPointCount < BALL_TRAIL_LENGTH) {
+      ballTrailPointCount++;
+    } else {
+      ballTrailPositions.copyWithin(0, 3);
     }
-    ballTrail.geometry.setDrawRange(0, ballTrailPoints.length);
+
+    const trailOffset = (ballTrailPointCount - 1) * 3;
+    ballTrailPositions[trailOffset] = ballData.x;
+    ballTrailPositions[trailOffset + 1] = ballData.y;
+    ballTrailPositions[trailOffset + 2] = ballData.z;
+
+    const posAttr = ballTrail.geometry.getAttribute('position') as THREE.BufferAttribute;
+    ballTrail.geometry.setDrawRange(0, ballTrailPointCount);
     posAttr.needsUpdate = true;
   };
 
@@ -130,13 +154,12 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
         minDist2 = distSq; closest2 = i;
       }
     }
-    const chasers = new Set([closest1, closest2]);
-
     for (let i = 0; i < teamData.length; i++) {
       const p = teamData[i];
       let targetX: number, targetZ: number;
+      const isChaser = i === closest1 || i === closest2;
 
-      if (chasers.has(i)) {
+      if (isChaser) {
         targetX = ballData.x;
         targetZ = ballData.z;
       } else {
@@ -164,7 +187,7 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
       p.x = clamp(p.x, -50, 50);
       p.z = clamp(p.z, -32, 32);
 
-      if (chasers.has(i)) {
+      if (isChaser) {
         const dx = ballData.x - p.x;
         const dz = ballData.z - p.z;
         const ballDistSq = dx * dx + dz * dz;
@@ -186,6 +209,7 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
       const runBob = Math.abs(bobSin) * 0.3 * speedNorm;
       
       dummy.scale.set(1, 1, 1);
+      dummy.rotation.set(0, 0, 0);
       dummy.position.set(p.x, 1.5 + runBob, p.z);
       
       if (speed > 0.1) dummy.lookAt(p.x + p.vx, dummy.position.y, p.z + p.vz);

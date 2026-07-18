@@ -16,7 +16,7 @@
 
     <!-- Gate Status Panel - Bottom Right (shifted left to clear FAB) -->
     <div class="absolute bottom-6 right-24 z-20 pointer-events-none w-[280px]">
-      <div class="bg-[#0a0a1a]/80 backdrop-blur-xl border border-white/8 rounded-xl px-4 py-3 flex flex-col shadow-lg gate-throughput-panel pointer-events-auto w-full">
+      <div class="bg-[#0a0a1a]/95 border border-white/8 rounded-xl px-4 py-3 flex flex-col shadow-lg gate-throughput-panel pointer-events-auto w-full">
         <!-- Header with toggle -->
         <div class="flex items-start justify-between mb-3 gap-2">
           <div class="flex flex-col gap-1">
@@ -69,13 +69,13 @@
       <div class="flex items-center gap-4">
         <button 
           @click="isScreenReaderMode = !isScreenReaderMode"
-          class="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-2.5 flex items-center gap-2 hover:bg-white/20 transition-all text-white/70 hover:text-white ea-button shadow-lg"
+          class="bg-[#0a0a1a]/90 border border-white/20 rounded-xl px-4 py-2.5 flex items-center gap-2 hover:bg-white/20 transition-all text-white/70 hover:text-white ea-button shadow-lg"
           aria-label="Toggle Screen Reader Mode"
         >
           <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z"/></svg>
           <span class="text-xs font-bold uppercase tracking-widest hidden sm:inline">a11y Mode</span>
         </button>
-        <div class="bg-white/5 backdrop-blur-xl border border-white/20 rounded-xl px-6 py-2.5 flex items-center gap-2 ea-tile shadow-lg">
+        <div class="bg-[#0a0a1a]/90 border border-white/20 rounded-xl px-6 py-2.5 flex items-center gap-2 ea-tile shadow-lg">
           <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] motion-safe:animate-pulse"></div>
           <span class="text-sm text-white/70 font-bold uppercase tracking-widest">{{ $t('systemsOnline') }}</span>
         </div>
@@ -96,7 +96,12 @@
 
     <!-- 3D Stadium (Full Bleed) -->
     <main class="flex-1 relative">
-      <FanMap :aria-hidden="isScreenReaderMode" :class="{ 'opacity-0 pointer-events-none': isScreenReaderMode }" class="transition-opacity duration-300" />
+      <FanMap
+        :active="!isScreenReaderMode"
+        :aria-hidden="isScreenReaderMode"
+        :class="{ 'opacity-0 pointer-events-none': isScreenReaderMode }"
+        class="transition-opacity duration-300"
+      />
       
       <!-- Screen Reader Data Grid (a11y) -->
       <div v-if="isScreenReaderMode" class="absolute inset-0 z-50 bg-[#050510] overflow-auto p-6 md:p-12 mt-20 md:mt-24 pointer-events-auto">
@@ -203,7 +208,7 @@
 
     <!-- Copilot Slide Panel -->
     <div
-      class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-[#0a0a1a]/95 backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.8)] transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-50 flex flex-col border-l border-white/5"
+      class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-[#0a0a1a]/98 shadow-[0_0_60px_rgba(0,0,0,0.8)] transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-50 flex flex-col border-l border-white/5"
       :class="isChatOpen ? 'translate-x-0' : 'translate-x-full'"
       @keydown.escape="isChatOpen = false"
     >

@@ -4,6 +4,7 @@ import { randomFloat } from '../utils/mathUtils';
 export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolean) {
   let crowdInstancedMesh: THREE.InstancedMesh;
   const CROWD_SIZE = 1500;
+  let activeCrowdSize = CROWD_SIZE;
   const dummy = new THREE.Object3D();
 
   interface CrowdAgent {
@@ -17,17 +18,24 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
   }
   const crowdData: CrowdAgent[] = [];
   const CELL_SIZE = 4;
-  const crowdGrid = new Map<string, number[]>();
-  const activeCells: string[] = [];
+  const GRID_OFFSET = 64;
+  const GRID_STRIDE = 128;
+  const crowdGrid = new Map<number, number[]>();
+  const activeCells: number[] = [];
 
-  const cellKey = (x: number, z: number) => `${Math.floor(x / CELL_SIZE)}_${Math.floor(z / CELL_SIZE)}`;
+  const cellKey = (x: number, z: number) =>
+    (Math.floor(x / CELL_SIZE) + GRID_OFFSET) * GRID_STRIDE
+    + Math.floor(z / CELL_SIZE) + GRID_OFFSET;
+
+  const cellKeyFromCoordinates = (x: number, z: number) =>
+    (x + GRID_OFFSET) * GRID_STRIDE + z + GRID_OFFSET;
 
   const rebuildCrowdGrid = () => {
     for (let i = 0; i < activeCells.length; i++) {
       crowdGrid.get(activeCells[i])!.length = 0;
     }
     activeCells.length = 0;
-    for (let i = 0; i < CROWD_SIZE; i++) {
+    for (let i = 0; i < activeCrowdSize; i++) {
       const key = cellKey(crowdData[i].x, crowdData[i].z);
       let bucket = crowdGrid.get(key);
       if (!bucket) {
@@ -37,21 +45,6 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
       if (bucket.length === 0) activeCells.push(key);
       bucket.push(i);
     }
-  };
-
-  const getNeighbors = (i: number): number[] => {
-    const a = crowdData[i];
-    const cx = Math.floor(a.x / CELL_SIZE);
-    const cz = Math.floor(a.z / CELL_SIZE);
-    const result: number[] = [];
-    for (let dx = -1; dx <= 1; dx++) {
-      for (let dz = -1; dz <= 1; dz++) {
-        const key = `${cx + dx}_${cz + dz}`;
-        const bucket = crowdGrid.get(key);
-        if (bucket) result.push(...bucket);
-      }
-    }
-    return result;
   };
 
   const standBounds: Record<string, { xMin: number; xMax: number; zMin: number; zMax: number }> = {
@@ -74,6 +67,8 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
     });
     crowdInstancedMesh = new THREE.InstancedMesh(avatarGeo, avatarMat, CROWD_SIZE);
     crowdInstancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    crowdInstancedMesh.castShadow = false;
+    crowdInstancedMesh.receiveShadow = false;
     scene.add(crowdInstancedMesh);
 
     const standNames = ['North Stand', 'South Stand', 'East Stand', 'West Stand'];
@@ -99,6 +94,12 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
       crowdInstancedMesh.setMatrixAt(i, dummy.matrix);
     }
     crowdInstancedMesh.instanceMatrix.needsUpdate = true;
+    crowdInstancedMesh.computeBoundingSphere();
+  };
+
+  const setLowPowerMode = (enabled: boolean) => {
+    activeCrowdSize = enabled ? Math.ceil(CROWD_SIZE * 0.6) : CROWD_SIZE;
+    if (crowdInstancedMesh) crowdInstancedMesh.count = activeCrowdSize;
   };
 
   const updateCrowd = (dt: number, time: number) => {
@@ -111,21 +112,30 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
     const WANDER_FORCE = 1.2;
     const MAX_SPEED = 1.2;
 
-    for (let i = 0; i < CROWD_SIZE; i++) {
+    for (let i = 0; i < activeCrowdSize; i++) {
       const a = crowdData[i];
       let fx = 0, fz = 0;
 
-      const neighbors = getNeighbors(i);
-      for (const j of neighbors) {
-        if (j === i) continue;
-        const b = crowdData[j];
-        const dx = a.x - b.x;
-        const dz = a.z - b.z;
-        const distSq = dx * dx + dz * dz;
-        if (distSq < SEPARATION_RADIUS * SEPARATION_RADIUS && distSq > 0.0001) {
-          const dist = Math.sqrt(distSq);
-          fx += (dx / dist) * SEPARATION_FORCE / dist;
-          fz += (dz / dist) * SEPARATION_FORCE / dist;
+      const cellX = Math.floor(a.x / CELL_SIZE);
+      const cellZ = Math.floor(a.z / CELL_SIZE);
+      for (let gridX = cellX - 1; gridX <= cellX + 1; gridX++) {
+        for (let gridZ = cellZ - 1; gridZ <= cellZ + 1; gridZ++) {
+          const bucket = crowdGrid.get(cellKeyFromCoordinates(gridX, gridZ));
+          if (!bucket) continue;
+
+          for (let bucketIndex = 0; bucketIndex < bucket.length; bucketIndex++) {
+            const neighborIndex = bucket[bucketIndex];
+            if (neighborIndex === i) continue;
+            const neighbor = crowdData[neighborIndex];
+            const dx = a.x - neighbor.x;
+            const dz = a.z - neighbor.z;
+            const distSq = dx * dx + dz * dz;
+            if (distSq < SEPARATION_RADIUS * SEPARATION_RADIUS && distSq > 0.0001) {
+              const inverseDistanceSquared = 1 / distSq;
+              fx += dx * SEPARATION_FORCE * inverseDistanceSquared;
+              fz += dz * SEPARATION_FORCE * inverseDistanceSquared;
+            }
+          }
         }
       }
 
@@ -163,5 +173,5 @@ export function useStadiumCrowd(scene: THREE.Scene, prefersReducedMotion: boolea
     crowdInstancedMesh.instanceMatrix.needsUpdate = true;
   };
 
-  return { initCrowd, updateCrowd };
+  return { initCrowd, updateCrowd, setLowPowerMode };
 }

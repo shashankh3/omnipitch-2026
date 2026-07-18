@@ -80,7 +80,7 @@
 
     <!-- Crowd Density -->
     <aside class="pointer-events-none absolute bottom-6 left-6 z-30 w-72 transition-all duration-500" aria-label="Crowd density summary">
-      <div class="density-panel overflow-hidden rounded-2xl p-4 bg-[#0a0a1a]/90 backdrop-blur-2xl border border-white/8 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+      <div class="density-panel overflow-hidden rounded-2xl p-4 bg-[#0a0a1a]/95 border border-white/8 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
         <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent"></div>
 
         <div class="mb-4 flex items-center justify-between">
@@ -156,7 +156,7 @@
     <div class="pointer-events-auto absolute bottom-6 right-6 z-40">
       <button 
         @click="isLowPowerMode = !isLowPowerMode"
-        class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all backdrop-blur-md"
+        class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors"
         :class="isLowPowerMode ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-[#0a0a1a]/60 text-white/50 hover:bg-[#0a0a1a]/80 hover:text-white/80'"
         type="button"
         :aria-pressed="isLowPowerMode"
@@ -207,8 +207,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import * as THREE from 'three';
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { useStadiumStore } from '../../store/useStadiumStore';
 import { useStadiumScene } from '../../composables/useStadiumScene';
 import { useStadiumPitch } from '../../composables/useStadiumPitch';
@@ -226,6 +225,9 @@ const canvasContainer = ref<HTMLDivElement | null>(null);
 const isLoading = ref(true);
 const isLowPowerMode = ref(false);
 const store = useStadiumStore();
+const props = withDefaults(defineProps<{ active?: boolean }>(), {
+  active: true,
+});
 
 const densityValues = computed(() => Object.values(store.telemetry.crowdDensity ?? {}));
 
@@ -249,13 +251,12 @@ const densityStats = computed(() => [
   { label: 'Packed', value: packedPercent.value, color: '#fb7185' },
 ]);
 
-const densityHistory = ref<number[][]>([]);
+const densityHistory = shallowRef<number[][]>([]);
 
 watch(
   densityValues,
   (values) => {
-    densityHistory.value.push([...values]);
-    if (densityHistory.value.length > 20) densityHistory.value.shift();
+    densityHistory.value = [...densityHistory.value.slice(-19), [...values]];
   },
   { immediate: true }
 );
@@ -325,14 +326,37 @@ const loadMatchData = () => {
 };
 
 let animationFrameId: number | undefined;
-let frameCounter = 0;
-const clock = new THREE.Clock();
+let initializationFrameId: number | undefined;
+let renderFrame: FrameRequestCallback | undefined;
+let lastRenderTime = 0;
+let elapsedTime = 0;
+let crowdAccumulator = 0;
+let sceneInitialized = false;
+let isDisposed = false;
 let disposeScene: (() => void) | undefined;
 
-const { initScene, onWindowResize } = useStadiumScene(canvasContainer);
+const { initScene } = useStadiumScene(canvasContainer);
 let setStandTargetColors: (() => void) | undefined;
+let setCrowdLowPowerMode: ((enabled: boolean) => void) | undefined;
+
+const canAnimate = () => props.active && document.visibilityState !== 'hidden' && !isDisposed;
+
+const stopAnimation = () => {
+  if (animationFrameId !== undefined) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = undefined;
+  }
+};
+
+const startAnimation = () => {
+  if (!sceneInitialized || !renderFrame || animationFrameId !== undefined || !canAnimate()) return;
+  lastRenderTime = performance.now();
+  crowdAccumulator = 0;
+  animationFrameId = requestAnimationFrame(renderFrame);
+};
 
 const init3D = () => {
+  if (sceneInitialized || isDisposed) return;
   const sceneData = initScene();
   if (!sceneData) return;
 
@@ -345,50 +369,82 @@ const init3D = () => {
     setStandTargetColors: updateStandTargets,
     updateStandColorsSmooth,
   } = useStadiumHeatmap(scene, store);
-  const { initCrowd, updateCrowd } = useStadiumCrowd(scene, prefersReducedMotion);
+  const crowd = useStadiumCrowd(scene, prefersReducedMotion);
+  const { initCrowd, updateCrowd } = crowd;
   const { initFootball, updateFootball } = useStadiumFootball(scene, prefersReducedMotion);
 
   setStandTargetColors = updateStandTargets;
+  setCrowdLowPowerMode = crowd.setLowPowerMode;
 
   initPitch();
   initHeatmap();
   initCrowd();
   initFootball();
+  setCrowdLowPowerMode?.(isLowPowerMode.value);
 
-  clock.start();
+  sceneInitialized = true;
+  renderer.render(scene, camera);
   isLoading.value = false;
 
-  const animate = () => {
-    animationFrameId = requestAnimationFrame(animate);
+  renderFrame = (timestamp) => {
+    animationFrameId = undefined;
+    if (!canAnimate()) return;
+    animationFrameId = requestAnimationFrame(renderFrame!);
 
-    // Skip every other frame in low power mode (cap at ~30fps)
-    if (isLowPowerMode.value) {
-      frameCounter++;
-      if (frameCounter % 2 !== 0) return;
+    const targetFps = isLowPowerMode.value || prefersReducedMotion ? 30 : 60;
+    const frameInterval = 1000 / targetFps;
+    const timeSinceLastRender = timestamp - lastRenderTime;
+    if (timeSinceLastRender < frameInterval - 0.5) return;
+
+    const frameRemainder = timeSinceLastRender >= frameInterval
+      ? timeSinceLastRender % frameInterval
+      : 0;
+    lastRenderTime = timestamp - frameRemainder;
+    const deltaTime = Math.min(timeSinceLastRender / 1000, 0.05);
+    elapsedTime += deltaTime;
+
+    controls.update(deltaTime);
+
+    updateStandColorsSmooth(deltaTime);
+
+    const crowdStep = isLowPowerMode.value ? 1 / 15 : 1 / 30;
+    crowdAccumulator += deltaTime;
+    if (crowdAccumulator >= crowdStep) {
+      updateCrowd(Math.min(crowdAccumulator, 0.1), elapsedTime);
+      crowdAccumulator %= crowdStep;
     }
 
-    const deltaTime = Math.min(clock.getDelta(), 0.05);
-    const elapsedTime = clock.getElapsedTime();
-
-    controls.update();
-
-    if (!prefersReducedMotion && !isLowPowerMode.value) {
-      updateStandColorsSmooth(deltaTime);
-    }
-
-    updateCrowd(deltaTime, elapsedTime);
     updateFootball(deltaTime, elapsedTime);
     renderer.render(scene, camera);
   };
 
-  animate();
+  startAnimation();
 };
 
 watch(
-  () => store.telemetry.crowdDensity,
+  [
+    () => store.telemetry.crowdDensity,
+    () => store.telemetry.gateThroughput,
+  ],
   () => setStandTargetColors?.(),
-  { deep: true }
+  { deep: true, flush: 'post' }
 );
+
+watch(isLowPowerMode, (enabled) => {
+  setCrowdLowPowerMode?.(enabled);
+  lastRenderTime = performance.now();
+  crowdAccumulator = 0;
+});
+
+watch(() => props.active, (active) => {
+  if (active) startAnimation();
+  else stopAnimation();
+});
+
+const onVisibilityChange = () => {
+  if (document.visibilityState === 'hidden') stopAnimation();
+  else startAnimation();
+};
 
 onMounted(() => {
   loadMatchData();
@@ -396,8 +452,8 @@ onMounted(() => {
   // Listen for storage events (from LiveMatchFeed writing cache) instead of polling
   window.addEventListener('storage', onStorageChange);
   window.addEventListener(MATCH_FEED_UPDATED_EVENT, onMatchFeedUpdated);
-  window.addEventListener('resize', onWindowResize);
-  window.setTimeout(init3D, 100);
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  initializationFrameId = requestAnimationFrame(init3D);
 });
 
 const onStorageChange = (e: StorageEvent) => {
@@ -409,17 +465,21 @@ const onMatchFeedUpdated = (event: Event) => {
 };
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', onWindowResize);
+  isDisposed = true;
   window.removeEventListener('storage', onStorageChange);
   window.removeEventListener(MATCH_FEED_UPDATED_EVENT, onMatchFeedUpdated);
+  document.removeEventListener('visibilitychange', onVisibilityChange);
 
-  if (animationFrameId) cancelAnimationFrame(animationFrameId);
-  if (disposeScene) disposeScene();
+  if (initializationFrameId !== undefined) cancelAnimationFrame(initializationFrameId);
+  stopAnimation();
+  disposeScene?.();
 });
 </script>
 
 <style scoped>
 .fan-map {
+  contain: layout paint style;
+  isolation: isolate;
   background:
     radial-gradient(circle at 50% 0%, rgba(30, 64, 175, 0.18), transparent 38%),
     #030712;
@@ -429,11 +489,10 @@ onBeforeUnmount(() => {
 .loader-card {
   border: 1px solid rgba(255, 255, 255, 0.1);
   background:
-    linear-gradient(135deg, rgba(20, 35, 67, 0.84), rgba(4, 9, 24, 0.84));
+    linear-gradient(135deg, rgba(20, 35, 67, 0.96), rgba(4, 9, 24, 0.96));
   box-shadow:
     0 18px 42px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(24px);
 }
 
 .scoreboard-glow {
@@ -532,6 +591,7 @@ onBeforeUnmount(() => {
 
 .stadium-light-sweep {
   opacity: 0.2;
+  will-change: transform;
   background: linear-gradient(
     112deg,
     transparent 36%,

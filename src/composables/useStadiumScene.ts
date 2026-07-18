@@ -9,6 +9,9 @@ export function useStadiumScene(
   let camera: THREE.PerspectiveCamera;
   let renderer: THREE.WebGLRenderer;
   let controls: OrbitControls;
+  let resizeObserver: ResizeObserver | undefined;
+
+  const getPixelRatio = () => Math.min(window.devicePixelRatio || 1, 1.25);
 
   const initScene = () => {
     if (!canvasContainer.value) return null;
@@ -23,11 +26,25 @@ export function useStadiumScene(
     camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1200);
     camera.position.set(-80, 120, 180);
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    const pixelRatio = getPixelRatio();
+    renderer = new THREE.WebGLRenderer({
+      antialias: pixelRatio <= 1,
+      alpha: false,
+      depth: true,
+      stencil: false,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(pixelRatio);
+    renderer.setSize(width, height, false);
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // The stadium and its shadow-casting structures are static. Render their
+    // shadow map once instead of rebuilding it for every animation frame.
+    renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.6;
     canvasContainer.value.appendChild(renderer.domElement);
@@ -66,28 +83,45 @@ export function useStadiumScene(
     fillLight.position.set(-80, 100, -80);
     scene.add(fillLight);
 
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(onWindowResize);
+      resizeObserver.observe(canvasContainer.value);
+    }
+
     const dispose = () => {
-      if (renderer) {
-        renderer.dispose();
-      }
-      if (controls) {
-        controls.dispose();
-      }
-      if (scene) {
-        scene.traverse((object) => {
-          if ((object as THREE.Mesh).isMesh) {
-            const mesh = object as THREE.Mesh;
-            if (mesh.geometry) mesh.geometry.dispose();
-            if (mesh.material) {
-              if (Array.isArray(mesh.material)) {
-                mesh.material.forEach(m => m.dispose());
-              } else {
-                mesh.material.dispose();
-              }
-            }
-          }
+      resizeObserver?.disconnect();
+      resizeObserver = undefined;
+      controls?.dispose();
+
+      const geometries = new Set<THREE.BufferGeometry>();
+      const materials = new Set<THREE.Material>();
+      const textures = new Set<THREE.Texture>();
+
+      scene?.traverse((object) => {
+        const renderable = object as THREE.Mesh;
+        if (renderable.geometry) geometries.add(renderable.geometry);
+
+        const objectMaterials = renderable.material
+          ? (Array.isArray(renderable.material) ? renderable.material : [renderable.material])
+          : [];
+        objectMaterials.forEach((material) => materials.add(material));
+      });
+
+      materials.forEach((material) => {
+        Object.values(material).forEach((value: unknown) => {
+          if (value instanceof THREE.Texture) textures.add(value);
         });
-      }
+      });
+      textures.forEach((texture) => texture.dispose());
+      materials.forEach((material) => material.dispose());
+      geometries.forEach((geometry) => geometry.dispose());
+      scene?.clear();
+
+      renderer?.setAnimationLoop(null);
+      renderer?.renderLists.dispose();
+      renderer?.dispose();
+      renderer?.forceContextLoss();
+
       if (canvasContainer.value && renderer?.domElement?.parentElement === canvasContainer.value) {
         canvasContainer.value.removeChild(renderer.domElement);
       }
@@ -102,7 +136,9 @@ export function useStadiumScene(
     const height = Math.max(1, canvasContainer.value.clientHeight);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
+    const pixelRatio = getPixelRatio();
+    if (renderer.getPixelRatio() !== pixelRatio) renderer.setPixelRatio(pixelRatio);
+    renderer.setSize(width, height, false);
   };
 
   return {

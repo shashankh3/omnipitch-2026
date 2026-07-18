@@ -19,6 +19,7 @@ import { useStadiumStore } from '../store/useStadiumStore';
 export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof useStadiumStore>) {
   const standMaterials: Record<string, THREE.MeshStandardMaterial> = {};
   const standColorState: Record<string, { current: THREE.Color; target: THREE.Color; currentEmissive: number; targetEmissive: number }> = {};
+  const standSections: string[] = [];
   const stands: Record<string, THREE.Mesh> = {};
   const standHUDMaterials: Record<string, THREE.MeshBasicMaterial> = {};
   const standChairMeshes: Record<string, THREE.InstancedMesh> = {};
@@ -27,12 +28,20 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
 
   const gateMaterials: Record<string, THREE.MeshStandardMaterial> = {};
   const gateColorState: Record<string, { current: THREE.Color; target: THREE.Color; currentEmissive: number; targetEmissive: number }> = {};
+  const gateIds: string[] = [];
   const gates: Record<string, THREE.Mesh> = {};
   const gateHUDMaterials: Record<string, THREE.MeshBasicMaterial> = {};
   const lastGateThroughput: Record<string, number> = {};
 
   const dummy = new THREE.Object3D();
   const emptyChairColor = new THREE.Color(0x4a4a6a);
+  const chairMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.9,
+    metalness: 0.1,
+    emissive: 0x111111
+  });
+  const chairGeometry = new THREE.BoxGeometry(1.4, 0.8, 1.4);
 
   const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
   const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
@@ -84,6 +93,8 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
     texture.colorSpace = THREE.SRGBColorSpace;
     return texture;
   };
@@ -143,6 +154,8 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
     texture.colorSpace = THREE.SRGBColorSpace;
     return texture;
   };
@@ -175,6 +188,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     mesh.receiveShadow = true;
     scene.add(mesh);
     standMaterials[name] = mat;
+    standSections.push(name);
     standColorState[name] = {
       current: colors.clear.clone(),
       target: colors.clear.clone(),
@@ -183,15 +197,15 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     };
     stands[name] = mesh;
 
-    const chairMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.1, emissive: 0x111111 });
-    const chairGeo = new THREE.BoxGeometry(1.4, 0.8, 1.4);
     const ROWS = 25;
     const COLS = Math.floor(depth / 1.5);
     const CHAIRS_PER_STAND = ROWS * COLS;
-    const standChairMesh = new THREE.InstancedMesh(chairGeo, chairMat, CHAIRS_PER_STAND);
+    const standChairMesh = new THREE.InstancedMesh(chairGeometry, chairMaterial, CHAIRS_PER_STAND);
     scene.add(standChairMesh);
     standChairMeshes[name] = standChairMesh;
 
+    const standTransform = new THREE.Matrix4().makeRotationY(rotY);
+    standTransform.setPosition(x, 0, z);
     let chairCounter = 0;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
@@ -202,12 +216,9 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
 
         dummy.position.set(localX, localY, localZ);
         dummy.rotation.set(0, 0, 0);
-
-        const transformMatrix = new THREE.Matrix4().makeRotationY(rotY);
-        transformMatrix.setPosition(x, 0, z);
-        dummy.applyMatrix4(transformMatrix);
-
+        dummy.scale.set(1, 1, 1);
         dummy.updateMatrix();
+        dummy.matrix.premultiply(standTransform);
         standChairMesh.setMatrixAt(chairCounter, dummy.matrix);
         standChairMesh.setColorAt(chairCounter, emptyChairColor);
         chairCounter++;
@@ -286,6 +297,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     scene.add(label);
 
     gateMaterials[id] = gateMat;
+    gateIds.push(id);
     gateHUDMaterials[id] = labelMat;
     gateColorState[id] = {
       current: colors.clear.clone(),
@@ -298,7 +310,8 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
 
   const setStandTargetColors = () => {
     const densities = store.telemetry.crowdDensity;
-    Object.keys(standMaterials).forEach(section => {
+    for (let sectionIndex = 0; sectionIndex < standSections.length; sectionIndex++) {
+      const section = standSections[sectionIndex];
       const density = clamp(densities[section] || 0, 0, 100);
       const roundedDensity = Math.round(density);
       const targetColor = getHeatmapColor(density);
@@ -328,10 +341,11 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
         lastChairDensity[section] = roundedDensity;
         if (chairMesh.instanceColor) chairMesh.instanceColor.needsUpdate = true;
       }
-    });
+    }
 
     const gatesThroughput = store.telemetry.gateThroughput;
-    Object.keys(gateMaterials).forEach(gateId => {
+    for (let gateIndex = 0; gateIndex < gateIds.length; gateIndex++) {
+      const gateId = gateIds[gateIndex];
       const tp = Math.max(0, gatesThroughput[gateId] || 0);
       const normalizedDensity = clamp((tp / 1000) * 100, 0, 100);
       const targetColor = getHeatmapColor(normalizedDensity);
@@ -347,30 +361,31 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
         lastGateThroughput[gateId] = tp;
         if (oldMap) oldMap.dispose();
       }
-    });
+    }
   };
 
   const updateStandColorsSmooth = (dt: number) => {
     const speed = 1.5;
-    Object.keys(standMaterials).forEach(section => {
+    const t = clamp(dt * speed, 0, 1);
+    for (let sectionIndex = 0; sectionIndex < standSections.length; sectionIndex++) {
+      const section = standSections[sectionIndex];
       const mat = standMaterials[section];
       const state = standColorState[section];
-      const t = clamp(dt * speed, 0, 1);
       state.current.lerp(state.target, t);
       state.currentEmissive = lerp(state.currentEmissive, state.targetEmissive, t);
       mat.color.copy(state.current);
       mat.emissive.copy(state.current).multiplyScalar(state.currentEmissive);
-    });
+    }
 
-    Object.keys(gateMaterials).forEach(gateId => {
+    for (let gateIndex = 0; gateIndex < gateIds.length; gateIndex++) {
+      const gateId = gateIds[gateIndex];
       const mat = gateMaterials[gateId];
       const state = gateColorState[gateId];
-      const t = clamp(dt * speed, 0, 1);
       state.current.lerp(state.target, t);
       state.currentEmissive = lerp(state.currentEmissive, state.targetEmissive, t);
       mat.color.copy(state.current);
       mat.emissive.copy(state.current).multiplyScalar(state.currentEmissive);
-    });
+    }
   };
 
   const initHeatmap = () => {
