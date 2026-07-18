@@ -414,7 +414,7 @@ const init3D = () => {
       crowdAccumulator %= crowdStep;
     }
 
-    updateFootball(deltaTime, elapsedTime);
+    updateFootball(deltaTime);
     renderer.render(scene, camera);
   };
 

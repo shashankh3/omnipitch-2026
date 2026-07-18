@@ -391,7 +391,7 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
     posAttr.needsUpdate = true;
   };
 
-  const updateFootball = (dt: number, time: number) => {
+  const updateFootball = (dt: number) => {
     if (!ballMesh || !redTeamMesh || !blueTeamMesh || !ballTrail) return;
 
     updatePlayers(dt);
