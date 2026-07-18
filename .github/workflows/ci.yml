@@ -52,7 +52,7 @@ jobs:
 
       - name: Cypress accessibility tests
         run: |
-          npx vite preview --port 5173 &
+          npx vite preview --port 5173 --host &
           npx wait-on http://localhost:5173 --timeout 60000
           npx cypress run --spec "cypress/e2e/accessibility.cy.ts"
         env:
