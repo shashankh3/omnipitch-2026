@@ -12,14 +12,23 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
   let ballTrailPointCount = 0;
   const dummy = new THREE.Object3D();
 
+  type TeamColor = 'red' | 'blue';
+
   interface Player {
+    id: number;
+    team: TeamColor;
     x: number; z: number;
     vx: number; vz: number;
+    heading: number;
+    lean: number;
     homeX: number; homeZ: number;
     speed: number;
-    role: 'chase' | 'support';
+    state: 'chase' | 'return' | 'dribble' | 'support';
     bobPhase: number;
+    cooldown: number;
   }
+  
+  const allPlayers: Player[] = [];
   const redTeamData: Player[] = [];
   const blueTeamData: Player[] = [];
 
@@ -27,16 +36,19 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
     x: number; y: number; z: number;
     vx: number; vy: number; vz: number;
     spin: number;
+    owner: Player | null;
   }
-  const ballData: Ball = { x: 0, y: 0.5, z: 0, vx: 3, vy: 0, vz: 2, spin: 0 };
+  const ballData: Ball = { x: 0, y: 0.5, z: 0, vx: 0, vy: 0, vz: 0, spin: 0, owner: null };
 
   const GRAVITY = -22;
   const RESTITUTION = 0.55;
   const BALL_RADIUS = 0.5;
 
-  const easeOutQuad = (t: number) => t * (2 - t);
-  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  const PITCH_WIDTH = 100; // -50 to 50
+  const PITCH_HEIGHT = 64; // -32 to 32
+
   const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
   const initFootball = () => {
     const playerGeo = new THREE.CapsuleGeometry(0.4, 1.4, 4, 8);
@@ -53,30 +65,28 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
     blueTeamMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     scene.add(blueTeamMesh);
 
+    // 4-4-2 Formation offsets
     const formationOffsets = [
-      { x: -20, z: 0 },
-      { x: -12, z: -20 }, { x: -12, z: -7 }, { x: -12, z: 7 }, { x: -12, z: 20 },
-      { x: 0, z: -20 }, { x: 0, z: -7 }, { x: 0, z: 7 }, { x: 0, z: 20 },
-      { x: 15, z: -10 }, { x: 15, z: 10 }
+      { x: -40, z: 0 }, // Goalkeeper
+      { x: -30, z: -15 }, { x: -30, z: -5 }, { x: -30, z: 5 }, { x: -30, z: 15 }, // Defense
+      { x: -15, z: -20 }, { x: -15, z: -7 }, { x: -15, z: 7 }, { x: -15, z: 20 }, // Midfield
+      { x: -2, z: -8 }, { x: -2, z: 8 } // Forwards
     ];
+
+    let idCounter = 0;
 
     for (let i = 0; i < PLAYERS_PER_TEAM; i++) {
       const off = formationOffsets[i];
-      redTeamData.push({ x: off.x - 10, z: off.z, vx: 0, vz: 0, homeX: off.x - 10, homeZ: off.z, speed: 6 + randomFloat() * 2, role: 'support', bobPhase: randomFloat() * Math.PI * 2 });
-      blueTeamData.push({ x: -off.x + 10, z: -off.z, vx: 0, vz: 0, homeX: -off.x + 10, homeZ: -off.z, speed: 6 + randomFloat() * 2, role: 'support', bobPhase: randomFloat() * Math.PI * 2 });
+      const redP: Player = { id: idCounter++, team: 'red', x: off.x, z: off.z, vx: 0, vz: 0, heading: 0, lean: 0, homeX: off.x, homeZ: off.z, speed: 7 + randomFloat() * 1.5, state: 'support', bobPhase: randomFloat() * Math.PI * 2, cooldown: 0 };
+      const blueP: Player = { id: idCounter++, team: 'blue', x: -off.x, z: -off.z, vx: 0, vz: 0, heading: Math.PI, lean: 0, homeX: -off.x, homeZ: -off.z, speed: 7 + randomFloat() * 1.5, state: 'support', bobPhase: randomFloat() * Math.PI * 2, cooldown: 0 };
+      
+      redTeamData.push(redP);
+      blueTeamData.push(blueP);
+      allPlayers.push(redP, blueP);
 
-      dummy.position.set(off.x - 10, 1.5, off.z);
-      dummy.rotation.set(0, 0, 0);
-      dummy.scale.set(1, 1, 1);
-      dummy.updateMatrix();
-      redTeamMesh.setMatrixAt(i, dummy.matrix);
-
-      dummy.position.set(-off.x + 10, 1.5, -off.z);
-      dummy.updateMatrix();
-      blueTeamMesh.setMatrixAt(i, dummy.matrix);
+      updatePlayerMesh(redTeamMesh, i, redP, 0);
+      updatePlayerMesh(blueTeamMesh, i, blueP, 0);
     }
-    redTeamMesh.instanceMatrix.needsUpdate = true;
-    blueTeamMesh.instanceMatrix.needsUpdate = true;
 
     // Ball
     ballMesh = new THREE.Mesh(
@@ -98,29 +108,258 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
     scene.add(ballTrail);
   };
 
+  const updatePlayerMesh = (mesh: THREE.InstancedMesh, index: number, p: Player, time: number) => {
+    const speed = Math.sqrt(p.vx * p.vx + p.vz * p.vz);
+    const speedNorm = clamp(speed / p.speed, 0, 1);
+
+    const bobSin = Math.sin(time * 15 + p.bobPhase);
+    const runBob = Math.abs(bobSin) * 0.3 * speedNorm;
+    
+    dummy.scale.set(1, 1, 1);
+    dummy.rotation.set(0, 0, 0);
+    dummy.position.set(p.x, 1.5 + runBob, p.z);
+    
+    // Rotate to heading
+    dummy.rotation.y = -p.heading + Math.PI / 2; // Offset for 3D orientation
+
+    // Forward lean based on acceleration
+    const forwardLean = speedNorm * 0.4;
+    dummy.rotateX(forwardLean);
+    
+    // Sideways lean (centripetal tilt during turns)
+    dummy.rotateZ(p.lean * 0.6);
+
+    // Run wobble
+    const runWobble = Math.cos(time * 7.5 + p.bobPhase) * 0.1 * speedNorm;
+    dummy.rotateY(runWobble);
+
+    // Squash & stretch on impact
+    const stretch = 1 + (Math.abs(bobSin) - 0.5) * 0.25 * speedNorm;
+    const squash = 1 / Math.sqrt(stretch);
+    dummy.scale.set(squash, stretch, squash);
+
+    dummy.updateMatrix();
+    mesh.setMatrixAt(index, dummy.matrix);
+  };
+
+  const wrapAngle = (a: number) => {
+    while (a > Math.PI) a -= Math.PI * 2;
+    while (a < -Math.PI) a += Math.PI * 2;
+    return a;
+  };
+
+  const updatePlayers = (dt: number, time: number) => {
+    if (prefersReducedMotion) return;
+
+    // Determine possession and nearest players
+    let nearestRed: Player | null = null;
+    let nearestBlue: Player | null = null;
+    let minRedDist = Infinity;
+    let minBlueDist = Infinity;
+
+    for (const p of redTeamData) {
+      const dist = Math.hypot(ballData.x - p.x, ballData.z - p.z);
+      if (dist < minRedDist) { minRedDist = dist; nearestRed = p; }
+    }
+    for (const p of blueTeamData) {
+      const dist = Math.hypot(ballData.x - p.x, ballData.z - p.z);
+      if (dist < minBlueDist) { minBlueDist = dist; nearestBlue = p; }
+    }
+
+    // Possession logic
+    if (ballData.y < 2.0) { // Ball is low enough to control
+      if (minRedDist < 1.5 && minRedDist <= minBlueDist && (!ballData.owner || ballData.owner.team === 'red')) {
+        ballData.owner = nearestRed;
+      } else if (minBlueDist < 1.5 && minBlueDist < minRedDist && (!ballData.owner || ballData.owner.team === 'blue')) {
+        ballData.owner = nearestBlue;
+      }
+    }
+
+    const possessingTeam = ballData.owner ? ballData.owner.team : null;
+
+    for (let i = 0; i < allPlayers.length; i++) {
+      const p = allPlayers[i];
+      if (p.cooldown > 0) p.cooldown -= dt;
+
+      let targetX = p.homeX;
+      let targetZ = p.homeZ;
+      let isChaser = false;
+
+      if (p === ballData.owner) {
+        // Dribbling
+        const attackDir = p.team === 'red' ? 1 : -1;
+        targetX = p.x + attackDir * 10; // Run towards goal
+        targetZ = clamp(p.z + (ballData.z - p.z) * 0.5, -20, 20); // Centralize slightly
+        
+        // Pass or shoot logic
+        if (p.cooldown <= 0) {
+          const distToGoal = Math.abs((p.team === 'red' ? 50 : -50) - p.x);
+          if (distToGoal < 20) {
+            // Shoot
+            const shootY = 2 + randomFloat() * 4;
+            const shootV = 18 + randomFloat() * 6;
+            ballData.vx = attackDir * shootV;
+            ballData.vy = shootY;
+            ballData.vz = (randomFloat() - 0.5) * 8;
+            ballData.owner = null;
+            p.cooldown = 1.0;
+          } else if (Math.random() < 0.02) {
+            // Pass
+            const teammates = p.team === 'red' ? redTeamData : blueTeamData;
+            const forwardTeammates = teammates.filter(t => t !== p && (p.team === 'red' ? t.x > p.x : t.x < p.x));
+            if (forwardTeammates.length > 0) {
+              const target = forwardTeammates[Math.floor(Math.random() * forwardTeammates.length)];
+              const dx = target.x - p.x;
+              const dz = target.z - p.z;
+              const dist = Math.hypot(dx, dz);
+              ballData.vx = (dx / dist) * 15;
+              ballData.vz = (dz / dist) * 15;
+              ballData.vy = 2;
+              ballData.owner = null;
+              p.cooldown = 1.0;
+            }
+          }
+        }
+      } else {
+        // Not possessing
+        if ((p.team === 'red' && p === nearestRed) || (p.team === 'blue' && p === nearestBlue)) {
+          isChaser = true;
+          // Predict ball position slightly
+          targetX = ballData.x + ballData.vx * 0.2;
+          targetZ = ballData.z + ballData.vz * 0.2;
+        } else {
+          // Tactical formation push/pull
+          const pushFactor = possessingTeam === p.team ? 15 : (possessingTeam ? -10 : 0);
+          const attackDir = p.team === 'red' ? 1 : -1;
+          targetX = p.homeX + attackDir * pushFactor + (ballData.x * 0.1);
+          targetZ = p.homeZ + (ballData.z * 0.15);
+        }
+      }
+
+      // Steering Kinematics
+      let dx = targetX - p.x;
+      let dz = targetZ - p.z;
+      
+      // Separation (Boids avoidance)
+      let sepX = 0, sepZ = 0;
+      for (const other of allPlayers) {
+        if (other !== p) {
+          const odx = p.x - other.x;
+          const odz = p.z - other.z;
+          const odistSq = odx * odx + odz * odz;
+          if (odistSq < 4.0 && odistSq > 0.01) {
+            const odist = Math.sqrt(odistSq);
+            sepX += (odx / odist) * (2.0 - odist);
+            sepZ += (odz / odist) * (2.0 - odist);
+          }
+        }
+      }
+      
+      // Apply separation strongly if we aren't the chaser
+      if (!isChaser && p !== ballData.owner) {
+        dx += sepX * 5;
+        dz += sepZ * 5;
+      }
+
+      const currentSpeed = Math.hypot(p.vx, p.vz);
+      
+      if (Math.hypot(dx, dz) > 0.5) {
+        const desiredHeading = Math.atan2(dz, dx);
+        let angleDiff = wrapAngle(desiredHeading - p.heading);
+        
+        // Turn rate limits
+        const maxTurn = 5.0 * dt; // rad per sec
+        const turnStep = clamp(angleDiff, -maxTurn, maxTurn);
+        p.heading = wrapAngle(p.heading + turnStep);
+
+        // Lean into turns
+        const targetLean = (turnStep / maxTurn) * (currentSpeed / p.speed);
+        p.lean = lerp(p.lean, targetLean, 10 * dt);
+
+        // Accelerate
+        const accel = p.speed * 2.0; 
+        p.vx += Math.cos(p.heading) * accel * dt;
+        p.vz += Math.sin(p.heading) * accel * dt;
+        
+        // Cap speed
+        const newSpeed = Math.hypot(p.vx, p.vz);
+        if (newSpeed > p.speed) {
+          p.vx = (p.vx / newSpeed) * p.speed;
+          p.vz = (p.vz / newSpeed) * p.speed;
+        }
+      } else {
+        // Decelerate
+        p.vx *= Math.exp(-8 * dt);
+        p.vz *= Math.exp(-8 * dt);
+        p.lean = lerp(p.lean, 0, 10 * dt);
+      }
+
+      p.x += p.vx * dt;
+      p.z += p.vz * dt;
+      p.x = clamp(p.x, -PITCH_WIDTH/2, PITCH_WIDTH/2);
+      p.z = clamp(p.z, -PITCH_HEIGHT/2, PITCH_HEIGHT/2);
+    }
+
+    for (let i = 0; i < PLAYERS_PER_TEAM; i++) {
+      updatePlayerMesh(redTeamMesh, i, redTeamData[i], time);
+      updatePlayerMesh(blueTeamMesh, i, blueTeamData[i], time);
+    }
+    redTeamMesh.instanceMatrix.needsUpdate = true;
+    blueTeamMesh.instanceMatrix.needsUpdate = true;
+  };
+
   const updateBall = (dt: number) => {
     if (prefersReducedMotion) return;
 
-    ballData.vy += GRAVITY * dt;
-    ballData.x += ballData.vx * dt;
-    ballData.y += ballData.vy * dt;
-    ballData.z += ballData.vz * dt;
+    if (ballData.owner) {
+      // Dribbling: tether ball to owner's feet
+      const owner = ballData.owner;
+      const ownerSpeed = Math.hypot(owner.vx, owner.vz);
+      
+      // Place ball slightly ahead of player
+      const aheadDist = 0.8 + ownerSpeed * 0.1;
+      const targetBx = owner.x + Math.cos(owner.heading) * aheadDist;
+      const targetBz = owner.z + Math.sin(owner.heading) * aheadDist;
 
-    if (ballData.y <= BALL_RADIUS) {
+      ballData.x = lerp(ballData.x, targetBx, 15 * dt);
+      ballData.z = lerp(ballData.z, targetBz, 15 * dt);
       ballData.y = BALL_RADIUS;
-      ballData.vy = Math.abs(ballData.vy) * RESTITUTION;
-      if (ballData.vy < 0.5) ballData.vy = 0;
-      const ballDamp = Math.exp(-1.8 * dt);
-      ballData.vx *= ballDamp;
-      ballData.vz *= ballDamp;
+      
+      ballData.vx = owner.vx;
+      ballData.vz = owner.vz;
+      ballData.vy = 0;
+      
+      // Random loss of possession
+      if (Math.random() < 0.005) ballData.owner = null;
+    } else {
+      // Free physics
+      ballData.vy += GRAVITY * dt;
+      ballData.x += ballData.vx * dt;
+      ballData.y += ballData.vy * dt;
+      ballData.z += ballData.vz * dt;
+
+      if (ballData.y <= BALL_RADIUS) {
+        ballData.y = BALL_RADIUS;
+        ballData.vy = Math.abs(ballData.vy) * RESTITUTION;
+        if (ballData.vy < 0.5) ballData.vy = 0;
+        const ballDamp = Math.exp(-1.8 * dt);
+        ballData.vx *= ballDamp;
+        ballData.vz *= ballDamp;
+      }
+
+      // Bounds bouncing
+      if (ballData.x > 51 || ballData.x < -51) { ballData.vx *= -0.7; ballData.x = clamp(ballData.x, -51, 51); }
+      if (ballData.z > 33 || ballData.z < -33) { ballData.vz *= -0.7; ballData.z = clamp(ballData.z, -33, 33); }
     }
 
-    if (ballData.x > 51 || ballData.x < -51) { ballData.vx *= -0.8; ballData.x = clamp(ballData.x, -51, 51); }
-    if (ballData.z > 33 || ballData.z < -33) { ballData.vz *= -0.8; ballData.z = clamp(ballData.z, -33, 33); }
-
     ballMesh.position.set(ballData.x, ballData.y, ballData.z);
-    ballMesh.rotation.x += ballData.vz * dt * 0.5;
-    ballMesh.rotation.z -= ballData.vx * dt * 0.5;
+    
+    // Spin based on velocity
+    const rollSpeed = Math.hypot(ballData.vx, ballData.vz) / BALL_RADIUS;
+    if (rollSpeed > 0.1) {
+      const rollAxis = new THREE.Vector3(-ballData.vz, 0, ballData.vx).normalize();
+      ballMesh.rotateOnWorldAxis(rollAxis, rollSpeed * dt);
+    }
 
     if (ballTrailPointCount < BALL_TRAIL_LENGTH) {
       ballTrailPointCount++;
@@ -138,104 +377,11 @@ export function useStadiumFootball(scene: THREE.Scene, prefersReducedMotion: boo
     posAttr.needsUpdate = true;
   };
 
-  const updateTeam = (mesh: THREE.InstancedMesh, teamData: Player[], time: number, dt: number) => {
-    if (prefersReducedMotion) return;
-
-    let closest1 = -1, minDist1 = Infinity;
-    let closest2 = -1, minDist2 = Infinity;
-    for (let i = 0; i < teamData.length; i++) {
-      const dx = ballData.x - teamData[i].x;
-      const dz = ballData.z - teamData[i].z;
-      const distSq = dx * dx + dz * dz;
-      if (distSq < minDist1) {
-        minDist2 = minDist1; closest2 = closest1;
-        minDist1 = distSq; closest1 = i;
-      } else if (distSq < minDist2) {
-        minDist2 = distSq; closest2 = i;
-      }
-    }
-    for (let i = 0; i < teamData.length; i++) {
-      const p = teamData[i];
-      let targetX: number, targetZ: number;
-      const isChaser = i === closest1 || i === closest2;
-
-      if (isChaser) {
-        targetX = ballData.x;
-        targetZ = ballData.z;
-      } else {
-        targetX = p.homeX + (ballData.x) * 0.15;
-        targetZ = p.homeZ + (ballData.z - p.homeZ) * 0.1;
-      }
-
-      const dx = targetX - p.x;
-      const dz = targetZ - p.z;
-      const dist = Math.sqrt(dx * dx + dz * dz);
-
-      if (dist > 0.1) {
-        const accel = easeOutQuad(clamp(dist / 10, 0, 1)) * p.speed;
-        const lerpFactor = 1 - Math.exp(-5 * dt);
-        p.vx = lerp(p.vx, (dx / dist) * accel, lerpFactor);
-        p.vz = lerp(p.vz, (dz / dist) * accel, lerpFactor);
-      } else {
-        const dampFactor = Math.exp(-12 * dt);
-        p.vx *= dampFactor;
-        p.vz *= dampFactor;
-      }
-
-      p.x += p.vx * dt;
-      p.z += p.vz * dt;
-      p.x = clamp(p.x, -50, 50);
-      p.z = clamp(p.z, -32, 32);
-
-      if (isChaser) {
-        const dx = ballData.x - p.x;
-        const dz = ballData.z - p.z;
-        const ballDistSq = dx * dx + dz * dz;
-        if (ballDistSq < 1.8 * 1.8 && ballData.y < 1.5) {
-          const kdx = ballData.x - p.x;
-          const kdz = ballData.z - p.z;
-          const kd = Math.sqrt(kdx * kdx + kdz * kdz) || 1;
-          const power = 8 + randomFloat() * 6;
-          ballData.vx = (kdx / kd) * power;
-          ballData.vz = (kdz / kd) * power;
-          ballData.vy = 3 + randomFloat() * 4;
-        }
-      }
-
-      const speed = Math.sqrt(p.vx * p.vx + p.vz * p.vz);
-      const speedNorm = clamp(speed / 6, 0, 1);
-
-      const bobSin = Math.sin(time * 15 + p.bobPhase);
-      const runBob = Math.abs(bobSin) * 0.3 * speedNorm;
-      
-      dummy.scale.set(1, 1, 1);
-      dummy.rotation.set(0, 0, 0);
-      dummy.position.set(p.x, 1.5 + runBob, p.z);
-      
-      if (speed > 0.1) dummy.lookAt(p.x + p.vx, dummy.position.y, p.z + p.vz);
-
-      const forwardLean = speedNorm * 0.35;
-      dummy.rotateX(forwardLean);
-      
-      const runWobble = Math.cos(time * 7.5 + p.bobPhase) * 0.15 * speedNorm;
-      dummy.rotateZ(runWobble);
-
-      const stretch = 1 + (Math.abs(bobSin) - 0.5) * 0.25 * speedNorm;
-      const squash = 1 / Math.sqrt(stretch);
-      dummy.scale.set(squash, stretch, squash);
-
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
-    }
-    mesh.instanceMatrix.needsUpdate = true;
-  };
-
   const updateFootball = (dt: number, time: number) => {
     if (!ballMesh || !redTeamMesh || !blueTeamMesh || !ballTrail) return;
 
+    updatePlayers(dt, time);
     updateBall(dt);
-    updateTeam(redTeamMesh, redTeamData, time, dt);
-    updateTeam(blueTeamMesh, blueTeamData, time, dt);
   };
 
   return { initFootball, updateFootball };
