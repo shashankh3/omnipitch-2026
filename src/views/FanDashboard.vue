@@ -10,8 +10,8 @@
     <Transition name="slide-down">
       <div
         v-if="telemetry.wbgtTemperature > 32"
-        class="absolute top-[52px] left-1/2 -translate-x-1/2 z-[90] pointer-events-none"
-        :class="store.isOfflineMode ? 'top-[52px]' : 'top-4'"
+        class="absolute top-[96px] left-1/2 -translate-x-1/2 z-[90] pointer-events-none"
+        :class="store.isOfflineMode ? 'top-[128px]' : 'top-[96px]'"
       >
         <div class="bg-amber-500/20 backdrop-blur-xl border border-amber-400/30 text-amber-200 font-semibold px-6 py-2.5 rounded-2xl shadow-[0_4px_24px_rgba(245,158,11,0.2)] flex items-center gap-3 whitespace-nowrap">
           <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
@@ -133,7 +133,7 @@
     <!-- LEFT COLUMN: Live Match Feed                                   -->
     <!--   • starts below the brand mark, ends above gate-throughput   -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <div class="absolute left-6 top-[100px] bottom-[200px] z-30 hidden md:flex flex-col w-72 flex-shrink-0">
+    <div class="absolute left-6 top-[100px] bottom-[260px] z-30 hidden md:flex flex-col w-72 flex-shrink-0">
       <LiveMatchFeed class="h-full" />
     </div>
 
