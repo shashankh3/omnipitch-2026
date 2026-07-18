@@ -28,7 +28,7 @@ const messages = {
     perMin: '/min',
     systemsOnline: 'Systems Online',
     disconnect: 'DISCONNECT',
-    poweredByGemini: 'Powered by Gemini AI',
+    poweredByGemini: 'Powered by OmniPitch AI',
     quietZoneFinder: 'Quiet Zone Finder',
     findQuietZone: 'Find Quiet Zone',
     features: 'Features',
@@ -46,7 +46,7 @@ const messages = {
     srCapacity: 'Capacity %',
 
     // Chat welcome
-    chatWelcome: 'Welcome to OmniPitch! 🏟️\n\nI\'m your AI Stadium Copilot powered by Gemini. I can help with:\n\n• Finding your seat & navigation\n• Crowd density & best routes\n• Food, restrooms & facilities\n• Weather alerts & safety info\n\nHow can I help you today?',
+    chatWelcome: 'Welcome to OmniPitch! 🏟️\n\nI\'m your OmniPitch AI Assistant. I can help with:\n\n• Finding your seat & navigation\n• Crowd density & best routes\n• Food, restrooms & facilities\n• Weather alerts & safety info\n\nHow can I help you today?',
 
     // Incident Logger
     logIncident: 'Log Incident',
@@ -97,7 +97,7 @@ const messages = {
     perMin: '/min',
     systemsOnline: 'Sistemas en Línea',
     disconnect: 'DESCONECTAR',
-    poweredByGemini: 'Impulsado por Gemini AI',
+    poweredByGemini: 'Impulsado por OmniPitch AI',
     quietZoneFinder: 'Buscador de Zona Tranquila',
     findQuietZone: 'Buscar Zona Tranquila',
     features: 'Características',
@@ -113,7 +113,7 @@ const messages = {
     srZoneSection: 'Zona / Sección',
     srCapacity: 'Capacidad %',
 
-    chatWelcome: '¡Bienvenido a OmniPitch! 🏟️\n\nSoy tu Copiloto IA del Estadio con Gemini. Puedo ayudarte con:\n\n• Encontrar tu asiento y navegación\n• Densidad de multitudes y mejores rutas\n• Comida, baños e instalaciones\n• Alertas meteorológicas e información de seguridad\n\n¿Cómo puedo ayudarte hoy?',
+    chatWelcome: '¡Bienvenido a OmniPitch! 🏟️\n\nSoy tu Asistente de IA de OmniPitch. Puedo ayudarte con:\n\n• Encontrar tu asiento y navegación\n• Densidad de multitudes y mejores rutas\n• Comida, baños e instalaciones\n• Alertas meteorológicas e información de seguridad\n\n¿Cómo puedo ayudarte hoy?',
 
     logIncident: 'Registrar Incidente',
     locationContext: 'Contexto de Ubicación',
@@ -162,7 +162,7 @@ const messages = {
     perMin: '/min',
     systemsOnline: 'Systèmes en Ligne',
     disconnect: 'DÉCONNECTER',
-    poweredByGemini: 'Propulsé par Gemini AI',
+    poweredByGemini: 'Propulsé par OmniPitch AI',
     quietZoneFinder: 'Recherche de Zone Calme',
     findQuietZone: 'Trouver une Zone Calme',
     features: 'Caractéristiques',
@@ -178,7 +178,7 @@ const messages = {
     srZoneSection: 'Zone / Section',
     srCapacity: 'Capacité %',
 
-    chatWelcome: 'Bienvenue sur OmniPitch ! 🏟️\n\nJe suis votre Copilote IA du Stade alimenté par Gemini. Je peux vous aider avec :\n\n• Trouver votre place et navigation\n• Densité de la foule et meilleurs itinéraires\n• Nourriture, toilettes et installations\n• Alertes météo et informations de sécurité\n\nComment puis-je vous aider aujourd\'hui ?',
+    chatWelcome: 'Bienvenue sur OmniPitch ! 🏟️\n\nJe suis votre Assistant IA OmniPitch. Je peux vous aider avec :\n\n• Trouver votre place et navigation\n• Densité de la foule et meilleurs itinéraires\n• Nourriture, toilettes et installations\n• Alertes météo et informations de sécurité\n\nComment puis-je vous aider aujourd\'hui ?',
 
     logIncident: 'Signaler un Incident',
     locationContext: 'Contexte de Localisation',
@@ -227,7 +227,7 @@ const messages = {
     perMin: '/min',
     systemsOnline: 'Systeme Online',
     disconnect: 'TRENNEN',
-    poweredByGemini: 'Unterstützt von Gemini AI',
+    poweredByGemini: 'Unterstützt von OmniPitch AI',
     quietZoneFinder: 'Ruhezonen-Finder',
     findQuietZone: 'Ruhezone finden',
     features: 'Eigenschaften',
@@ -243,7 +243,7 @@ const messages = {
     srZoneSection: 'Zone / Sektion',
     srCapacity: 'Kapazität %',
 
-    chatWelcome: 'Willkommen bei OmniPitch! 🏟️\n\nIch bin Ihr KI-Stadion-Kopilot mit Gemini. Ich kann Ihnen helfen mit:\n\n• Platz finden und Navigation\n• Publikumsdichte und beste Routen\n• Essen, Toiletten und Einrichtungen\n• Wetterwarnungen und Sicherheitsinfos\n\nWie kann ich Ihnen heute helfen?',
+    chatWelcome: 'Willkommen bei OmniPitch! 🏟️\n\nIch bin Ihr OmniPitch KI-Assistent. Ich kann Ihnen helfen mit:\n\n• Platz finden und Navigation\n• Publikumsdichte und beste Routen\n• Essen, Toiletten und Einrichtungen\n• Wetterwarnungen und Sicherheitsinfos\n\nWie kann ich Ihnen heute helfen?',
 
     logIncident: 'Vorfall Melden',
     locationContext: 'Standortkontext',

@@ -114,7 +114,7 @@ const sendMessage = async () => {
       language,
       store.telemetry,
       isStepFree,
-      resolvedFacts
+      resolvedFacts || undefined
     );
 
     messages.value.push({ role: 'ai', text: response });

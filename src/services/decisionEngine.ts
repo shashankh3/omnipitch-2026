@@ -19,7 +19,7 @@ export interface DecisionResult {
   accessibilityMode: 'standard' | 'wheelchair' | 'screen_reader' | 'captioned';
 }
 
-export function resolveContext(fanContext: FanContext): DecisionResult {
+export function resolveContext(fanContext: FanContext): DecisionResult | null {
   // Use mock state if running in test environment where pinia might not be initialized yet
   let telemetry;
   try {
@@ -31,8 +31,8 @@ export function resolveContext(fanContext: FanContext): DecisionResult {
 
   const q = fanContext.destinationIntent.toLowerCase();
   
-  let resolvedFacility = 'Gate C';
-  let route = [fanContext.currentZone, 'Concourse A', 'Gate C'];
+  let resolvedFacility: string | null = null;
+  let route: string[] | null = null;
 
   if (q.includes('food') || q.includes('drink') || q.includes('concession') || q.includes('comida') || q.includes('bebida') || q.includes('nourriture') || q.includes('essen')) {
     resolvedFacility = 'Concourse B Concessions';
@@ -52,6 +52,10 @@ export function resolveContext(fanContext: FanContext): DecisionResult {
   } else if (q.includes('exit') || q.includes('salida') || q.includes('sortie') || q.includes('ausgang')) {
     resolvedFacility = 'Gate C Exit';
     route = [fanContext.currentZone, 'Concourse A', 'Gate C'];
+  }
+
+  if (!resolvedFacility || !route) {
+    return null;
   }
 
   const result: DecisionResult = {
