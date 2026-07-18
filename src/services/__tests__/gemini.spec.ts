@@ -408,5 +408,39 @@ describe('OmniPitch 2026 — Gemini AI Service Test Suite', () => {
       // It falls back because normalizeMatchFeed expects a specific object schema, not an array
       expect(res.liveMatch).toBeDefined();
     });
+    it('getSimulatedMatchFeed() should return cached feed if not expired', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          text: JSON.stringify({
+            liveMatch: { homeTeam: 'X', awayTeam: 'Y', homeScore: 1, awayScore: 0, primaryColor: '#FF0000', secondaryColor: '#00FF00', slides: [{ id: 1, text: 'test', isGoal: false }] },
+            completedMatch: { homeTeam: 'C', awayTeam: 'D', homeScore: 2, awayScore: 2 },
+            upcomingMatch: { homeTeam: 'E', awayTeam: 'F', time: '18:00' }
+          })
+        })
+      } as any);
+      
+      const feed1 = await getSimulatedMatchFeed();
+      expect(feed1.liveMatch.homeTeam).toBe('X');
+      
+      vi.mocked(fetch).mockClear();
+      const feed2 = await getSimulatedMatchFeed();
+      expect(feed2).toBe(feed1);
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it('getSentimentAnalysis() should return cached sentiment if not expired', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ text: 'Cached Sentiment' })
+      } as any);
+      const res1 = await getSentimentAnalysis({} as any);
+      expect(res1).toBe('Cached Sentiment');
+      
+      vi.mocked(fetch).mockClear();
+      const res2 = await getSentimentAnalysis({} as any);
+      expect(res2).toBe('Cached Sentiment');
+      expect(fetch).not.toHaveBeenCalled();
+    });
   });
 });
