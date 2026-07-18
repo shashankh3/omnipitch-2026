@@ -11,7 +11,7 @@
           <span class="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="isLoading ? 'bg-amber-400' : 'bg-red-400'"></span>
           <span class="relative inline-flex rounded-full h-2 w-2" :class="isLoading ? 'bg-amber-500' : 'bg-red-500'"></span>
         </span>
-        <h3 class="font-bold text-xs text-white tracking-wide">Simulated Matches</h3>
+        <h3 class="font-bold text-xs text-white tracking-wide">Live Matches</h3>
       </div>
       <div class="flex items-center gap-2 relative z-10">
         <button
@@ -19,7 +19,7 @@
           @click="forceRefresh"
           class="text-[9px] text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1 font-bold focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="isLoading"
-          aria-label="Refresh simulated match feed"
+          aria-label="Refresh live match feed"
         >
           <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 1 0 2.13-5.88L21 8"/></svg>
           Refresh
@@ -31,7 +31,7 @@
     <!-- Loading State -->
     <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-70" role="status" aria-live="polite">
       <div class="w-8 h-8 rounded-full border-2 border-white/10 border-t-[var(--theme-primary)] motion-safe:animate-spin mb-3 shadow-[0_0_15px_var(--theme-primary)]"></div>
-      <p class="text-xs font-bold uppercase tracking-widest text-white/50">Fireworks AI Generating<br/>Simulated Feed...</p>
+      <p class="text-xs font-bold uppercase tracking-widest text-white/50">Fireworks AI Generating<br/>Match Feed...</p>
     </div>
 
 
@@ -46,7 +46,7 @@
           </div>
           <div class="flex items-center gap-2">
             <span v-if="!dataLoaded" class="text-[9px] text-slate-400 italic">Demo match</span>
-            <span class="px-2 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px] uppercase tracking-wider font-extrabold border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]">Simulated</span>
+            <span class="px-2 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px] uppercase tracking-wider font-extrabold border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]">Live</span>
           </div>
         </div>
         
