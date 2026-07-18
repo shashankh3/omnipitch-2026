@@ -141,7 +141,7 @@
     <!-- BOTTOM-RIGHT AREA: Gate Throughput panel                       -->
     <!--   • sits ABOVE the FABs, aligned with the right edge          -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <div class="absolute bottom-24 right-6 z-30 w-[270px]">
+    <div class="absolute bottom-[140px] right-6 z-30 w-[270px]">
       <div class="bg-[#0a0a1a]/95 border border-white/10 rounded-2xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col gap-3">
         <!-- Header -->
         <div class="flex items-center justify-between">

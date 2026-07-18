@@ -153,7 +153,7 @@
     </aside>
 
     <!-- Low Power Toggle -->
-    <div class="pointer-events-auto absolute bottom-6 right-6 z-40">
+    <div class="pointer-events-auto absolute bottom-6 right-24 z-40">
       <button 
         @click="isLowPowerMode = !isLowPowerMode"
         class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors"

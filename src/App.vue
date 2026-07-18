@@ -3,7 +3,7 @@
   <!-- System Alerts (Hidden on Login Page) -->
   <div
     v-if="route.name !== 'login'"
-    class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm"
+    class="fixed top-32 right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"
     role="region"
     aria-label="System alerts"
     aria-live="polite"
@@ -26,7 +26,7 @@
       <button
         type="button"
         @click="dismiss(alert.id)"
-        class="ml-2 opacity-60 hover:opacity-100 transition-opacity"
+        class="ml-2 opacity-60 hover:opacity-100 transition-opacity pointer-events-auto"
         :aria-label="`Dismiss alert: ${alert.message.en}`"
       >✕</button>
     </div>
