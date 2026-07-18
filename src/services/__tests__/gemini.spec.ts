@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getFanAssistance, getSimulatedMatchFeed, processVisionIncident, getTaskChecklist, getOrganizerRecommendation, translateAnnouncement, getSentimentAnalysis } from '../gemini';
+import { getFanAssistance, getSimulatedMatchFeed, processVisionIncident, getTaskChecklist, getOrganizerRecommendation, translateAnnouncement, getSentimentAnalysis, clearGeminiCache } from '../gemini';
 import { createPinia, setActivePinia } from 'pinia';
 import { useSystemStore } from '../../store/useSystemStore';
 
@@ -7,6 +7,7 @@ describe('OmniPitch 2026 — Gemini AI Service Test Suite', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.stubGlobal('fetch', vi.fn());
+    clearGeminiCache();
   });
 
   afterEach(() => {

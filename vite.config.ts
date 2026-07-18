@@ -102,7 +102,7 @@ export default defineConfig({
             if (id.includes('three')) return 'three-vendor';
             if (id.includes('apexcharts')) return 'charts-vendor';
             if (id.includes('@supabase')) return 'supabase-vendor';
-            if (id.includes('@google/generative-ai')) return 'ai-vendor';
+            if (id.includes('@google/genai')) return 'ai-vendor';
             if (id.includes('vue') || id.includes('pinia')) return 'vue-vendor';
           }
         }

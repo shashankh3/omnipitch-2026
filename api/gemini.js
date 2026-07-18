@@ -1,7 +1,7 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 const rateLimitMap = new Map(); // key: IP string, value: { tokens: number, lastRefill: number }
-const CAPACITY = 10;
+const CAPACITY = 20; // Increased to 20 to prevent starving on initial load
 const REFILL_RATE = 10;
 const WINDOW_MS = 60_000;
 const MAX_STRING_LENGTH = 4_000;
@@ -106,7 +106,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+    const ip = req.headers['x-vercel-forwarded-for']?.split(',')[0].trim() || req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
 
     if (isRateLimited(ip)) {
       res.setHeader('Retry-After', '60');
@@ -118,7 +118,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Request could not be processed', code: 500 });
     }
 
-    // Model is pinned server-side; clients cannot select a different (pricier) model
     const model = 'gemini-2.5-flash';
     const messages = sanitizeMessages(req.body?.messages);
     const tools = sanitizeTools(req.body?.tools);
@@ -127,18 +126,39 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid input', code: 400 });
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const aiModel = genAI.getGenerativeModel({ model, tools });
+    const ai = new GoogleGenAI({ apiKey });
+    const config = tools ? { tools } : undefined;
+
     const start = Date.now();
-    const result = await aiModel.generateContent(messages);
-    const response = await result.response;
+    const result = await ai.models.generateContent({
+      model,
+      contents: messages,
+      config
+    });
     const latency = Date.now() - start;
     console.info('gemini_latency', { latencyMs: latency });
     res.setHeader('X-Response-Time', `${latency}ms`);
 
-    res.status(200).json({ text: response.text() });
+    let responseText = '';
+    try {
+      responseText = result.text;
+    } catch (e) {
+      // Catch empty candidates / blockReason (which throws when accessing .text)
+      return res.status(200).json({ text: "I can't help with that request." });
+    }
+    
+    if (!responseText) {
+      return res.status(200).json({ text: "I can't help with that request." });
+    }
+
+    res.status(200).json({ text: responseText });
   } catch (error) {
-    // Scrub logs
+    if (process.env.ENABLE_DIAGNOSTICS) {
+      console.error('DIAGNOSTICS - req.body:', JSON.stringify(req.body));
+      console.error('DIAGNOSTICS - Error status:', error.status);
+      console.error('DIAGNOSTICS - Error statusText:', error.statusText);
+      console.error('DIAGNOSTICS - Full Error Details:', error);
+    }
     const safeErrorMsg = (error.message || '').replace(new RegExp(process.env.GEMINI_API_KEY || 'MISSING_KEY', 'g'), '***');
     console.error('Gemini API Error:', safeErrorMsg);
     res.status(500).json({ error: 'Request could not be processed', code: 500 });

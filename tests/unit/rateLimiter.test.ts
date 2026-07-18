@@ -2,24 +2,22 @@ import { describe, it, expect, vi } from 'vitest';
 import handler from '../../api/gemini.js';
 
 // Mock the Google Generative AI SDK
-vi.mock('@google/generative-ai', () => {
+vi.mock('@google/genai', () => {
   return {
-    GoogleGenerativeAI: class {
-      getGenerativeModel() {
-        return {
-          generateContent: vi.fn().mockResolvedValue({
-            response: { text: () => 'Mocked text' }
-          })
-        };
-      }
+    GoogleGenAI: class {
+      models = {
+        generateContent: vi.fn().mockResolvedValue({
+          text: 'Mocked text'
+        })
+      };
     }
   };
 });
 
 describe('rateLimiter', () => {
-  it('First 10 requests from same IP -> all pass (not rate limited)', async () => {
+  it('First 20 requests from same IP -> all pass (not rate limited)', async () => {
     let passed = 0;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       const req = { method: 'POST', headers: { 'x-forwarded-for': '127.0.0.1' }, body: { messages: ['hello'] } };
       const res = { setHeader: vi.fn(), status: vi.fn().mockReturnThis(), json: vi.fn() };
       await handler(req, res);
@@ -27,10 +25,10 @@ describe('rateLimiter', () => {
         passed++;
       }
     }
-    expect(passed).toBe(10);
+    expect(passed).toBe(20);
   });
 
-  it('11th request from same IP -> isRateLimited returns true (429)', async () => {
+  it('21st request from same IP -> isRateLimited returns true (429)', async () => {
     const req = { method: 'POST', headers: { 'x-forwarded-for': '127.0.0.1' }, body: { messages: ['hello'] } };
     const res = { setHeader: vi.fn(), status: vi.fn().mockReturnThis(), json: vi.fn() };
     await handler(req, res);

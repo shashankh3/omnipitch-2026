@@ -23,7 +23,7 @@ describe('geminiService', () => {
     expect(res).toBe('Hello from AI');
   });
 
-  it('On 429 response -> falls back to getMockLLMResponse, no throw', async () => {
+  it('On 429 response -> returns 429 message, no throw', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 429,
@@ -31,10 +31,10 @@ describe('geminiService', () => {
     } as any);
 
     const res = await getFanAssistance('where is exit', 'en', telemetry, false);
-    expect(res.toLowerCase()).toContain('exit');
+    expect(res).toBe('The AI is busy, try again in a minute');
   });
 
-  it('On 401 response -> falls back, no throw', async () => {
+  it('On 401 response -> returns unavailable message, no throw', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 401,
@@ -42,14 +42,14 @@ describe('geminiService', () => {
     } as any);
 
     const res = await getFanAssistance('where is exit', 'en', telemetry, false);
-    expect(res.toLowerCase()).toContain('exit');
+    expect(res).toBe('AI service temporarily unavailable');
   });
 
-  it('On network error (fetch throws) -> falls back, no throw', async () => {
+  it('On network error (fetch throws) -> returns unavailable message, no throw', async () => {
     vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
 
     const res = await getFanAssistance('where is exit', 'en', telemetry, false);
-    expect(res.toLowerCase()).toContain('exit');
+    expect(res).toBe('AI service temporarily unavailable');
   });
 
   it('When isOfflineMode=true -> never calls fetch, uses offline engine', async () => {

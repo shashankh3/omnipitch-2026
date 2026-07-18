@@ -63,6 +63,15 @@ function normalizeChecklist(value: unknown): string[] | null {
   return steps.length === 3 ? steps : null;
 }
 
+class GeminiHttpError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = 'GeminiHttpError';
+  }
+}
+
 /**
  * Helper to call our local Express proxy instead of hitting Gemini directly from the client.
  */
@@ -72,11 +81,21 @@ async function callGeminiProxy(messages: (string | GeminiMessage)[], tools?: { g
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages, tools })
   });
-  if (res.status === 429) throw new Error('RATE_LIMIT');
-  if (res.status === 401) throw new Error('UNAUTHORIZED');
-  if (!res.ok) throw new Error('API Error');
+  
+  if (res.status === 429) throw new GeminiHttpError('RATE_LIMIT', 429);
+  if (res.status === 401) throw new GeminiHttpError('UNAUTHORIZED', 401);
+  
+  if (!res.ok) {
+    let errMsg = 'API Error';
+    try {
+      const errData = await res.json();
+      if (errData.error) errMsg = errData.error;
+    } catch (e) {}
+    throw new GeminiHttpError(errMsg, res.status);
+  }
+  
   const data = await res.json();
-  if (data.error) throw new Error(data.error);
+  if (data.error) throw new GeminiHttpError(data.error, 500);
   return { response: { text: () => data.text } };
 }
 
@@ -157,9 +176,18 @@ export async function getFanAssistance(
     const messages = resolvedFacts ? [systemContext] : [systemContext, safeQuery];
     const result = await callGeminiProxy(messages);
     return result.response.text();
-  } catch (error) {
-    logger.error('gemini_api_error', 1); logger.ai('llm_fallback');
-    return getMockLLMResponse(telemetry, userQuery, userLang);
+  } catch (error: any) {
+    const status = error.status || 500;
+    logger.error(`gemini_api_error_${status}`, 1); 
+    
+    if (status === 429) return "The AI is busy, try again in a minute";
+    if (status >= 500) return "AI service temporarily unavailable";
+    
+    if (store.isOfflineMode) {
+      logger.ai('llm_fallback');
+      return getMockLLMResponse(telemetry, userQuery, userLang);
+    }
+    return "AI service temporarily unavailable";
   }
 }
 
@@ -250,6 +278,8 @@ export async function getOrganizerRecommendation(
   }
 }
 
+let cachedMatchFeed: { data: MatchFeedResponse, expires: number } | null = null;
+
 /**
  * Generates a simulated live football match feed.
  * @returns A MatchFeedResponse object containing live, completed, and upcoming matches.
@@ -257,6 +287,10 @@ export async function getOrganizerRecommendation(
  */
 export async function getSimulatedMatchFeed(): Promise<MatchFeedResponse> {
   const store = useStadiumStore();
+  
+  if (cachedMatchFeed && Date.now() < cachedMatchFeed.expires) {
+    return cachedMatchFeed.data;
+  }
 
   const fallbackTeams = [
     { h: "BRAZIL", a: "GERMANY", hc: "#009c3b", ac: "#000000" },
@@ -327,9 +361,13 @@ export async function getSimulatedMatchFeed(): Promise<MatchFeedResponse> {
   try {
     const result = await callGeminiProxy([prompt], [{ googleSearch: {} }]);
     const parsed = JSON.parse(extractJsonPayload(result.response.text())) as unknown;
-    return normalizeMatchFeed(parsed, fallbackResponse) ?? fallbackResponse;
-  } catch (error) {
-    logger.error('gemini_api_error', 1); logger.ai('llm_fallback');
+    const finalData = normalizeMatchFeed(parsed, fallbackResponse) ?? fallbackResponse;
+    cachedMatchFeed = { data: finalData, expires: Date.now() + 60_000 };
+    return finalData;
+  } catch (error: any) {
+    const status = error.status || 500;
+    logger.error(`gemini_api_error_${status}`, 1); 
+    if (store.isOfflineMode) logger.ai('llm_fallback');
     return fallbackResponse;
   }
 }
@@ -365,6 +403,8 @@ export async function translateAnnouncement(text: string): Promise<string> {
   }
 }
 
+let cachedSentiment: { data: string, expires: number } | null = null;
+
 /**
  * Generates a Live Fan Sentiment Analysis based on stadium conditions.
  * @param telemetry Live stadium telemetry data.
@@ -374,6 +414,10 @@ export async function translateAnnouncement(text: string): Promise<string> {
 export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise<string> {
   const store = useStadiumStore();
   const fallback = "VIBE SCORE: Neutral. (Analysis Offline)";
+
+  if (cachedSentiment && Date.now() < cachedSentiment.expires) {
+    return cachedSentiment.data;
+  }
 
   if (store.isOfflineMode) {
     logger.ai('llm_offline');
@@ -389,9 +433,13 @@ export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise
   `;
   try {
     const result = await callGeminiProxy([prompt]);
-    return result.response.text();
-  } catch (e) {
-    logger.error('gemini_api_error', 1); logger.ai('llm_fallback');
+    const finalData = result.response.text();
+    cachedSentiment = { data: finalData, expires: Date.now() + 60_000 };
+    return finalData;
+  } catch (error: any) {
+    const status = error.status || 500;
+    logger.error(`gemini_api_error_${status}`, 1); 
+    if (store.isOfflineMode) logger.ai('llm_fallback');
     return fallback;
   }
 }
@@ -426,4 +474,9 @@ export async function getTaskChecklist(incidentDesc: string): Promise<string[]> 
     logger.error('gemini_api_error', 1); logger.ai('llm_fallback');
     return fallback;
   }
+}
+
+export function clearGeminiCache() {
+  cachedMatchFeed = null;
+  cachedSentiment = null;
 }
