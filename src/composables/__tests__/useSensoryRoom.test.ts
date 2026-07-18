@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { useSensoryRoom } from '../useSensoryRoom';
 import { createPinia, setActivePinia } from 'pinia';
 import { useSessionStore } from '../../store/useSessionStore';

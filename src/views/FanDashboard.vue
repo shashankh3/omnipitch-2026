@@ -6,62 +6,6 @@
       {{ $t('networkDegraded') }}
     </div>
 
-    <!-- Heat Alert Banner -->
-    <div v-if="telemetry.wbgtTemperature > 32" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-50">
-      <div class="bg-amber-500/20 backdrop-blur-xl border border-amber-400/30 text-amber-200 font-semibold px-6 py-2.5 rounded-2xl shadow-[0_4px_24px_rgba(245,158,11,0.2)] flex items-center gap-3">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-        <span class="text-sm">{{ $t('highHeat') }}: {{ telemetry.wbgtTemperature.toFixed(1) }}°C — {{ $t('stayHydrated') }}</span>
-      </div>
-    </div>
-
-    <!-- Gate Status Panel - Bottom Right (shifted left to clear FAB) -->
-    <div class="absolute bottom-6 right-24 z-20 pointer-events-none w-[280px]">
-      <div class="bg-[#0a0a1a]/95 border border-white/8 rounded-xl px-4 py-3 flex flex-col shadow-lg gate-throughput-panel pointer-events-auto w-full">
-        <!-- Header with toggle -->
-        <div class="flex items-start justify-between mb-3 gap-2">
-          <div class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
-              {{ $t('gateThroughput') }}
-            </span>
-            <span class="flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span class="text-[9px] text-emerald-400 font-bold">{{ $t('live') }}</span>
-            </span>
-          </div>
-          <div class="flex rounded-lg overflow-hidden border border-slate-700 text-[9px] flex-shrink-0 mt-0.5">
-            <button
-              type="button"
-              @click="throughputView = 'fastest'"
-              :class="throughputView === 'fastest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-500'"
-              class="px-2 py-1 transition-colors uppercase"
-            >
-              {{ $t('fastest') }}
-            </button>
-            <button
-              type="button"
-              @click="throughputView = 'lowest'"
-              :class="throughputView === 'lowest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-500'"
-              class="px-2 py-1 transition-colors uppercase"
-            >
-              {{ $t('lowest') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- All 4 gates -->
-        <div class="flex flex-col gap-2">
-          <div v-for="gate in sortedGates" :key="gate.name" class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: gate.color }"></span>
-              <span class="text-xs text-slate-300">{{ gate.name }}</span>
-            </div>
-            <span
-              class="text-xs font-bold tabular-nums"
-              :class="gate.throughput >= 1000 ? 'text-emerald-400' : gate.throughput >= 700 ? 'text-amber-400' : 'text-red-400'"
-            >
-              {{ gate.throughput.toLocaleString() }} {{ $t('perMin') }}
-            </span>
-          </div>
     <!-- Heat Alert (just below banners, centred horizontally, doesn't clash with anything) -->
     <Transition name="slide-down">
       <div

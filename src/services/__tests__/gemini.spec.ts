@@ -391,7 +391,7 @@ describe('OmniPitch 2026 — Gemini AI Service Test Suite', () => {
         ok: true,
         json: async () => ({ text: 'Resolved facts handled' })
       } as any);
-      const facts = { resolvedFacility: 'Toilet', resolvedRoute: ['A', 'B'], crowdLevel: 'low', isStepFree: true, urgencyFlag: false, accessibilityMode: 'none', alternativeFacility: null };
+      const facts = { resolvedFacility: 'Toilet', resolvedRoute: ['A', 'B'], crowdLevel: 'low', isStepFree: true, urgencyFlag: false, accessibilityMode: 'none', alternativeFacility: null } as any;
       const res = await getFanAssistance('Where is Toilet?', 'en', {} as any, false, facts);
       expect(res).toBe('Resolved facts handled');
     });

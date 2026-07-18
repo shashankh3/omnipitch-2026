@@ -125,7 +125,7 @@ describe('useSystemStore', () => {
 
   it('dismissAlert() dismisses an existing alert', () => {
     const store = useSystemStore();
-    store.proactiveAlerts = [{ id: 'a1', zoneId: 'z1', intent: 'heat', mode: 'HIGH', timestamp: '2026', dismissed: false }];
+    store.proactiveAlerts = [{ id: 'a1', ruleId: 'heat', severity: 'HIGH', audience: 'ALL', message: { en: 'heat', es: '', fr: '', de: '' }, timestamp: '2026', dismissed: false }];
     store.dismissAlert('a1');
     expect(store.proactiveAlerts[0].dismissed).toBe(true);
   });

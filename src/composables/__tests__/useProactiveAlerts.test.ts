@@ -33,7 +33,7 @@ describe('useProactiveAlerts', () => {
   it('dismisses alerts correctly', () => {
     const sysStore = useSystemStore();
     sysStore.proactiveAlerts = [
-      { id: '1', zoneId: 'z1', intent: 'test', mode: 'HIGH', timestamp: '2026', dismissed: false, audience: 'ALL', severity: 'HIGH' }
+      { id: '1', ruleId: 'z1', message: { en: 'test', es: '', fr: '', de: '' }, severity: 'HIGH', timestamp: '2026', dismissed: false, audience: 'ALL' }
     ];
 
     const { visibleAlerts, dismiss } = useProactiveAlerts();
@@ -46,8 +46,8 @@ describe('useProactiveAlerts', () => {
   it('computes criticalCount correctly', () => {
     const sysStore = useSystemStore();
     sysStore.proactiveAlerts = [
-      { id: '1', zoneId: 'z1', intent: 'test', mode: 'CRITICAL', timestamp: '2026', dismissed: false, audience: 'ALL', severity: 'CRITICAL' },
-      { id: '2', zoneId: 'z2', intent: 'test', mode: 'HIGH', timestamp: '2026', dismissed: false, audience: 'ALL', severity: 'HIGH' }
+      { id: '1', ruleId: 'z1', message: { en: 'test', es: '', fr: '', de: '' }, severity: 'CRITICAL', timestamp: '2026', dismissed: false, audience: 'ALL' },
+      { id: '2', ruleId: 'z2', message: { en: 'test', es: '', fr: '', de: '' }, severity: 'HIGH', timestamp: '2026', dismissed: false, audience: 'ALL' }
     ];
 
     const { criticalCount } = useProactiveAlerts();

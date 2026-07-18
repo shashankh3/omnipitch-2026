@@ -55,7 +55,7 @@ describe('useIncidentStore', () => {
       severity: 'LOW',
       description: 'Test',
       status: 'OPEN'
-    };
+    } as Incident;
     store.receiveFromBroadcast(inc);
     expect(store.incidents.length).toBe(INCIDENT_SEED.length + 1);
 
@@ -110,7 +110,7 @@ describe('useIncidentStore', () => {
       severity: 'LOW',
       description: 'Test',
       status: 'OPEN'
-    });
+    } as Incident);
 
     store.updateIncidentStatus('inc_1', 'RESOLVED');
     expect(store.incidents.find(i => i.id === 'inc_1')!.status).toBe('RESOLVED');
