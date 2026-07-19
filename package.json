@@ -58,15 +58,6 @@
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.5",
     "wait-on": "^9.0.10"
-  },
-  "overrides": {
-    "undici": "^6.27.0",
-    "@vercel/static-config": {
-      "ajv": "^8.20.0"
-    },
-    "minimatch": "^10.2.5",
-    "path-to-regexp": "^8.0.0",
-    "js-yaml": "^4.1.2",
-    "smol-toml": "^1.7.0"
   }
 }
+
