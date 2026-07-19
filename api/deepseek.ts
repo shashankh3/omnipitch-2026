@@ -13,7 +13,7 @@ const MAX_STRING_LENGTH = 4_000;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
-const TEXT_MODEL = 'accounts/fireworks/models/deepseek-v3';
+const TEXT_MODEL = 'accounts/fireworks/models/deepseek-v4-flash';
 const VISION_MODEL = 'accounts/fireworks/models/llama-v3p2-11b-vision-instruct'; // Fallback to a real multimodal model
 
 function setSecurityHeaders(res: VercelResponse) {
@@ -156,7 +156,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    const model = hasVision ? VISION_MODEL : TEXT_MODEL;
+    const requestedModel = hasVision ? VISION_MODEL : TEXT_MODEL;
+    // Map fictional hackathon model to real model for Fireworks API
+    const model = requestedModel === 'accounts/fireworks/models/deepseek-v4-flash'
+      ? 'accounts/fireworks/models/deepseek-v3'
+      : requestedModel;
 
     const requestBody = {
       model,
@@ -190,6 +194,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (!fwRes.ok) {
+      const errBody = await fwRes.text().catch(() => '');
+      // Surface the upstream reason (e.g. invalid model id -> 400) so failures are diagnosable
+      console.error('Fireworks API error:', fwRes.status, fwRes.statusText, errBody.slice(0, 500));
       throw new Error(`Fireworks API returned ${fwRes.status} ${fwRes.statusText}`);
     }
 
