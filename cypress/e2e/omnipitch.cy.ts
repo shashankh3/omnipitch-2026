@@ -35,10 +35,10 @@ describe('OmniPitch 2026 E2E Tests', () => {
     }).as('healthCheck')
 
     // Intercept AI endpoint
-    cy.intercept('POST', '/api/gemini', {
+    cy.intercept('POST', '/api/deepseek', {
       statusCode: 500,
       body: { error: 'Network error' }
-    }).as('geminiCall')
+    }).as('deepseekCall')
 
     cy.visit('/')
     cy.get('[aria-label="Enter Fan Experience Portal"]', { timeout: 5000 }).click({ force: true })
@@ -48,7 +48,7 @@ describe('OmniPitch 2026 E2E Tests', () => {
     cy.get('input[placeholder*="Ask about"]').type('Hello', { force: true })
     cy.get('button[aria-label="Send Message"]').click({ force: true })
     
-    cy.wait('@geminiCall')
+    cy.wait('@deepseekCall')
     // Wait for the offline warning or tag to appear in the UI
     cy.contains(/offline|unavailable/i).should('exist')
   })

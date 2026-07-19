@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import LiveMatchFeed from '../LiveMatchFeed.vue'
 
-// Mock the Gemini service
+// Mock the DeepSeek service
 vi.mock('../../../services/deepseek', () => ({
   getSimulatedMatchFeed: vi.fn().mockResolvedValue({
     liveMatch: { 
