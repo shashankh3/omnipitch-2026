@@ -13,8 +13,8 @@ const MAX_STRING_LENGTH = 4_000;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
-const TEXT_MODEL = 'accounts/fireworks/models/deepseek-v4-flash';
-const VISION_MODEL = 'accounts/fireworks/models/deepseek-v4-flash'; // DeepSeek V4 Flash supports multimodal
+const TEXT_MODEL = 'accounts/fireworks/models/deepseek-v3';
+const VISION_MODEL = 'accounts/fireworks/models/llama-v3p2-11b-vision-instruct'; // Fallback to a real multimodal model
 
 function setSecurityHeaders(res: VercelResponse) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
