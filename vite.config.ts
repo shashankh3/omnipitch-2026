@@ -8,6 +8,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 export default defineConfig({
   test: {
     environment: 'jsdom',
+    pool: 'forks',
     // @ts-ignore
     environmentMatchGlobs: [
       ['src/services/**', 'node'],
@@ -15,8 +16,6 @@ export default defineConfig({
       ['tests/unit/**', 'node'],
       ['src/composables/!(useHealthStatus|useStadiumScene).test.ts', 'node']
     ],
-    // @ts-ignore
-    isolate: false,
     coverage: {
       provider: 'v8',
       include: [
