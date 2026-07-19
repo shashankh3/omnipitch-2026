@@ -3,7 +3,7 @@
   <!-- System Alerts (Hidden on Login Page) -->
   <div
     v-if="route.name !== 'login'"
-    class="fixed top-32 right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"
+    class="absolute top-32 right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"
     role="region"
     aria-label="System alerts"
     aria-live="polite"
