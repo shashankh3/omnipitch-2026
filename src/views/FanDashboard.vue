@@ -9,7 +9,7 @@
     <!-- Heat Alert (just below banners, centred horizontally, doesn't clash with anything) -->
     <Transition name="slide-down">
       <div
-        v-if="telemetry.wbgtTemperature > 32"
+        v-if="telemetry.wbgtTemperature > 32 && !isScreenReaderMode"
         class="absolute top-[96px] left-1/2 -translate-x-1/2 z-[90] pointer-events-none"
         :class="store.isOfflineMode ? 'top-[128px]' : 'top-[96px]'"
       >
