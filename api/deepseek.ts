@@ -128,18 +128,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let openAiMessages = [];
     let hasVision = false;
 
-    if (messages.length > 0) {
-      openAiMessages.push({ role: 'system', content: messages[0] });
+    for (const msg of messages) {
+      if (typeof msg !== 'string' && msg?.inlineData) {
+        hasVision = true;
+      }
     }
 
-    if (messages.length > 1) {
+    if (hasVision) {
       let userContent = [];
-      for (let i = 1; i < messages.length; i++) {
-        const msg = messages[i];
+      for (const msg of messages) {
         if (typeof msg === 'string') {
           userContent.push({ type: 'text', text: msg });
         } else if (msg.inlineData) {
-          hasVision = true;
           userContent.push({
             type: 'image_url',
             image_url: { url: `data:${msg.inlineData.mimeType};base64,${msg.inlineData.data}` }
@@ -147,6 +147,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
       openAiMessages.push({ role: 'user', content: userContent });
+    } else {
+      if (messages.length === 1) {
+        openAiMessages.push({ role: 'user', content: messages[0] });
+      } else if (messages.length > 1) {
+        openAiMessages.push({ role: 'system', content: messages[0] });
+        openAiMessages.push({ role: 'user', content: messages.slice(1).join('\n\n') });
+      }
     }
 
     const model = hasVision ? VISION_MODEL : TEXT_MODEL;
