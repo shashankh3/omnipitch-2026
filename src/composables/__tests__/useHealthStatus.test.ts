@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useHealthStatus } from '../useHealthStatus';
 import { createPinia, setActivePinia } from 'pinia';
 import { useSystemStore } from '../../store/useSystemStore';
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { defineComponent, nextTick } from 'vue';
 const TestComponent = defineComponent({
   setup() {
@@ -15,6 +15,10 @@ describe('useHealthStatus', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.useFakeTimers();
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ llm: 'live' })
+    }) as any;
   });
 
   afterEach(() => {
@@ -36,6 +40,7 @@ describe('useHealthStatus', () => {
     expect(wrapper.vm.isOffline).toBe(false);
     expect(wrapper.vm.lastCheck).toBe('2026-07-19T00:00:00Z');
 
+    await flushPromises();
     store.llmMode = 'offline';
     store.isOfflineMode = true;
     await nextTick();

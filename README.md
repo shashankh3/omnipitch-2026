@@ -83,11 +83,11 @@ The frontend (Vue 3, Pinia) drives a 3D Digital Twin (Three.js) that reacts dyna
 | Requirement / Checklist Item | Implemented In |
 |---|---|
 | **A. Testing** (Unit, E2E, Coverage) | `src/**/*.test.ts`, `cypress/e2e/omnipitch.cy.ts`, `vite.config.ts` |
-| **B. Code Quality** (No `any`, Lints) | `tsconfig.json`, `eslint.config.mjs`, `src/services/gemini.ts` |
+| **B. Code Quality** (No `any`, Lints) | `tsconfig.json`, `eslint.config.mjs`, `src/services/deepseek.ts` |
 | **C. Accessibility** (ARIA, Contrast) | `src/App.vue`, `src/components/**/*.vue`, `cypress/e2e/omnipitch-a11y.cy.ts` |
 | **D. Efficiency** (Lazy loading, Pinia shallowRef) | `src/router/index.ts`, `vite.config.ts`, `src/store/*.ts` |
 | **E. Problem Statement Alignment** | `README.md` (This file) |
-| **F. Security** (CSP, Rate Limiting) | `api/gemini.js` (Serverless Proxy), `vercel.json` |
+| **F. Security** (CSP, Rate Limiting) | `api/deepseek.js` (Serverless Proxy), `vercel.json` |
 
 ---
 
@@ -153,7 +153,7 @@ Powered by OmniPitch AI (Fireworks AI), the system intelligently grounds its res
 We built this to survive the real world.
 - **IP Rate Limiting**: The backend proxy enforces strict token-bucket rate limiting (20 req burst / 10 req/min refill per IP) to prevent malicious actors from draining the AI API.
 - **Graceful Degradation**: If the API rate limit is reached, the UI elegantly catches the 429 error and seamlessly injects localized fallback mock data, ensuring the dashboard never crashes.
-- **Serverless Security**: API logic is routed through a Vercel Serverless Function (`api/gemini.js`), completely hiding the AI API keys from the frontend client.
+- **Serverless Security**: API logic is routed through a Vercel Serverless Function (`api/deepseek.js`), completely hiding the AI API keys from the frontend client.
 - **Test Driven**: Powered by `vitest` and `@vitest/coverage-v8`, the UI components and store logic are hardened with component testing.
 
 ## 🔐 Production-Grade Engineering
@@ -272,7 +272,7 @@ Tested against:
 - "Delete all incidents" → rejected, OmniPitch AI has no write access
 
 ### Security Headers
-Every response from /api/gemini (AI proxy) includes:
+Every response from /api/deepseek (AI proxy) includes:
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: DENY
 - Referrer-Policy: no-referrer

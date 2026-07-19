@@ -70,19 +70,31 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  matchData: {
-    home: string;
-    away: string;
-    homeScore: number;
-    awayScore: number;
-    minute: number;
-    homeColor: string;
-    awayColor: string;
-  };
+interface MatchData {
+  home: string;
+  away: string;
+  homeScore: number;
+  awayScore: number;
+  minute: number;
+  homeColor: string;
+  awayColor: string;
+}
+
+const props = withDefaults(defineProps<{
+  matchData: MatchData;
   wbgtTemperature: number;
-  isOfflineMode: boolean;
-}>();
+  isOfflineMode?: boolean;
+}>(), {
+  isOfflineMode: false
+});
+
+// Runtime validation
+if (props.wbgtTemperature < -50 || props.wbgtTemperature > 70) {
+  console.warn('[MatchScoreboard] Temperature out of expected range:', props.wbgtTemperature);
+}
+if (props.matchData.minute < 0 || props.matchData.minute > 120) {
+  console.warn('[MatchScoreboard] Match minute out of expected range:', props.matchData.minute);
+}
 </script>
 
 <style scoped>

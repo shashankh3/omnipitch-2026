@@ -8,11 +8,13 @@ const VALID_TYPES: Incident['type'][] = ['MEDICAL', 'CROWD_BOTTLENECK', 'FACILIT
 const VALID_SEVERITIES: Incident['severity'][] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 const VALID_STATUSES: Incident['status'][] = ['OPEN', 'IN_PROGRESS', 'RESOLVED'];
 
+import { INCIDENT_DESC_MAX_LENGTH } from '../constants';
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function sanitizeText(value: unknown, fallback = '', maxLength = 280): string {
+function sanitizeText(value: unknown, fallback = '', maxLength = INCIDENT_DESC_MAX_LENGTH): string {
   if (typeof value !== 'string' && typeof value !== 'number') return fallback;
   const sanitized = String(value).replace(/[\x00-\x1F\x7F]/g, '').trim().slice(0, maxLength);
   return sanitized || fallback;

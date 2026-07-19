@@ -2,18 +2,18 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import IncidentLogger from '../IncidentLogger.vue';
-import * as geminiService from '../../../services/gemini';
+import * as deepseekService from '../../../services/deepseek';
 import { i18n } from '../../../i18n';
 import { useStadiumStore } from '../../../store/useStadiumStore';
 
-vi.mock('../../../services/gemini', () => ({
+vi.mock('../../../services/deepseek', () => ({
   processVisionIncident: vi.fn()
 }));
 
 describe('IncidentLogger.vue', () => {
   it('file select -> preview -> vision result', async () => {
     setActivePinia(createPinia());
-    const mockVision = vi.mocked(geminiService.processVisionIncident);
+    const mockVision = vi.mocked(deepseekService.processVisionIncident);
     mockVision.mockResolvedValueOnce({
       type: 'SECURITY',
       severity: 'HIGH',
@@ -114,7 +114,7 @@ describe('IncidentLogger.vue', () => {
 
   it('handles error in analyzeImage gracefully', async () => {
     setActivePinia(createPinia());
-    const mockVision = vi.mocked(geminiService.processVisionIncident);
+    const mockVision = vi.mocked(deepseekService.processVisionIncident);
     mockVision.mockRejectedValueOnce(new Error('API Error'));
 
     const wrapper = mount(IncidentLogger, {

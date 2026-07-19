@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getFanAssistance } from '../../src/services/gemini';
+import { getFanAssistance } from '../../src/services/deepseek';
 import { useStadiumStore } from '../../src/store/useStadiumStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { MOCK_STADIUM_STATE } from '../../src/data/mockTelemetry';
 
-describe('geminiService', () => {
+describe('deepseekService', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.stubGlobal('fetch', vi.fn());

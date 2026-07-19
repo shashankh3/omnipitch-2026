@@ -59,10 +59,11 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStadiumStore } from '../../store/useStadiumStore';
-import { getFanAssistance } from '../../services/gemini';
+import { getFanAssistance } from '../../services/deepseek';
 import { resolveContext } from '../../services/decisionEngine';
 import type { FanContext } from '../../services/decisionEngine';
 import { useHealthStatus } from '../../composables/useHealthStatus';
+import { AI_CHAT_HISTORY_MAX } from '../../constants';
 
 const store = useStadiumStore();
 const { badgeLabel } = useHealthStatus();
@@ -70,6 +71,12 @@ const { t: $t } = useI18n();
 const query = ref('');
 const isLoading = ref(false);
 const messages = ref<{role: 'user'|'ai'|'system', text: string}[]>([]);
+
+const trimHistory = () => {
+  if (messages.value.length > AI_CHAT_HISTORY_MAX) {
+    messages.value = [messages.value[0], ...messages.value.slice(-(AI_CHAT_HISTORY_MAX - 1))];
+  }
+};
 
 onMounted(() => {
   messages.value.push({ role: 'ai', text: $t('chatWelcome') });
@@ -86,6 +93,7 @@ const sendMessage = async () => {
 
   const userText = query.value;
   messages.value.push({ role: 'user', text: userText });
+  trimHistory();
   query.value = '';
   isLoading.value = true;
 
@@ -118,6 +126,7 @@ const sendMessage = async () => {
     );
 
     messages.value.push({ role: 'ai', text: response });
+    trimHistory();
   } catch (error) {
     messages.value.push({ role: 'system', text: 'Network error. Please try again.' });
   } finally {

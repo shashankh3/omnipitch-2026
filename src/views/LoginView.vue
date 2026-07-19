@@ -36,7 +36,7 @@
           <span class="text-[#ccff00] block text-5xl md:text-7xl lg:text-[100px] mt-2">26</span>
         </h1>
         
-        <p class="text-white/40 text-lg md:text-xl font-medium tracking-wide mt-6 border-l-4 border-[#ccff00] pl-4 max-w-md">
+        <p class="text-white/70 text-lg md:text-xl font-medium tracking-wide mt-6 border-l-4 border-[#ccff00] pl-4 max-w-md">
           {{ $t('globalStadiumOps') }}
         </p>
       </div>
@@ -86,7 +86,7 @@
             </div>
             <div>
               <div class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300" aria-level="3" role="heading">{{ $t('volunteer') }}</div>
-              <p class="text-white/40 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">{{ $t('groundCrew') }}</p>
+              <p class="text-white/70 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">{{ $t('groundCrew') }}</p>
             </div>
           </div>
         </button>
@@ -104,7 +104,7 @@
             </div>
             <div>
               <div class="text-xl font-bold italic uppercase text-white tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300" aria-level="3" role="heading">{{ $t('organizer') }}</div>
-              <p class="text-white/40 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">{{ $t('cmdCenter') }}</p>
+              <p class="text-white/70 text-xs font-medium uppercase tracking-widest group-hover:translate-x-1 transition-transform duration-300 delay-75">{{ $t('cmdCenter') }}</p>
             </div>
           </div>
         </button>

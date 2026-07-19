@@ -29,13 +29,21 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   title: string;
   subtitle?: string;
   data: Record<string, number>;
   maxExpected?: number;
   inverseColors?: boolean;
-}>();
+}>(), {
+  subtitle: '',
+  inverseColors: false
+});
+
+// Runtime validation
+if (Object.keys(props.data).length === 0) {
+  console.warn('[MetricChart] Empty data provided, chart may not render properly');
+}
 
 const maxVal = computed(() => {
   if (props.maxExpected) return props.maxExpected;

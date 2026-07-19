@@ -2,9 +2,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import AiCommandConsole from '../AiCommandConsole.vue';
-import * as geminiService from '../../../services/gemini';
+import * as deepseekService from '../../../services/deepseek';
 
-vi.mock('../../../services/gemini', () => ({
+vi.mock('../../../services/deepseek', () => ({
   getOrganizerRecommendation: vi.fn(),
   translateAnnouncement: vi.fn(),
   getSentimentAnalysis: vi.fn()
@@ -13,7 +13,7 @@ vi.mock('../../../services/gemini', () => ({
 describe('AiCommandConsole.vue', () => {
   it('recommendation renders', async () => {
     setActivePinia(createPinia());
-    const mockRec = vi.mocked(geminiService.getOrganizerRecommendation);
+    const mockRec = vi.mocked(deepseekService.getOrganizerRecommendation);
     mockRec.mockResolvedValueOnce('Deploy additional staff to Gate B');
 
     const wrapper = mount(AiCommandConsole);
@@ -30,7 +30,7 @@ describe('AiCommandConsole.vue', () => {
 
   it('handles /broadcast command', async () => {
     setActivePinia(createPinia());
-    const mockTranslate = vi.mocked(geminiService.translateAnnouncement);
+    const mockTranslate = vi.mocked(deepseekService.translateAnnouncement);
     mockTranslate.mockResolvedValueOnce('FR: Bonjour');
 
     const wrapper = mount(AiCommandConsole);
@@ -47,7 +47,7 @@ describe('AiCommandConsole.vue', () => {
 
   it('handles /sentiment command', async () => {
     setActivePinia(createPinia());
-    const mockSentiment = vi.mocked(geminiService.getSentimentAnalysis);
+    const mockSentiment = vi.mocked(deepseekService.getSentimentAnalysis);
     mockSentiment.mockResolvedValueOnce('Vibe is positive');
 
     const wrapper = mount(AiCommandConsole);
@@ -64,7 +64,7 @@ describe('AiCommandConsole.vue', () => {
 
   it('handles error in askAI gracefully', async () => {
     setActivePinia(createPinia());
-    const mockRec = vi.mocked(geminiService.getOrganizerRecommendation);
+    const mockRec = vi.mocked(deepseekService.getOrganizerRecommendation);
     mockRec.mockRejectedValueOnce(new Error('Network failure'));
 
     const wrapper = mount(AiCommandConsole);

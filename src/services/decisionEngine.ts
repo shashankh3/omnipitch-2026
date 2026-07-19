@@ -1,6 +1,14 @@
 import { useStadiumStore } from '../store/useStadiumStore';
 import { MOCK_STADIUM_STATE } from '../data/mockTelemetry';
 
+import {
+  CROWD_DENSITY_MODERATE,
+  CROWD_DENSITY_CRITICAL,
+  CROWD_DENSITY_LOW,
+  DEFAULT_CROWD_DENSITY,
+  URGENT_KICKOFF_MINS
+} from '../constants';
+
 export interface FanContext {
   currentZone: string;
   destinationIntent: string;
@@ -19,6 +27,14 @@ export interface DecisionResult {
   accessibilityMode: 'standard' | 'wheelchair' | 'screen_reader' | 'captioned';
 }
 
+/**
+ * Resolves the fan context into a decision result.
+ * Determines the target facility, route, crowd level, and accessibility mode
+ * based on the fan's intent, accessibility needs, and current stadium telemetry.
+ *
+ * @param fanContext - The fan's current context, including location, intent, and needs.
+ * @returns The decision result containing the resolved route and facility, or null if the intent is not recognized.
+ */
 export function resolveContext(fanContext: FanContext): DecisionResult | null {
   // Use mock state if running in test environment where pinia might not be initialized yet
   let telemetry;
@@ -68,10 +84,10 @@ export function resolveContext(fanContext: FanContext): DecisionResult | null {
   };
 
   // Resolve Crowd Level based on destination intent (simplified for demo)
-  const density = telemetry.crowdDensity['East Stand'] || 50;
-  if (density < 40) result.crowdLevel = 'low';
-  else if (density < 70) result.crowdLevel = 'medium';
-  else if (density < 90) result.crowdLevel = 'high';
+  const density = telemetry.crowdDensity['East Stand'] || DEFAULT_CROWD_DENSITY;
+  if (density < CROWD_DENSITY_LOW) result.crowdLevel = 'low';
+  else if (density < CROWD_DENSITY_MODERATE) result.crowdLevel = 'medium';
+  else if (density < CROWD_DENSITY_CRITICAL) result.crowdLevel = 'high';
   else result.crowdLevel = 'critical';
 
   // Apply Rules
@@ -93,7 +109,7 @@ export function resolveContext(fanContext: FanContext): DecisionResult | null {
 
   // d. Urgency flag
   const isGateOrSeat = fanContext.destinationIntent.toLowerCase().includes('gate') || fanContext.destinationIntent.toLowerCase().includes('seat');
-  if (fanContext.minutesToKickoff < 15 && isGateOrSeat) {
+  if (fanContext.minutesToKickoff < URGENT_KICKOFF_MINS && isGateOrSeat) {
     result.urgencyFlag = true;
   }
 

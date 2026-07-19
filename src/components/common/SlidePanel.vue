@@ -4,7 +4,7 @@
     <button
       v-if="showFab"
       @click="$emit('open')"
-      class="fixed bottom-[5.5rem] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white shadow-[0_0_20px_rgba(8,145,178,0.6)] transition-transform duration-300 hover:scale-110 active:scale-95"
+      class="fixed bottom-[5.5rem] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white shadow-[0_0_20px_rgba(8,145,178,0.6)] transition-transform duration-300 hover:scale-110 active:scale-95 focus:outline-none focus:ring-4 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-[#0a0a1a]"
       :aria-label="fabLabel || 'Open panel'"
       :title="fabLabel"
     >
@@ -42,7 +42,7 @@
         </div>
         <button
           @click="$emit('close')"
-          class="p-2 -mr-2 text-white/40 hover:text-white transition-colors"
+          class="p-2 -mr-2 text-white/70 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-400/50 rounded-lg"
           :aria-label="closeLabel || 'Close'"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,14 +61,19 @@
 <script setup lang="ts">
 import { watch } from 'vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   isOpen: boolean;
   panelTitle: string;
   panelSubtitle?: string;
   showFab?: boolean;
   fabLabel?: string;
   closeLabel?: string;
-}>();
+}>(), {
+  panelSubtitle: '',
+  showFab: true,
+  fabLabel: 'Open panel',
+  closeLabel: 'Close'
+});
 
 defineEmits<{
   (e: 'close'): void;

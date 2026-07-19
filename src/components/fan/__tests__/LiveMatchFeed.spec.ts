@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import LiveMatchFeed from '../LiveMatchFeed.vue'
 
 // Mock the Gemini service
-vi.mock('../../../services/gemini', () => ({
+vi.mock('../../../services/deepseek', () => ({
   getSimulatedMatchFeed: vi.fn().mockResolvedValue({
     liveMatch: { 
       homeTeam: 'USA', 

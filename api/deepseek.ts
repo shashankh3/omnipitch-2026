@@ -1,4 +1,11 @@
-const rateLimitMap = new Map(); // key: IP string, value: { tokens: number, lastRefill: number }
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+interface RateLimitBucket {
+  tokens: number;
+  lastRefill: number;
+}
+
+const rateLimitMap = new Map<string, RateLimitBucket>(); // key: IP string, value: { tokens: number, lastRefill: number }
 const CAPACITY = 20; // Increased to 20 to prevent starving on initial load
 const REFILL_RATE = 10;
 const WINDOW_MS = 60_000;
@@ -9,7 +16,7 @@ const ALLOWED_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 const TEXT_MODEL = 'accounts/fireworks/models/deepseek-v4-flash';
 const VISION_MODEL = 'accounts/fireworks/models/deepseek-v4-flash'; // DeepSeek V4 Flash supports multimodal
 
-function setSecurityHeaders(res) {
+function setSecurityHeaders(res: VercelResponse) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
@@ -27,7 +34,7 @@ function setSecurityHeaders(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
-function isRateLimited(ip) {
+function isRateLimited(ip: string): boolean {
   const now = Date.now();
 
   // Prune stale entries
@@ -41,7 +48,7 @@ function isRateLimited(ip) {
     rateLimitMap.set(ip, { tokens: CAPACITY - 1, lastRefill: now });
     return false;
   }
-  const bucket = rateLimitMap.get(ip);
+  const bucket = rateLimitMap.get(ip)!;
   const elapsed = now - bucket.lastRefill;
   const refilled = Math.floor((elapsed / WINDOW_MS) * REFILL_RATE);
   if (refilled > 0) {
@@ -54,15 +61,15 @@ function isRateLimited(ip) {
   return false;
 }
 
-function sanitizeString(value) {
+function sanitizeString(value: string): string {
   return value.replace(/[\x00-\x1F\x7F]/g, '').trim().slice(0, MAX_STRING_LENGTH);
 }
 
-function isPlainObject(value) {
+function isPlainObject(value: any): value is Record<string, any> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isSafeVisionPart(value) {
+function isSafeVisionPart(value: any): boolean {
   if (!isPlainObject(value) || !isPlainObject(value.inlineData)) return false;
   const { data, mimeType } = value.inlineData;
   if (typeof data !== 'string' || typeof mimeType !== 'string') return false;
@@ -72,7 +79,7 @@ function isSafeVisionPart(value) {
   return /^[A-Za-z0-9+/=]+$/.test(data) && sizeEstimateBytes <= MAX_IMAGE_BYTES;
 }
 
-function sanitizeMessages(messages) {
+function sanitizeMessages(messages: any[]): any[] | null {
   if (!Array.isArray(messages) || messages.length === 0 || messages.length > 8) return null;
 
   const sanitized = messages.map(msg => {
@@ -86,7 +93,7 @@ function sanitizeMessages(messages) {
   return sanitized;
 }
 
-export default async function handler(req, res) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   setSecurityHeaders(res);
 
   if (req.method === 'OPTIONS') {

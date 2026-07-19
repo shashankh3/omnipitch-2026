@@ -4,6 +4,7 @@ import type { StadiumTelemetry } from '../types';
 import { useSystemStore } from './useSystemStore';
 import { MOCK_TELEMETRY } from '../services/dataLoader';
 import { getSimulatedTelemetry } from '../services/telemetrySimulator';
+import { TELEMETRY_INTERVAL_MS } from '../constants';
 
 export const useTelemetryStore = defineStore('telemetry', () => {
   let telemetryInterval: ReturnType<typeof setInterval> | undefined;
@@ -49,7 +50,7 @@ export const useTelemetryStore = defineStore('telemetry', () => {
       
       const systemStore = useSystemStore();
       systemStore.processAlerts(telemetry.value);
-    }, 10_000);
+    }, TELEMETRY_INTERVAL_MS);
   };
 
   const stopSimulation = () => {

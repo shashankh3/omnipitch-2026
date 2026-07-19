@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useStadiumStore } from '../../store/useStadiumStore';
-import { getOrganizerRecommendation, translateAnnouncement, getSentimentAnalysis } from '../../services/gemini';
+import { getOrganizerRecommendation, translateAnnouncement, getSentimentAnalysis } from '../../services/deepseek';
 
 const store = useStadiumStore();
 const query = ref('');

@@ -30,12 +30,15 @@ import apexchart from 'vue3-apexcharts';
 import type { ApexOptions } from 'apexcharts';
 import { randomFloat } from '../../utils/mathUtils';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   title: string;
   subtitle?: string;
   currentValue: number;
   color?: string;
-}>();
+}>(), {
+  subtitle: 'Live Telemetry Analysis',
+  color: '#ff6b00'
+});
 
 const isMounted = ref(false);
 const maxDataPoints = 20;
@@ -45,7 +48,7 @@ const series = ref([{
   data: [] as {x: number, y: number}[]
 }]);
 
-const themeColor = props.color || '#ff6b00';
+const themeColor = props.color;
 
 const chartOptions = ref<ApexOptions>({
   chart: {

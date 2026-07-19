@@ -1,5 +1,14 @@
 import type { StadiumTelemetry } from '../types';
 import { logger } from './logger';
+import { 
+  CROWD_DENSITY_CRITICAL, 
+  GATE_THROUGHPUT_EXCELLENT,
+  ALERT_WBGT_HEAT_HAZARD,
+  ALERT_METRO_DELAY_MINS,
+  ALERT_WATER_LOW_STOCK,
+  ALERT_WATER_DEFAULT_STOCK,
+  ALERT_NORTH_STAND_BUSY
+} from '../constants';
 
 export type AlertSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type AlertAudience = 'FAN' | 'VOLUNTEER' | 'ORGANIZER' | 'ALL';
@@ -28,7 +37,7 @@ const ALERT_RULES: AlertRule[] = [
     id: 'crowd_critical_east',
     severity: 'CRITICAL',
     audience: 'ORGANIZER',
-    check: (t) => (t.crowdDensity['East Stand'] ?? 0) >= 90,
+    check: (t) => (t.crowdDensity['East Stand'] ?? 0) >= CROWD_DENSITY_CRITICAL,
     message: {
       en: '⚠️ East Stand at critical capacity — recommend immediate Gate C diversion',
       es: '⚠️ Tribuna Este en capacidad crítica — desvío de Puerta C recomendado',
@@ -40,7 +49,7 @@ const ALERT_RULES: AlertRule[] = [
     id: 'heat_hazard',
     severity: 'HIGH',
     audience: 'ALL',
-    check: (t) => t.wbgtTemperature >= 35,
+    check: (t) => t.wbgtTemperature >= ALERT_WBGT_HEAT_HAZARD,
     message: {
       en: '🌡️ Extreme heat warning — visit hydration stations at Gate A & B',
       es: '🌡️ Aviso de calor extremo — estaciones de hidratación en Puerta A y B',
@@ -52,7 +61,7 @@ const ALERT_RULES: AlertRule[] = [
     id: 'gate_c_surge',
     severity: 'HIGH',
     audience: 'VOLUNTEER',
-    check: (t) => (t.gateThroughput['GateC'] ?? 0) >= 1000,
+    check: (t) => (t.gateThroughput['GateC'] ?? 0) >= GATE_THROUGHPUT_EXCELLENT,
     message: {
       en: '🚨 Gate C surge detected — deploy 2 additional staff immediately',
       es: '🚨 Avalancha en Puerta C — desplegar 2 efectivos adicionales',
@@ -64,7 +73,7 @@ const ALERT_RULES: AlertRule[] = [
     id: 'metro_delay',
     severity: 'MEDIUM',
     audience: 'FAN',
-    check: (t) => (t.transitDelays['Metro_Line1'] ?? 0) >= 20,
+    check: (t) => (t.transitDelays['Metro_Line1'] ?? 0) >= ALERT_METRO_DELAY_MINS,
     message: {
       en: '🚇 Metro Line 1 delayed — consider Bus Express or rideshare alternatives',
       es: '🚇 Metro Línea 1 retrasado — considere Bus Exprés o alternativas',
@@ -76,7 +85,7 @@ const ALERT_RULES: AlertRule[] = [
     id: 'water_low',
     severity: 'MEDIUM',
     audience: 'ORGANIZER',
-    check: (t) => (t.concessionInventory['Water_Sec100'] ?? 100) <= 20,
+    check: (t) => (t.concessionInventory['Water_Sec100'] ?? ALERT_WATER_DEFAULT_STOCK) <= ALERT_WATER_LOW_STOCK,
     message: {
       en: '💧 Water stock critically low at Section 100 — restock immediately',
       es: '💧 Agua críticamente baja en Sección 100 — reponer inmediatamente',
@@ -88,7 +97,7 @@ const ALERT_RULES: AlertRule[] = [
     id: 'north_stand_busy',
     severity: 'LOW',
     audience: 'FAN',
-    check: (t) => (t.crowdDensity['North Stand'] ?? 0) >= 80,
+    check: (t) => (t.crowdDensity['North Stand'] ?? 0) >= ALERT_NORTH_STAND_BUSY,
     message: {
       en: '📍 North Stand very busy — West Stand has plenty of space',
       es: '📍 Tribuna Norte muy concurrida — la Tribuna Oeste tiene espacio',

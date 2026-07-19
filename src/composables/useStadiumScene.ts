@@ -2,6 +2,11 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { type Ref } from 'vue';
 
+/**
+ * Initializes and manages a Three.js stadium scene, complete with lighting, camera, renderer, and orbit controls.
+ * @param canvasContainer A Vue ref containing the HTML div element where the Three.js canvas will be injected.
+ * @returns An object with methods to initialize the scene and handle window resizing.
+ */
 export function useStadiumScene(
   canvasContainer: Ref<HTMLDivElement | null>
 ) {

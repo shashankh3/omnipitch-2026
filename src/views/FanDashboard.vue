@@ -2,7 +2,7 @@
   <div class="fan-dashboard flex flex-col h-screen overflow-hidden bg-[#050510] text-white relative transition-colors duration-500">
 
     <!-- Offline Banner -->
-    <div v-if="store.isOfflineMode" class="absolute top-0 left-0 right-0 z-[100] bg-rose-500 text-white text-xs font-bold uppercase tracking-widest py-1.5 flex justify-center shadow-lg animate-pulse">
+    <div v-if="store.isOfflineMode" class="absolute top-0 left-0 right-0 z-[100] bg-rose-700 text-white text-xs font-bold uppercase tracking-widest py-1.5 flex justify-center shadow-lg animate-pulse">
       {{ $t('networkDegraded') }}
     </div>
 
@@ -184,7 +184,7 @@
             </div>
             <span
               class="text-xs font-bold tabular-nums"
-              :class="gate.throughput >= 1000 ? 'text-emerald-400' : gate.throughput >= 700 ? 'text-amber-400' : 'text-red-400'"
+              :class="gate.throughput >= GATE_THROUGHPUT_EXCELLENT ? 'text-emerald-400' : gate.throughput >= GATE_THROUGHPUT_GOOD ? 'text-amber-400' : 'text-red-400'"
             >
               {{ gate.throughput.toLocaleString() }} {{ $t('perMin') }}
             </span>
@@ -249,7 +249,7 @@
               <strong>{{ $t('stepFreeRoute') }}:</strong> {{ stepFreeRoute }}
             </div>
           </div>
-          <div v-else class="text-white/50 text-sm">{{ $t('noSensoryRoom') }}</div>
+          <div v-else class="text-white/70 text-sm">{{ $t('noSensoryRoom') }}</div>
         </div>
       </div>
     </Transition>
@@ -261,7 +261,7 @@
       :is-open="isChatOpen"
       :show-fab="!isChatOpen"
       :panel-title="$t('concierge')"
-      :panel-subtitle="$t('poweredByGemini')"
+      :panel-subtitle="$t('poweredByDeepseek')"
       :fab-label="'Ask Stadium Copilot'"
       @open="isChatOpen = true"
       @close="isChatOpen = false"
@@ -296,6 +296,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue';
+import { GATE_THROUGHPUT_EXCELLENT, GATE_THROUGHPUT_GOOD } from '../constants';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import FanMap from '../components/fan/FanMap.vue';

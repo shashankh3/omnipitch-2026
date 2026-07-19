@@ -21,15 +21,10 @@ describe('Accessibility Audit', () => {
     cy.checkA11y(undefined, {
       includedImpacts: ['critical', 'serious'],
       rules: {
-        // The 3D canvas container uses cursor-grab for orbit controls and is
-        // intentionally not keyboard-focusable (orbit is mouse-only; a full
-        // screen-reader data grid is provided via the A11Y toggle).
-        'scrollable-region-focusable': { enabled: false },
-        // Decorative micro-labels (e.g. "VENUE ANALYTICS", density legend)
-        // use intentionally subdued contrast ratios for aesthetic hierarchy.
-        // All critical data is available in the screen-reader data grid.
-        'color-contrast': { enabled: false }
+        'scrollable-region-focusable': { enabled: false }
       }
+    }, (violations) => {
+      cy.task('log', JSON.stringify(violations, null, 2));
     });
   });
 });

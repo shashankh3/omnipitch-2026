@@ -32,9 +32,14 @@
       </div>
     </section>
     
-    <!-- Bottom Row: Data Table (Placeholder for AI console for now) -->
-    <section class="h-[400px] w-full glass-panel rounded-[2rem] p-8 border border-white/5 shadow-2xl mt-4 transition-all duration-400 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] ea-tile">
-      <AiCommandConsole />
+    <!-- Bottom Row: Incident Table & AI Console -->
+    <section class="h-[400px] w-full grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+      <div class="glass-panel rounded-[2rem] p-6 border border-white/5 shadow-2xl transition-all duration-400 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] ea-tile">
+        <IncidentTable />
+      </div>
+      <div class="glass-panel rounded-[2rem] p-6 border border-white/5 shadow-2xl transition-all duration-400 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] ea-tile">
+        <AiCommandConsole />
+      </div>
     </section>
     
   </div>
@@ -47,6 +52,7 @@ import TelemetryGrid from './TelemetryGrid.vue';
 import MainLiveChart from './MainLiveChart.vue';
 import TelemetryDonut from './TelemetryDonut.vue';
 import AiCommandConsole from './AiCommandConsole.vue';
+import IncidentTable from './IncidentTable.vue';
 
 const store = useStadiumStore();
 

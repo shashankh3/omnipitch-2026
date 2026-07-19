@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getFanAssistance, getSimulatedMatchFeed, processVisionIncident, getTaskChecklist, getOrganizerRecommendation, translateAnnouncement, getSentimentAnalysis, clearGeminiCache } from '../gemini';
+import { getFanAssistance, getSimulatedMatchFeed, processVisionIncident, getTaskChecklist, getOrganizerRecommendation, translateAnnouncement, getSentimentAnalysis, clearDeepseekCache } from '../deepseek';
 import { createMockTelemetry } from '../../tests/helpers/mockFactories';
 import { createPinia, setActivePinia } from 'pinia';
 import { useSystemStore } from '../../store/useSystemStore';
@@ -8,7 +8,7 @@ describe('OmniPitch 2026 — Fireworks AI Service Test Suite', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.stubGlobal('fetch', vi.fn());
-    clearGeminiCache();
+    clearDeepseekCache();
   });
 
   afterEach(() => {

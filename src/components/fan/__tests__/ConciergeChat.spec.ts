@@ -2,10 +2,10 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import ConciergeChat from '../ConciergeChat.vue';
-import * as geminiService from '../../../services/gemini';
+import * as deepseekService from '../../../services/deepseek';
 import { i18n } from '../../../i18n';
 
-vi.mock('../../../services/gemini', () => ({
+vi.mock('../../../services/deepseek', () => ({
   getFanAssistance: vi.fn()
 }));
 
@@ -22,7 +22,7 @@ describe('ConciergeChat.vue', () => {
 
   it('sends a message and calls the API', async () => {
     setActivePinia(createPinia());
-    const getFanAssistanceMock = vi.mocked(geminiService.getFanAssistance);
+    const getFanAssistanceMock = vi.mocked(deepseekService.getFanAssistance);
     getFanAssistanceMock.mockResolvedValueOnce('Here is your navigation route.');
 
     const wrapper = mount(ConciergeChat, {
@@ -38,7 +38,7 @@ describe('ConciergeChat.vue', () => {
   });
   it('sends a message and handles API error bubble', async () => {
     setActivePinia(createPinia());
-    const getFanAssistanceMock = vi.mocked(geminiService.getFanAssistance);
+    const getFanAssistanceMock = vi.mocked(deepseekService.getFanAssistance);
     getFanAssistanceMock.mockRejectedValueOnce(new Error('Network error'));
 
     const wrapper = mount(ConciergeChat, {

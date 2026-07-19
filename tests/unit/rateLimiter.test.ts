@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
-import handler from '../../api/gemini.js';
+import handler from '../../api/deepseek.js';
 
 describe('rateLimiter', () => {
   beforeAll(() => {

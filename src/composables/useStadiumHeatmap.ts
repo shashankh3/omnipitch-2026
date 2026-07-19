@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { randomFloat } from '../utils/mathUtils';
+import { onUnmounted } from 'vue';
 
 export const colors = {
   clear: new THREE.Color(0x34d399),
@@ -55,7 +56,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     const ctx = canvas.getContext('2d')!;
 
     // Holographic glass background
-    ctx.fillStyle = 'rgba(5, 5, 20, 0.6)';
+    ctx.fillStyle = 'rgba(5,5,20,0.6)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Calculate wait time
@@ -83,7 +84,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     ctx.fillText(`${waitMins}m`, canvas.width - 30, 65);
 
     // Subtitles
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.font = 'bold 18px sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(statusText, 30, 95);
@@ -99,6 +100,16 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     return texture;
   };
 
+  /**
+   * Generates a dynamic 2D canvas texture for a holographic HUD hovering above a stadium stand.
+   * Renders the stand name, live capacity percentage, and a GitHub-style contribution heatmap
+   * visualization. The heatmap simulates historical density data, fading in from left to right,
+   * culminating in the actual current density on the far right.
+   *
+   * @param name - The name of the stand (e.g., 'North Stand')
+   * @param density - The current crowd density percentage (0-100)
+   * @returns A THREE.CanvasTexture instance ready to be applied to a MeshBasicMaterial
+   */
   const createStandHUDTexture = (name: string, density: number) => {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
@@ -106,11 +117,11 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     const ctx = canvas.getContext('2d')!;
 
     // Holographic glass background
-    ctx.fillStyle = 'rgba(5, 5, 20, 0.4)';
+    ctx.fillStyle = 'rgba(5,5,20,0.4)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Top/Bottom accent borders
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
     ctx.fillRect(0, 0, canvas.width, 2);
     ctx.fillRect(0, canvas.height - 2, canvas.width, 2);
 
@@ -119,11 +130,15 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
     ctx.font = 'bold 54px sans-serif';
     ctx.fillText(name.toUpperCase(), 40, 80);
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.font = 'bold 22px sans-serif';
     ctx.fillText(`LIVE CAPACITY: ${density}%`, 40, 120);
 
     // GitHub style contribution heatmap boxes
+    // Generates a 52x5 grid representing historical timeline data leading up to current density.
+    // The `timeFactor` scales the value from 0 on the left to the actual density on the right,
+    // combined with a small randomized noise factor for realistic variation.
+    // The last two columns represent the true current density without noise.
     const boxSize = 14;
     const gap = 4;
     const cols = 52;
@@ -140,7 +155,7 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
 
         val = Math.max(0, Math.min(1, val));
 
-        if (val < 0.2) ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; // empty
+        if (val < 0.2) ctx.fillStyle = 'rgba(255,255,255,0.05)'; // empty
         else if (val < 0.5) ctx.fillStyle = '#fbbf24'; // amber
         else if (val < 0.8) ctx.fillStyle = '#f97316'; // orange
         else ctx.fillStyle = '#ef4444'; // red
@@ -400,6 +415,21 @@ export function useStadiumHeatmap(scene: THREE.Scene, store: ReturnType<typeof u
 
     setStandTargetColors();
   };
+
+  onUnmounted(() => {
+    chairGeometry.dispose();
+    chairMaterial.dispose();
+    Object.values(standMaterials).forEach(m => m.dispose());
+    Object.values(gateMaterials).forEach(m => m.dispose());
+    Object.values(standHUDMaterials).forEach(m => {
+      if (m.map) m.map.dispose();
+      m.dispose();
+    });
+    Object.values(gateHUDMaterials).forEach(m => {
+      if (m.map) m.map.dispose();
+      m.dispose();
+    });
+  });
 
   return {
     initHeatmap,

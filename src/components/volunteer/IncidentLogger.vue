@@ -28,7 +28,7 @@
         <div class="relative group mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-white/20 border-dashed rounded-xl hover:border-indigo-500/50 hover:bg-indigo-500/10 transition-all duration-300 bg-white/5 overflow-hidden min-h-[180px]">
           <div class="space-y-2 text-center flex flex-col items-center justify-center z-10" :class="{'opacity-0': previewImage}">
             <div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 shadow-sm flex items-center justify-center mb-2">
-              <svg class="h-6 w-6 text-white/40 group-hover:text-indigo-400 transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+              <svg class="h-6 w-6 text-white/70 group-hover:text-indigo-400 transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
@@ -39,7 +39,7 @@
               </label>
               <p class="pl-1">{{ $t('orDragDrop') }}</p>
             </div>
-            <p class="text-xs text-white/40">{{ $t('fileTypes') }}</p>
+            <p class="text-xs text-white/70">{{ $t('fileTypes') }}</p>
           </div>
           
           <!-- Modern Image Preview Overlay -->
@@ -63,10 +63,10 @@
       <div v-if="aiAnalysisResult" class="p-4 bg-white/5 border border-white/10 rounded-xl relative overflow-hidden">
         <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-violet-500"></div>
         <div class="flex flex-col gap-2.5 text-sm pl-2">
-          <p class="flex justify-between border-b border-white/10 pb-2"><strong class="text-white/40 uppercase tracking-wider text-xs">{{ $t('incidentType') }}</strong> <span class="font-semibold text-white/90">{{ aiAnalysisResult.type }}</span></p>
-          <p class="flex justify-between border-b border-white/10 pb-2"><strong class="text-white/40 uppercase tracking-wider text-xs">{{ $t('incidentSeverity') }}</strong> <span class="font-semibold text-white/90">{{ aiAnalysisResult.severity }}</span></p>
+          <p class="flex justify-between border-b border-white/10 pb-2"><strong class="text-white/70 uppercase tracking-wider text-xs">{{ $t('incidentType') }}</strong> <span class="font-semibold text-white/90">{{ aiAnalysisResult.type }}</span></p>
+          <p class="flex justify-between border-b border-white/10 pb-2"><strong class="text-white/70 uppercase tracking-wider text-xs">{{ $t('incidentSeverity') }}</strong> <span class="font-semibold text-white/90">{{ aiAnalysisResult.severity }}</span></p>
           <div>
-            <strong class="text-white/40 uppercase tracking-wider text-xs block mb-1">{{ $t('aiRecommendation') }}</strong>
+            <strong class="text-white/70 uppercase tracking-wider text-xs block mb-1">{{ $t('aiRecommendation') }}</strong>
             <span class="text-white/70 italic block">{{ aiAnalysisResult.dispatchOrder }}</span>
           </div>
         </div>
@@ -85,7 +85,7 @@ import { useI18n } from 'vue-i18n';
 import DOMPurify from 'dompurify';
 import { useStadiumStore } from '../../store/useStadiumStore';
 import { logger } from '../../services/logger';
-import { processVisionIncident } from '../../services/gemini';
+import { processVisionIncident } from '../../services/deepseek';
 import BaseButton from '../common/BaseButton.vue';
 import type { Incident } from '../../types';
 

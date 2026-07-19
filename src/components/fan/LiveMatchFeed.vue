@@ -17,21 +17,21 @@
         <button
           type="button"
           @click="forceRefresh"
-          class="text-[9px] text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1 font-bold focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-not-allowed disabled:opacity-50"
+          class="text-[9px] text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1 font-bold focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="isLoading"
           aria-label="Refresh live match feed"
         >
           <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 1 0 2.13-5.88L21 8"/></svg>
           Refresh
         </button>
-        <span class="text-[9px] text-white/30 font-bold tracking-[0.2em] uppercase">MD 12</span>
+        <span class="text-[9px] text-white/70 font-bold tracking-[0.2em] uppercase">MD 12</span>
       </div>
     </div>
     
     <!-- Loading State -->
     <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-70" role="status" aria-live="polite">
       <div class="w-8 h-8 rounded-full border-2 border-white/10 border-t-[var(--theme-primary)] motion-safe:animate-spin mb-3 shadow-[0_0_15px_var(--theme-primary)]"></div>
-      <p class="text-xs font-bold uppercase tracking-widest text-white/50">Fireworks AI Generating<br/>Match Feed...</p>
+      <p class="text-xs font-bold uppercase tracking-widest text-white/70">Fireworks AI Generating<br/>Match Feed...</p>
     </div>
 
 
@@ -42,7 +42,7 @@
         <div class="flex justify-between items-center text-[10px] mb-2 relative z-10">
           <div class="flex items-center gap-1.5 text-red-400 font-bold">
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span class="text-white/30 font-bold flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-red-500 motion-safe:animate-pulse"></div> {{ matchMinute }}'</span>
+            <span class="text-white/70 font-bold flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-red-500 motion-safe:animate-pulse"></div> {{ matchMinute }}'</span>
           </div>
           <div class="flex items-center gap-2">
             <span v-if="!dataLoaded" class="text-[9px] text-slate-400 italic">Demo match</span>
@@ -57,7 +57,7 @@
           </div>
           <div class="bg-black/40 backdrop-blur-md border border-white/20 px-3 py-1 rounded-lg font-black text-lg flex gap-1.5 tabular-nums text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]">
             <span :class="{'scale-125 transition-transform': currentSlide?.isGoal}" :style="{ color: currentSlide?.isGoal ? 'var(--theme-primary)' : 'white' }">{{ feedData.liveMatch.homeScore }}</span>
-            <span class="text-white/30">:</span>
+            <span class="text-white/70">:</span>
             <span :class="{'scale-125 transition-transform': currentSlide?.isGoal}" :style="{ color: currentSlide?.isGoal ? 'var(--theme-secondary)' : 'white' }">{{ feedData.liveMatch.awayScore }}</span>
           </div>
           <div class="text-center w-[35%] flex flex-col items-center gap-1">
@@ -105,15 +105,15 @@
       <!-- Match 2: Finished -->
       <div class="p-3 border-b border-white/5 hover:bg-white/3 transition-colors cursor-pointer group opacity-70 hover:opacity-100">
         <div class="flex justify-between items-center text-[10px] mb-2">
-          <span class="text-white/40 font-bold">Final Whistle</span>
-          <span class="px-1.5 py-0.5 bg-white/10 text-white/50 rounded text-[9px] uppercase tracking-wider font-extrabold">FT</span>
+          <span class="text-white/70 font-bold">Final Whistle</span>
+          <span class="px-1.5 py-0.5 bg-white/10 text-white/70 rounded text-[9px] uppercase tracking-wider font-extrabold">FT</span>
         </div>
         <div class="flex justify-between items-center mb-2.5">
           <div class="text-center w-[35%]">
             <span class="font-extrabold text-white/70 text-[10px] block truncate uppercase">{{ feedData.completedMatch.homeTeam }}</span>
           </div>
-          <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg font-black text-base flex gap-1.5 tabular-nums text-white/60">
-            <span>{{ feedData.completedMatch.homeScore }}</span><span class="text-white/15">:</span><span>{{ feedData.completedMatch.awayScore }}</span>
+          <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg font-black text-base flex gap-1.5 tabular-nums text-white/70">
+            <span>{{ feedData.completedMatch.homeScore }}</span><span class="text-white/70">:</span><span>{{ feedData.completedMatch.awayScore }}</span>
           </div>
           <div class="text-center w-[35%]">
             <span class="font-extrabold text-white/70 text-xs block truncate uppercase">{{ feedData.completedMatch.awayTeam }}</span>
@@ -124,18 +124,18 @@
       <!-- Upcoming Match -->
       <div class="p-3 hover:bg-white/3 transition-colors cursor-pointer">
         <div class="flex justify-between items-center text-[10px] mb-2">
-          <span class="text-white/30 font-bold">{{ feedData.upcomingMatch.time }}</span>
+          <span class="text-white/70 font-bold">{{ feedData.upcomingMatch.time }}</span>
           <span class="px-1.5 py-0.5 bg-amber-500/10 text-amber-400/80 rounded text-[9px] uppercase tracking-wider font-extrabold border border-amber-500/15">Soon</span>
         </div>
         <div class="flex justify-between items-center">
           <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white/50 text-xs block truncate uppercase">{{ feedData.upcomingMatch.homeTeam }}</span>
+            <span class="font-extrabold text-white/70 text-xs block truncate uppercase">{{ feedData.upcomingMatch.homeTeam }}</span>
           </div>
-          <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg font-black text-sm flex gap-1.5 text-white/30">
+          <div class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg font-black text-sm flex gap-1.5 text-white/70">
             <span>vs</span>
           </div>
           <div class="text-center w-[35%]">
-            <span class="font-extrabold text-white/50 text-xs block truncate uppercase">{{ feedData.upcomingMatch.awayTeam }}</span>
+            <span class="font-extrabold text-white/70 text-xs block truncate uppercase">{{ feedData.upcomingMatch.awayTeam }}</span>
           </div>
         </div>
       </div>
@@ -148,7 +148,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { logger } from '../../services/logger';
 import goalImg from '../../assets/soccer_goal_action.webp';
 import fansImg from '../../assets/soccer_fans_cheering.webp';
-import { getSimulatedMatchFeed } from '../../services/gemini';
+import { getSimulatedMatchFeed } from '../../services/deepseek';
 import {
   cloneMatchFeed,
   DEFAULT_MATCH_FEED,

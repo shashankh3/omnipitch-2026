@@ -33,12 +33,19 @@ import { ref, onMounted, computed } from 'vue';
 import apexchart from 'vue3-apexcharts';
 import type { ApexOptions } from 'apexcharts';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   title: string;
   subtitle?: string;
   data: Record<string, number>;
   centerLabel: string;
-}>();
+}>(), {
+  subtitle: ''
+});
+
+// Runtime validation
+if (Object.keys(props.data).length === 0) {
+  console.warn('[TelemetryDonut] Empty data provided, chart will not render properly');
+}
 
 const isMounted = ref(false);
 

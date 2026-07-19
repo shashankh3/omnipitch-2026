@@ -2,7 +2,7 @@
   <div class="min-h-screen flex flex-col bg-[#030308] text-white font-sans transition-colors duration-500 relative overflow-hidden">
     
     <!-- Offline Banner -->
-    <div v-if="isOffline" class="absolute top-0 left-0 right-0 z-[100] bg-rose-500 text-white text-xs font-bold uppercase tracking-widest py-1.5 flex justify-center shadow-lg animate-pulse">
+    <div v-if="isOffline" class="absolute top-0 left-0 right-0 z-[100] bg-rose-700 text-white text-xs font-bold uppercase tracking-widest py-1.5 flex justify-center shadow-lg animate-pulse">
       [WARNING: Network Degraded. Engaging Local Deterministic Engine]
     </div>
 
@@ -89,7 +89,7 @@
       <OperationsDashboard />
       
       <!-- Hardware Badge -->
-      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 text-[9px] text-white/30 tracking-widest uppercase z-50 whitespace-nowrap pointer-events-none pb-2 text-center w-full">
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 text-[9px] text-white/70 tracking-widest uppercase z-50 whitespace-nowrap pointer-events-none pb-2 text-center w-full">
         Data Source: OmniPitch Software Simulation Node (Hardware-Agnostic)
       </div>
     </main>

@@ -103,21 +103,21 @@ describe('useIncidentStore', () => {
     store.receiveFromBroadcast({
       id: 'inc_nolocation',
       type: 'MEDICAL', severity: 'LOW', status: 'OPEN'
-    } );
+    } as unknown as Incident);
     expect(store.incidents.find(i => i.id === 'inc_nolocation')).toBeUndefined();
 
     // Test missing id or section
     store.receiveFromBroadcast({
       location: { section: '', gate: 'GateA', coordinates: [0, 0] },
       type: 'MEDICAL', severity: 'LOW', status: 'OPEN'
-    } );
+    } as unknown as Incident);
 
     // Test bad coordinates
     store.receiveFromBroadcast({
       id: 'inc_badcoords',
       location: { section: 'North Stand', gate: 'GateA', coordinates: [NaN, 0] },
       type: 'MEDICAL', severity: 'LOW', status: 'OPEN'
-    } );
+    } as unknown as Incident);
     expect(store.incidents.find(i => i.id === 'inc_badcoords')).toBeUndefined();
 
     // Test imageUrl and assignedTo
@@ -128,7 +128,7 @@ describe('useIncidentStore', () => {
       type: 'MEDICAL', severity: 'LOW', status: 'OPEN',
       imageUrl: 'http://example.com/img.jpg',
       assignedTo: 'Medic 1'
-    } );
+    } as unknown as Incident);
     const withExtras = store.incidents.find(i => i.id === 'inc_with_extras')!;
     expect(withExtras.imageUrl).toBe('http://example.com/img.jpg');
     expect(withExtras.assignedTo).toBe('Medic 1');
@@ -173,7 +173,7 @@ describe('useIncidentStore', () => {
 
     store.initRealtime();
 
-    const mockIncident = { id: 'inc_realtime', type: 'MEDICAL', severity: 'LOW', location: { section: '1' } } as unknown as Incident;
+    const mockIncident = { id: 'inc_realtime', type: 'MEDICAL', severity: 'LOW', location: { section: '1', gate: 'GateA', coordinates: [0, 0] } } as unknown as Incident;
     onCallback({ payload: { incident: mockIncident } });
 
     expect(store.incidents.length).toBe(1);

@@ -2,6 +2,11 @@ import { computed } from 'vue';
 import { useTelemetryStore } from '../store/useTelemetryStore';
 import { getCrowdLevel } from '../services/telemetrySimulator';
 
+/**
+ * Provides reactive crowd density status and formatting for a specific stadium zone.
+ * @param zoneKey The key identifying the stadium zone (e.g., 'North Stand').
+ * @returns An object containing reactive properties for density, level, color, and label.
+ */
 export function useCrowdStatus(zoneKey: string) {
   const telemetry = useTelemetryStore();
   const density = computed(() =>

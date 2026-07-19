@@ -10,12 +10,12 @@
       </span>
     </div>
     
-    <div v-if="activeIncidents.length === 0" class="flex flex-col items-center justify-center p-16 bg-white/5 border-2 border-dashed border-white/10 rounded-2xl text-white/40">
+    <div v-if="activeIncidents.length === 0" class="flex flex-col items-center justify-center p-16 bg-white/5 border-2 border-dashed border-white/10 rounded-2xl text-white/70">
       <div class="w-20 h-20 bg-black/40 rounded-full flex items-center justify-center mb-4 border border-white/5">
         <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500/50"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
       </div>
       <p class="text-lg font-semibold text-white/70">No active incidents</p>
-      <p class="text-sm mt-1 text-white/40">The stadium is operating smoothly.</p>
+      <p class="text-sm mt-1 text-white/70">The stadium is operating smoothly.</p>
     </div>
     
     <!-- Data Table Header -->
@@ -106,7 +106,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useStadiumStore } from '../../store/useStadiumStore';
-import { getTaskChecklist } from '../../services/gemini';
+import { getTaskChecklist } from '../../services/deepseek';
 
 const store = useStadiumStore();
 const activeChecklists = ref<Record<string, string[]>>({});

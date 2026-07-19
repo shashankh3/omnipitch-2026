@@ -3,13 +3,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-describe('api/gemini.js', () => {
+describe('api/deepseek.js', () => {
   let handler;
 
   beforeEach(async () => {
     vi.resetModules();
     process.env.FIREWORKS_API_KEY = 'test-key';
-    handler = (await import('../gemini.js')).default;
+    handler = (await import('../deepseek.js')).default;
     mockFetch.mockReset();
   });
 

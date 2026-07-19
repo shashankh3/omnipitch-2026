@@ -1,5 +1,12 @@
 import type { StadiumTelemetry } from '../types';
 import { MOCK_TELEMETRY } from './dataLoader';
+import { 
+  CROWD_DENSITY_CRITICAL, 
+  CROWD_DENSITY_MODERATE,
+  MAX_CROWD_DENSITY,
+  KICKOFF_TEMP_OFFSET_BASE_MINS,
+  KICKOFF_TEMP_OFFSET_DIVISOR
+} from '../constants';
 
 /**
  * Returns deterministic telemetry for a given minutesToKickoff value.
@@ -21,7 +28,7 @@ export function getSimulatedTelemetry(
   // Apply crowd multiplier deterministically
   const crowdDensity: Record<string, number> = {};
   Object.entries(base.crowdDensity).forEach(([zone, value]) => {
-    crowdDensity[zone] = Math.min(100,
+    crowdDensity[zone] = Math.min(MAX_CROWD_DENSITY,
       Math.round((value as number) * multipliers.crowdDensityMultiplier)
     );
   });
@@ -34,7 +41,7 @@ export function getSimulatedTelemetry(
 
   // Temperature: varies predictably by minutesToKickoff (heat peaks at 0)
   const tempOffset = Math.max(-2, Math.min(2,
-    (60 - Math.abs(minutesToKickoff)) / 30
+    (KICKOFF_TEMP_OFFSET_BASE_MINS - Math.abs(minutesToKickoff)) / KICKOFF_TEMP_OFFSET_DIVISOR
   ));
   const wbgtTemperature = Math.round((base.wbgtTemperature + tempOffset) * 10) / 10;
 
@@ -55,7 +62,7 @@ export function getCrowdLevel(
   density: number
 ): 'low' | 'medium' | 'high' | 'critical' {
   if (density < 40) return 'low';
-  if (density < 70) return 'medium';
-  if (density < 90) return 'high';
+  if (density < CROWD_DENSITY_MODERATE) return 'medium';
+  if (density < CROWD_DENSITY_CRITICAL) return 'high';
   return 'critical';
 }

@@ -3,9 +3,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import TaskInbox from '../TaskInbox.vue';
 import { useStadiumStore } from '../../../store/useStadiumStore';
-import * as geminiService from '../../../services/gemini';
+import * as deepseekService from '../../../services/deepseek';
 
-vi.mock('../../../services/gemini', () => ({
+vi.mock('../../../services/deepseek', () => ({
   getTaskChecklist: vi.fn()
 }));
 
@@ -45,7 +45,7 @@ describe('TaskInbox.vue', () => {
       { id: '1', type: 'MEDICAL', severity: 'HIGH', status: 'OPEN', location: { section: 'A', gate: '1', coordinates: [0, 0] }, description: 'Help', reportedBy: 'System', timestamp: '' }
     ];
 
-    const mockChecklist = vi.mocked(geminiService.getTaskChecklist);
+    const mockChecklist = vi.mocked(deepseekService.getTaskChecklist);
     mockChecklist.mockResolvedValueOnce(['Step 1', 'Step 2']);
 
     const wrapper = mount(TaskInbox);
@@ -67,7 +67,7 @@ describe('TaskInbox.vue', () => {
       { id: '1', type: 'MEDICAL', severity: 'HIGH', status: 'OPEN', location: { section: 'A', gate: '1', coordinates: [0, 0] }, description: 'Help', reportedBy: 'System', timestamp: '' }
     ];
 
-    const mockChecklist = vi.mocked(geminiService.getTaskChecklist);
+    const mockChecklist = vi.mocked(deepseekService.getTaskChecklist);
     mockChecklist.mockRejectedValueOnce(new Error('API failed'));
 
     const wrapper = mount(TaskInbox);

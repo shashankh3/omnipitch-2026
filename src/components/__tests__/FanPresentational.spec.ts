@@ -17,7 +17,8 @@ describe('SlidePanel', () => {
     await fab.trigger('click');
     expect(wrapper.emitted('open')).toHaveLength(1);
 
-    const noFab = mount(SlidePanel, { props: baseProps });
+    // showFab defaults to true, so need to explicitly pass false
+    const noFab = mount(SlidePanel, { props: { ...baseProps, showFab: false } });
     expect(noFab.find('button[aria-label="Open panel"]').exists()).toBe(false);
   });
 

@@ -4,3 +4,33 @@ export const HEALTH_POLL_INTERVAL_MS = 30000;
 export const MATCH_FEED_TTL_MS = 60000;
 export const CLIENT_MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
 export const SERVER_MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
+export const CROWD_DENSITY_CRITICAL = 90;
+export const CROWD_DENSITY_HIGH = 85;
+export const CROWD_DENSITY_MODERATE = 70;
+
+export const INCIDENT_DESC_MAX_LENGTH = 280;
+export const AI_CHAT_HISTORY_MAX = 10;
+
+export const GATE_THROUGHPUT_EXCELLENT = 1000;
+export const GATE_THROUGHPUT_GOOD = 700;
+
+export const TELEMETRY_INTERVAL_MS = 10000;
+
+export const ALERT_WBGT_HEAT_HAZARD = 35;
+export const ALERT_METRO_DELAY_MINS = 20;
+export const ALERT_WATER_LOW_STOCK = 20;
+export const ALERT_WATER_DEFAULT_STOCK = 100;
+export const ALERT_NORTH_STAND_BUSY = 80;
+
+export const CROWD_DENSITY_LOW = 40;
+export const DEFAULT_CROWD_DENSITY = 50;
+export const URGENT_KICKOFF_MINS = 15;
+
+export const DEFAULT_INPUT_MAX_LENGTH = 4000;
+export const LOCATION_CONTEXT_MAX_LENGTH = 120;
+export const CHECKLIST_STEP_MAX_LENGTH = 160;
+
+export const MAX_CROWD_DENSITY = 100;
+export const KICKOFF_TEMP_OFFSET_BASE_MINS = 60;
+export const KICKOFF_TEMP_OFFSET_DIVISOR = 30;

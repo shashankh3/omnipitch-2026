@@ -23,10 +23,10 @@
 
     <!-- Low Power Toggle -->
     <div class="pointer-events-auto absolute bottom-6 right-24 z-40">
-      <button 
+      <button
         @click="isLowPowerMode = !isLowPowerMode"
-        class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors"
-        :class="isLowPowerMode ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-[#0a0a1a]/60 text-white/50 hover:bg-[#0a0a1a]/80 hover:text-white/80'"
+        class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:ring-offset-2 focus:ring-offset-[#030712]"
+        :class="isLowPowerMode ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-[#0a0a1a]/60 text-white/70 hover:bg-[#0a0a1a]/80 hover:text-white/80'"
         type="button"
         :aria-pressed="isLowPowerMode"
         :aria-label="isLowPowerMode ? $t('disableEcoMode') : $t('enableEcoMode')"
@@ -42,7 +42,12 @@
       class="relative min-w-0 flex-1 touch-none overflow-hidden cursor-grab active:cursor-grabbing"
       role="img"
       aria-label="Interactive 3D stadium map showing live crowd density, gate load, players, and match ball animation"
+      aria-describedby="canvas-controls-hint"
     >
+      <!-- Keyboard navigation hint for screen readers -->
+      <div id="canvas-controls-hint" class="sr-only">
+        This is a mouse-controlled 3D view. Drag to rotate the camera. A screen-reader accessible data table is available via the accessibility toggle above the map.
+      </div>
       <div class="pointer-events-none absolute inset-0 z-10 stadium-vignette"></div>
       <div class="pointer-events-none absolute inset-0 z-10 stadium-light-sweep"></div>
 
@@ -133,6 +138,14 @@ watch(
   { immediate: true }
 );
 
+/**
+ * Generates an SVG polyline string representing the history of a crowd density threshold over time.
+ * The Y-axis represents the percentage of values matching the threshold, mapped inversely to fit 
+ * an SVG height of 42 (0% -> 42, 100% -> 7). The X-axis scales the history points across a width of 200.
+ * 
+ * @param threshold - A predicate function that tests whether a density value meets the criteria
+ * @returns A space-separated string of x,y coordinates to draw the SVG polyline
+ */
 function makeWavePoints(threshold: (value: number) => boolean): string {
   const history = densityHistory.value;
 

@@ -5,7 +5,7 @@
 
       <div class="mb-4 flex items-center justify-between">
         <div>
-          <p class="text-[9px] font-bold uppercase tracking-[0.22em] text-white/35">{{ $t('venueAnalytics') }}</p>
+          <p class="text-[9px] font-bold uppercase tracking-[0.22em] text-white/70">{{ $t('venueAnalytics') }}</p>
           <h2 class="mt-1 text-sm font-bold tracking-wide text-white">{{ $t('crowdDensity') }}</h2>
         </div>
 
@@ -25,7 +25,7 @@
             class="h-1.5 w-1.5 rounded-full"
             :style="{ backgroundColor: stat.color, boxShadow: `0 0 9px ${stat.color}` }"
           ></span>
-          <span class="text-[8px] font-bold uppercase tracking-wide text-white/40">{{ $t(stat.label) }}</span>
+          <span class="text-[8px] font-bold uppercase tracking-wide text-white/70">{{ $t(stat.label) }}</span>
           <strong class="text-base font-black tabular-nums text-white">{{ stat.value }}%</strong>
         </div>
       </div>
@@ -63,7 +63,7 @@
         <span
           v-for="stat in densityStats"
           :key="`${stat.label}-legend`"
-          class="flex items-center gap-1 text-[9px] text-white/35"
+          class="flex items-center gap-1 text-[9px] text-white/70"
         >
           <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: stat.color }"></span>
           {{ $t(stat.label) }}
