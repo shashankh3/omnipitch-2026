@@ -156,11 +156,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    const requestedModel = hasVision ? VISION_MODEL : TEXT_MODEL;
-    // Map fictional hackathon model to real model for Fireworks API
-    const model = requestedModel === 'accounts/fireworks/models/deepseek-v4-flash'
-      ? 'accounts/fireworks/models/deepseek-v3'
-      : requestedModel;
+    const model = hasVision ? VISION_MODEL : TEXT_MODEL;
 
     const requestBody = {
       model,
