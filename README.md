@@ -47,7 +47,7 @@ OmniPitch solves all of this in one unified AI Command Center.
 
 **Chosen Vertical:** Smart Stadium Management / Event Operations (Sports & Entertainment)
 
-OmniPitch 2026 is an unprecedented stadium management solution designed specifically for the scale of the World Cup. It bridges the gap between chaotic physical infrastructure and sleek digital intelligence. By rendering a **Holographic 3D Digital Twin** of the stadium in the browser, OmniPitch fuses real-time IoT telemetry with the predictive, conversational, and multimodal vision capabilities of the **OmniPitch AI** (powered by Fireworks AI Llama vision models).
+OmniPitch 2026 is an unprecedented stadium management solution designed specifically for the scale of the World Cup. It bridges the gap between chaotic physical infrastructure and sleek digital intelligence. By rendering a **Holographic 3D Digital Twin** of the stadium in the browser, OmniPitch fuses real-time IoT telemetry with the predictive, conversational, and multimodal vision capabilities of the **OmniPitch AI** (powered by DeepSeek V4 Flash via Fireworks AI).
 
 ---
 
@@ -289,7 +289,7 @@ The model is pinned server-side (`deepseek-v4-pro`) — clients cannot select a 
 | Decision | Choice | Reason |
 |---|---|---|
 | Real-time sync | Supabase WebSocket | Built-in RLS + broadcast + zero backend code |
-| AI provider | Fireworks AI (Llama vision models) | Multimodal (vision+text), sub-2s latency, generous free tier |
+| AI provider | DeepSeek V4 Flash (via Fireworks AI) | Multimodal (vision+text), sub-2s latency, generous free tier |
 | 3D rendering | Three.js InstancedMesh | Single draw call for 80,000 seats at 60fps |
 | State management | Pinia (4 stores) | Single-responsibility, independently testable |
 | LLM architecture | Rules-first + phrasing-only | Eliminates hallucination by design |
