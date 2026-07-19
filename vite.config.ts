@@ -108,6 +108,7 @@ export default defineConfig({
     // three-vendor and charts-vendor exceed 500 kB but are lazy-loaded per route,
     // never on the critical path (login loads ~125 kB of JS)
     chunkSizeWarningLimit: 1300,
+    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks(id: string) {

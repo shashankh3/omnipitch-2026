@@ -44,9 +44,9 @@
   </div>
 
   <!-- Main entry point for the Vue Router -->
-  <main id="main-content" v-else class="h-full w-full">
+  <div v-else class="h-full w-full">
     <router-view></router-view>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
