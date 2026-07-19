@@ -25,4 +25,13 @@ describe('useSessionStore', () => {
     expect(store.currentSession?.accessibilityProfile.requiresStepFree).toBe(true);
     expect(store.currentSession?.accessibilityProfile.sensoryMode).toBe('screen_reader');
   });
+
+  it('handles null session safely', () => {
+    const store = useSessionStore();
+    store.currentSession = null;
+    store.setRole('ORGANIZER');
+    store.setLanguage('es');
+    store.setAccessibilityProfile({ requiresStepFree: true });
+    expect(store.currentSession).toBeNull();
+  });
 });

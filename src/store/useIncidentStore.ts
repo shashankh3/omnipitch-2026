@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { shallowRef } from 'vue';
 import type { Incident } from '../types';
 import { INCIDENT_SEED } from '../services/dataLoader';
 import { supabase } from '../services/supabase';
@@ -56,53 +57,57 @@ function sanitizeIncident(value: unknown): Incident | null {
   return sanitizedIncident;
 }
 
-export const useIncidentStore = defineStore('incident', {
-  state: () => ({
-    incidents: [...INCIDENT_SEED] as Incident[]
-  }),
-  actions: {
-    loadSeed() {
-      this.incidents = [...INCIDENT_SEED];
-    },
-    addIncident(incident: Omit<Incident, 'id' | 'timestamp'>) {
-      const newIncident: Incident = {
-        ...incident,
-        id: `inc_${crypto.randomUUID()}`,
-        timestamp: new Date().toISOString()
-      };
-      this.incidents.push(newIncident);
+export const useIncidentStore = defineStore('incident', () => {
+  const incidents = shallowRef<Incident[]>([...INCIDENT_SEED]);
 
-      // Broadcast the new incident to all other connected clients
-      supabase.channel('stadium_incidents').send({
-        type: 'broadcast',
-        event: 'new_incident',
-        payload: { incident: newIncident }
-      });
-    },
-    initRealtime() {
-      // Subscribe to incident broadcasts
-      supabase.channel('stadium_incidents')
-        .on('broadcast', { event: 'new_incident' }, ({ payload }) => {
-          const inc = sanitizeIncident(payload?.incident);
-          if (!inc) return;
-          // Prevent duplicates
-          if (!this.incidents.find((i: Incident) => i.id === inc.id)) {
-            this.incidents.push(inc);
-          }
-        })
-        .subscribe();
-    },
-    updateIncidentStatus(id: string, status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED') {
-      const incident = this.incidents.find(i => i.id === id);
-      if (incident) {
-        incident.status = status;
-      }
-    },
-    receiveFromBroadcast(incident: Incident) {
-      const sanitized = sanitizeIncident(incident);
-      if (sanitized && !this.incidents.find(i => i.id === sanitized.id)) {
-        this.incidents.push(sanitized);
-      }
+  const loadSeed = () => {
+    incidents.value = [...INCIDENT_SEED];
+  };
+
+  const addIncident = (incident: Omit<Incident, 'id' | 'timestamp'>) => {
+    const newIncident: Incident = {
+      ...incident,
+      id: `inc_${crypto.randomUUID()}`,
+      timestamp: new Date().toISOString()
+    };
+    incidents.value = [...incidents.value, newIncident];
+
+    supabase.channel('stadium_incidents').send({
+      type: 'broadcast',
+      event: 'new_incident',
+      payload: { incident: newIncident }
+    });
+  };
+
+  const initRealtime = () => {
+    supabase.channel('stadium_incidents')
+      .on('broadcast', { event: 'new_incident' }, ({ payload }) => {
+        const inc = sanitizeIncident(payload?.incident);
+        if (!inc) return;
+        if (!incidents.value.find((i) => i.id === inc.id)) {
+          incidents.value = [...incidents.value, inc];
+        }
+      })
+      .subscribe();
+  };
+
+  const updateIncidentStatus = (id: string, status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED') => {
+    incidents.value = incidents.value.map(i => i.id === id ? { ...i, status } : i);
+  };
+
+  const receiveFromBroadcast = (incident: Incident) => {
+    const sanitized = sanitizeIncident(incident);
+    if (sanitized && !incidents.value.find(i => i.id === sanitized.id)) {
+      incidents.value = [...incidents.value, sanitized];
     }
-  }
+  };
+
+  return {
+    incidents,
+    loadSeed,
+    addIncident,
+    initRealtime,
+    updateIncidentStatus,
+    receiveFromBroadcast
+  };
 });

@@ -163,7 +163,7 @@ const getSeverityTextClass = (severity: string) => {
 const updateStatus = async (id: string, newStatus: 'IN_PROGRESS' | 'RESOLVED') => {
   const inc = store.incidents.find(i => i.id === id);
   if (inc) {
-    inc.status = newStatus;
+    store.updateIncidentStatus(id, newStatus);
     
     // Generate AI Checklist if transitioning to IN_PROGRESS
     if (newStatus === 'IN_PROGRESS' && !activeChecklists.value[id]) {

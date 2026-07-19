@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { shallowRef, ref } from 'vue';
 import type { StadiumTelemetry } from '../types';
 import { useSystemStore } from './useSystemStore';
 import { MOCK_TELEMETRY } from '../services/dataLoader';
@@ -6,68 +7,77 @@ import { getSimulatedTelemetry } from '../services/telemetrySimulator';
 
 let telemetryInterval: ReturnType<typeof setInterval> | undefined;
 
-export const useTelemetryStore = defineStore('telemetry', {
-  state: () => ({
-    telemetry: {
+export const useTelemetryStore = defineStore('telemetry', () => {
+  const telemetry = shallowRef<StadiumTelemetry>({
+    timestamp: new Date().toISOString(),
+    wbgtTemperature: MOCK_TELEMETRY.baseline.wbgtTemperature,
+    gateThroughput: { ...MOCK_TELEMETRY.baseline.gateThroughput },
+    transitDelays: { ...MOCK_TELEMETRY.baseline.transitDelays },
+    concessionInventory: { ...MOCK_TELEMETRY.baseline.concessionInventory },
+    crowdDensity: { ...MOCK_TELEMETRY.baseline.crowdDensity }
+  });
+  
+  const minutesToKickoff = ref(90);
+  const isSimulating = ref(false);
+
+  const loadBaseline = () => {
+    telemetry.value = {
       timestamp: new Date().toISOString(),
       wbgtTemperature: MOCK_TELEMETRY.baseline.wbgtTemperature,
       gateThroughput: { ...MOCK_TELEMETRY.baseline.gateThroughput },
       transitDelays: { ...MOCK_TELEMETRY.baseline.transitDelays },
       concessionInventory: { ...MOCK_TELEMETRY.baseline.concessionInventory },
       crowdDensity: { ...MOCK_TELEMETRY.baseline.crowdDensity }
-    } as StadiumTelemetry,
-    minutesToKickoff: 90,
-    isSimulating: false
-  }),
-  actions: {
-    loadBaseline() {
-      this.telemetry = {
-        timestamp: new Date().toISOString(),
-        wbgtTemperature: MOCK_TELEMETRY.baseline.wbgtTemperature,
-        gateThroughput: { ...MOCK_TELEMETRY.baseline.gateThroughput },
-        transitDelays: { ...MOCK_TELEMETRY.baseline.transitDelays },
-        concessionInventory: { ...MOCK_TELEMETRY.baseline.concessionInventory },
-        crowdDensity: { ...MOCK_TELEMETRY.baseline.crowdDensity }
-      };
-    },
-    startSimulation(minutesToKickoff: number) {
-      this.minutesToKickoff = minutesToKickoff;
-      this.isSimulating = true;
-      // Load initial deterministic state immediately
-      this.telemetry = getSimulatedTelemetry(minutesToKickoff);
+    };
+  };
 
-      if (telemetryInterval) {
-        clearInterval(telemetryInterval);
-      }
+  const startSimulation = (minutes: number) => {
+    minutesToKickoff.value = minutes;
+    isSimulating.value = true;
+    telemetry.value = getSimulatedTelemetry(minutes);
 
-      // Advance simulation every 10 seconds (1 real second = ~1 match minute)
-      telemetryInterval = setInterval(() => {
-        if (!this.isSimulating) { 
-          clearInterval(telemetryInterval); 
-          return; 
-        }
-        this.minutesToKickoff -= 1;
-        this.telemetry = getSimulatedTelemetry(this.minutesToKickoff);
-        
-        const systemStore = useSystemStore();
-        systemStore.processAlerts(this.telemetry);
-      }, 10_000);
-    },
-    stopSimulation() {
-      this.isSimulating = false;
-      if (telemetryInterval) {
-        clearInterval(telemetryInterval);
-        telemetryInterval = undefined;
-      }
-    },
-    updateFromSupabase(payload: Partial<StadiumTelemetry>) {
-      this.telemetry = {
-        ...this.telemetry,
-        ...payload,
-        timestamp: new Date().toISOString()
-      };
-      const systemStore = useSystemStore();
-      systemStore.processAlerts(this.telemetry);
+    if (telemetryInterval) {
+      clearInterval(telemetryInterval);
     }
-  }
+
+    telemetryInterval = setInterval(() => {
+      if (!isSimulating.value) { 
+        clearInterval(telemetryInterval); 
+        return; 
+      }
+      minutesToKickoff.value -= 1;
+      telemetry.value = getSimulatedTelemetry(minutesToKickoff.value);
+      
+      const systemStore = useSystemStore();
+      systemStore.processAlerts(telemetry.value);
+    }, 10_000);
+  };
+
+  const stopSimulation = () => {
+    isSimulating.value = false;
+    if (telemetryInterval) {
+      clearInterval(telemetryInterval);
+      telemetryInterval = undefined;
+    }
+  };
+
+  const updateFromSupabase = (payload: Partial<StadiumTelemetry>) => {
+    telemetry.value = {
+      ...telemetry.value,
+      ...payload,
+      timestamp: new Date().toISOString()
+    };
+    const systemStore = useSystemStore();
+    systemStore.processAlerts(telemetry.value);
+  };
+
+  return {
+    telemetry,
+    minutesToKickoff,
+    isSimulating,
+    loadBaseline,
+    startSimulation,
+    stopSimulation,
+    updateFromSupabase
+  };
 });

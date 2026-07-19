@@ -42,7 +42,7 @@ const HTML_TAG_PATTERN = /<[^>]*>/g;
 
 export const MATCH_FEED_CACHE_KEY = 'omnipitch_match_feed_v2';
 export const MATCH_FEED_UPDATED_EVENT = 'omnipitch:match-feed-updated';
-export const MATCH_FEED_CACHE_TTL_MS = 10 * 60 * 1000;
+export const MATCH_FEED_CACHE_TTL_MS = 60 * 1000;
 
 export const DEFAULT_MATCH_FEED: MatchFeedResponse = {
     liveMatch: {

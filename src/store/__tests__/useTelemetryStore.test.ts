@@ -71,6 +71,20 @@ describe('useTelemetryStore', () => {
     expect(store.isSimulating).toBe(false);
   });
 
+  it('interval clears itself if isSimulating is false', () => {
+    const store = useTelemetryStore();
+    store.startSimulation(60);
+    
+    // forcefully set to false (simulating someone mutating the ref, or stopSimulation)
+    store.isSimulating = false;
+    
+    // advance timer so interval ticks
+    vi.advanceTimersByTime(10000);
+    
+    // minutes to kickoff shouldn't change
+    expect(store.minutesToKickoff).toBe(60);
+  });
+
   it('updates telemetry on updateFromSupabase', () => {
     const store = useTelemetryStore();
     

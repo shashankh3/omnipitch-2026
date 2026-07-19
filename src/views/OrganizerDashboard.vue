@@ -64,18 +64,18 @@
       <div class="flex flex-col items-end gap-3 motion-safe:animate-fade-in-right mb-2">
         <div class="flex items-center gap-4">
           <div class="flex flex-col gap-1 items-end text-xs font-medium mr-4">
-            <div v-if="health.status === 'unknown'" class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30">
+            <div v-if="!lastCheck" class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30">
               <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
               {{ $t('systemStatusUnknown') }}
             </div>
             <template v-else>
-              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border" :class="health.llm === 'live' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
-                <span class="w-1.5 h-1.5 rounded-full" :class="health.llm === 'live' ? 'bg-emerald-400' : 'bg-red-400'"></span>
-                {{ health.llm === 'live' ? $t('aiLive') : $t('aiOffline') }}
+              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border" :class="llmMode === 'live' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
+                <span class="w-1.5 h-1.5 rounded-full" :class="llmMode === 'live' ? 'bg-emerald-400' : 'bg-red-400'"></span>
+                {{ llmMode === 'live' ? $t('aiLive') : $t('aiOffline') }}
               </div>
-              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border" :class="health.supabase === 'configured' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
-                <span class="w-1.5 h-1.5 rounded-full" :class="health.supabase === 'configured' ? 'bg-emerald-400' : 'bg-red-400'"></span>
-                {{ health.supabase === 'configured' ? $t('supabaseConnected') : $t('supabaseOffline') }}
+              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border" :class="!isOffline ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
+                <span class="w-1.5 h-1.5 rounded-full" :class="!isOffline ? 'bg-emerald-400' : 'bg-red-400'"></span>
+                {{ !isOffline ? $t('supabaseConnected') : $t('supabaseOffline') }}
               </div>
             </template>
           </div>
@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import OperationsDashboard from '../components/organizer/OperationsDashboard.vue';
 import BaseButton from '../components/common/BaseButton.vue';
@@ -108,35 +108,10 @@ import { useI18n } from 'vue-i18n';
 const router = useRouter();
 const { t: $t } = useI18n();
 
-const { badgeLabel, isOffline, lastCheck } = useHealthStatus();
+const { badgeLabel, isOffline, lastCheck, llmMode } = useHealthStatus();
 const lastCheckTime = computed(() => {
   if (!lastCheck.value) return 'checking...';
   return new Date(lastCheck.value).toLocaleTimeString();
-});
-
-const health = ref({ status: 'unknown', llm: 'offline', supabase: 'missing', gemini: 'missing' });
-let healthInterval: number;
-
-const fetchHealth = async () => {
-  try {
-    const res = await fetch('/api/health');
-    if (res.ok) {
-      health.value = await res.json();
-    } else {
-      health.value.status = 'unknown';
-    }
-  } catch {
-    health.value.status = 'unknown';
-  }
-};
-
-onMounted(() => {
-  fetchHealth();
-  healthInterval = window.setInterval(fetchHealth, 30000);
-});
-
-onUnmounted(() => {
-  if (healthInterval) clearInterval(healthInterval);
 });
 
 const logout = () => {

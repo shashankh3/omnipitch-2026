@@ -8,19 +8,33 @@ import { visualizer } from 'rollup-plugin-visualizer';
 export default defineConfig({
   test: {
     environment: 'jsdom',
+    // @ts-ignore
+    environmentMatchGlobs: [
+      ['src/services/**', 'node'],
+      ['src/store/**', 'node'],
+      ['tests/unit/**', 'node'],
+      ['src/composables/!(useHealthStatus|useStadiumScene).test.ts', 'node']
+    ],
+    // @ts-ignore
+    isolate: false,
     coverage: {
       provider: 'v8',
       include: [
         'src/services/**',
         'src/store/**',
         'src/data/**',
-        'src/composables/useSensoryRoom.ts',
-        'src/composables/useProactiveAlerts.ts'
+        'src/composables/**',
+        'src/components/**'
       ],
       exclude: [
         'src/**/*.test.ts',
         'src/main.ts',
-        'src/router/**'
+        'src/router/**',
+        '**/MainLiveChart.vue',
+        '**/MetricChart.vue',
+        '**/FanMap.vue',
+        '**/useStadiumScene.ts',
+        '**/useStadiumFootball.ts'
       ],
       thresholds: {
         lines: 90,

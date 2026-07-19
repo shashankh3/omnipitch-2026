@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { useProactiveAlerts } from '../useProactiveAlerts';
 import { createPinia, setActivePinia } from 'pinia';
 import { useSystemStore } from '../../store/useSystemStore';
+import { useSessionStore } from '../../store/useSessionStore';
 
 describe('useProactiveAlerts', () => {
   beforeEach(() => {
@@ -12,6 +13,13 @@ describe('useProactiveAlerts', () => {
     const { visibleAlerts, dismiss } = useProactiveAlerts();
     expect(visibleAlerts.value).toEqual([]);
     expect(typeof dismiss).toBe('function');
+  });
+
+  it('handles null session safely and defaults to FAN', () => {
+    const sessionStore = useSessionStore();
+    sessionStore.currentSession = null;
+    const { visibleAlerts } = useProactiveAlerts();
+    expect(visibleAlerts.value).toEqual([]);
   });
 
   it('dismiss removes the alert from the store', () => {

@@ -61,6 +61,18 @@ describe('useSystemStore', () => {
     expect(store.lastHealthCheck).not.toBeNull();
   });
 
+  it('startHealthPolling ignores subsequent calls if already polling', () => {
+    vi.useFakeTimers();
+    const store = useSystemStore();
+    
+    store.startHealthPolling();
+    const spy = vi.spyOn(globalThis, 'setInterval');
+    store.startHealthPolling();
+    
+    expect(spy).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
   it('processAlerts adds alerts and respects max length', () => {
     const store = useSystemStore();
     // mock evaluateAlerts? Since it returns [], we can just push directly to test max length

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
@@ -97,6 +98,40 @@ describe('useIncidentStore', () => {
     expect(sanitized.location.section).toBe('North Stand');
     expect(sanitized.location.coordinates).toEqual([1, 2]);
     expect(sanitized.description).toBe('Blocked path');
+
+    // Test missing location
+    store.receiveFromBroadcast({
+      id: 'inc_nolocation',
+      type: 'MEDICAL', severity: 'LOW', status: 'OPEN'
+    } );
+    expect(store.incidents.find(i => i.id === 'inc_nolocation')).toBeUndefined();
+
+    // Test missing id or section
+    store.receiveFromBroadcast({
+      location: { section: '', gate: 'GateA', coordinates: [0, 0] },
+      type: 'MEDICAL', severity: 'LOW', status: 'OPEN'
+    } );
+
+    // Test bad coordinates
+    store.receiveFromBroadcast({
+      id: 'inc_badcoords',
+      location: { section: 'North Stand', gate: 'GateA', coordinates: [NaN, 0] },
+      type: 'MEDICAL', severity: 'LOW', status: 'OPEN'
+    } );
+    expect(store.incidents.find(i => i.id === 'inc_badcoords')).toBeUndefined();
+
+    // Test imageUrl and assignedTo
+    store.receiveFromBroadcast({
+      id: 'inc_with_extras',
+      timestamp: '2026-07-14T00:00:00Z',
+      location: { section: 'North Stand', gate: 'GateA', coordinates: [0, 0] },
+      type: 'MEDICAL', severity: 'LOW', status: 'OPEN',
+      imageUrl: 'http://example.com/img.jpg',
+      assignedTo: 'Medic 1'
+    } );
+    const withExtras = store.incidents.find(i => i.id === 'inc_with_extras')!;
+    expect(withExtras.imageUrl).toBe('http://example.com/img.jpg');
+    expect(withExtras.assignedTo).toBe('Medic 1');
   });
 
   it('updateIncidentStatus() changes status of correct incident only', () => {
@@ -113,6 +148,10 @@ describe('useIncidentStore', () => {
     } as Incident);
 
     store.updateIncidentStatus('inc_1', 'RESOLVED');
+    expect(store.incidents.find(i => i.id === 'inc_1')!.status).toBe('RESOLVED');
+
+    // Test non-existent incident
+    store.updateIncidentStatus('inc_missing', 'RESOLVED');
     expect(store.incidents.find(i => i.id === 'inc_1')!.status).toBe('RESOLVED');
   });
 
@@ -142,6 +181,10 @@ describe('useIncidentStore', () => {
 
     // sending same again shouldn't duplicate
     onCallback({ payload: { incident: mockIncident } });
+    expect(store.incidents.length).toBe(1);
+
+    // sending invalid shouldn't add or crash
+    onCallback({ payload: { incident: null as unknown as Incident } });
     expect(store.incidents.length).toBe(1);
   });
 

@@ -15,7 +15,7 @@ function createOfflineStub(): SupabaseClient {
   return { channel: () => channelStub } as unknown as SupabaseClient;
 }
 
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http'));
 
 export const supabase: SupabaseClient = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)

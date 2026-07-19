@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
     <!-- WBGT Heat Safety -->
-    <div class="bg-panel-bg border border-white/5 rounded-2xl flex flex-col p-5 hover-lift relative overflow-hidden group">
+    <div class="bg-panel-bg border border-white/5 rounded-2xl flex flex-col p-5 hover-lift relative overflow-hidden group" :role="wbgt > 32 ? 'alert' : undefined">
       <div class="flex items-center gap-2 mb-4">
         <div class="w-1.5 h-4 rounded-full" :class="wbgt > 32 ? 'bg-neon-orange' : 'bg-neon-lime'"></div>
         <h3 class="text-xs text-zinc-400 font-medium tracking-wide">WBGT Safety</h3>

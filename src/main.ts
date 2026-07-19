@@ -45,7 +45,7 @@ async function initHealthChecks() {
 
   const systemStore = useSystemStore();
   systemStore.checkHealth();
-  setInterval(() => systemStore.checkHealth(), 30_000);
+  systemStore.startHealthPolling();
 }
 
 initHealthChecks();

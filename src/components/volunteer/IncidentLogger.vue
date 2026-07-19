@@ -18,6 +18,7 @@
           required 
           :placeholder="$t('locationPlaceholder')" 
           class="w-full px-4 py-3 border border-white/10 rounded-xl bg-white/5 text-white placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 focus:outline-none transition-all"
+          :aria-invalid="!locationContext"
         />
       </div>
 
@@ -103,6 +104,19 @@ const handleFileUpload = (event: Event) => {
   if (!target.files || target.files.length === 0) return;
   
   const file = target.files[0];
+  
+  // Validate file type (only images)
+  if (!file.type.startsWith('image/')) {
+    alert($t ? $t('invalidFileType') : 'Invalid file type. Please upload an image.');
+    return;
+  }
+  
+  // Validate file size (max 3MB to stay under 4MB server limit after base64 padding)
+  if (file.size > 3 * 1024 * 1024) {
+    alert($t ? $t('fileTooLarge') : 'File too large. Maximum size is 3MB.');
+    return;
+  }
+  
   const reader = new FileReader();
   
   reader.onload = async (e) => {

@@ -39,6 +39,26 @@ describe('Logger', () => {
     consoleSpy.mockRestore();
   });
 
+  it('logger.warn handles meta correctly', () => {
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    logger.warn('warn event');
+    expect(consoleSpy).toHaveBeenCalledWith('[OmniPitch:WARN] warn event', '');
+    
+    logger.warn('warn event with meta', { key: 'secret' });
+    expect(consoleSpy).toHaveBeenCalledWith(
+      '[OmniPitch:WARN] warn event with meta',
+      expect.objectContaining({ key: '[REDACTED]' })
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it('logger.error() logs code when provided', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    logger.error('Some error', 500);
+    expect(consoleSpy).toHaveBeenCalledWith('[OmniPitch:ERROR] Some error', 500);
+    consoleSpy.mockRestore();
+  });
+
   it('logger.ai() only accepts whitelisted event names (type check)', () => {
     // This is tested implicitly by TS compilation, but we can verify it calls info correctly
     const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});

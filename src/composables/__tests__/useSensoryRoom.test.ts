@@ -27,12 +27,35 @@ describe('useSensoryRoom', () => {
     expect(stepFreeRoute.value).toContain('Vestíbulo Norte');
   });
 
-  it('defaults to English when language is not matched', () => {
+  it('defaults to English when session is null', () => {
     const session = useSessionStore();
-    // Use an unsupported lang to see fallback
-    session.currentSession = { id: '1', email: 'a@a.com', role: 'FAN', language: 'it', accessibilityProfile: { requiresStepFree: false } };
+    session.currentSession = null;
+    
+    const { lang, stepFreeRoute } = useSensoryRoom();
+    expect(lang.value).toBe('en');
+    expect(stepFreeRoute.value).toContain('North Concourse');
+  });
+
+  it('falls back to English route for unsupported languages', () => {
+    const session = useSessionStore();
+    // @ts-ignore
+    session.currentSession = { user: { id: '1' }, language: 'it' };
     
     const { stepFreeRoute } = useSensoryRoom();
     expect(stepFreeRoute.value).toContain('North Concourse');
+  });
+
+  it('handles missing sensory room', async () => {
+    // We mock STADIUM_ZONES to not have a sensory room by overriding array methods
+    const dataLoader = await import('../../services/dataLoader');
+    const originalZones = [...dataLoader.STADIUM_ZONES];
+    dataLoader.STADIUM_ZONES.length = 0; // Clear it
+
+    const { stepFreeRoute, features } = useSensoryRoom();
+    expect(stepFreeRoute.value).toBeNull();
+    expect(features.value).toEqual([]);
+
+    // Restore
+    dataLoader.STADIUM_ZONES.push(...originalZones);
   });
 });

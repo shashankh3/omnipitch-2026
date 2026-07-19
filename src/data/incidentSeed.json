@@ -1,7 +1,7 @@
 [
   {
     "id": "inc_001",
-    "timestamp": "SEED",
+    "timestamp": "2026-07-19T10:00:00Z",
     "reportedBy": "system_sensor",
     "location": { "section": "112", "gate": "GateC", "coordinates": [43.6821, -79.6122] },
     "type": "WEATHER_HAZARD",

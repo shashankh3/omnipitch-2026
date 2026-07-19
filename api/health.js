@@ -4,7 +4,7 @@ function setSecurityHeaders(res) {
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; connect-src 'self' https://generativelanguage.googleapis.com"
+    "default-src 'self'; connect-src 'self' https://api.fireworks.ai"
   );
   res.setHeader('X-XSS-Protection', '0');
   

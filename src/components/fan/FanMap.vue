@@ -3,154 +3,23 @@
 
     <!-- Screen-reader match status -->
     <div class="sr-only" aria-live="polite">
-      Live Stadium Status: {{ matchData.home }} versus {{ matchData.away }},
-      score {{ matchData.homeScore }} to {{ matchData.awayScore }},
-      minute {{ matchData.minute }}.
+      {{ $t('srLiveMatchStatus', { home: matchData.home, away: matchData.away, homeScore: matchData.homeScore, awayScore: matchData.awayScore, minute: matchData.minute }) }}
     </div>
 
     <!-- Scoreboard -->
-    <div class="pointer-events-none absolute left-1/2 top-5 z-30 -translate-x-1/2">
-      <div
-        class="scoreboard-shell relative flex items-center gap-4 overflow-hidden rounded-2xl px-5 py-3"
-        role="status"
-        :aria-label="`Live score: ${matchData.home} ${matchData.homeScore}, ${matchData.away} ${matchData.awayScore}, minute ${matchData.minute}`"
-      >
-        <div class="scoreboard-glow"></div>
-        <div class="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/50 to-transparent"></div>
-
-        <!-- Home -->
-        <div class="relative flex min-w-[82px] items-center justify-end gap-2.5">
-          <span class="score-team-name">{{ matchData.home }}</span>
-          <span
-            class="team-color-mark"
-            :style="{ background: matchData.homeColor, boxShadow: `0 0 14px ${matchData.homeColor}` }"
-          ></span>
-        </div>
-
-        <!-- Score -->
-        <div class="relative flex items-center gap-3 rounded-xl border border-white/[0.1] bg-black/25 px-4 py-2">
-          <span class="score-number">{{ matchData.homeScore }}</span>
-          <span class="score-separator">:</span>
-          <span class="score-number">{{ matchData.awayScore }}</span>
-        </div>
-
-        <!-- Away -->
-        <div class="relative flex min-w-[82px] items-center gap-2.5">
-          <span
-            class="team-color-mark"
-            :style="{ background: matchData.awayColor, boxShadow: `0 0 14px ${matchData.awayColor}` }"
-          ></span>
-          <span class="score-team-name">{{ matchData.away }}</span>
-        </div>
-
-        <div class="relative h-7 w-px bg-white/[0.1]"></div>
-
-        <!-- Clock -->
-        <div class="relative flex items-center gap-2">
-          <span class="relative flex h-2 w-2">
-            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-            <span class="relative inline-flex h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.9)]"></span>
-          </span>
-          <span class="font-mono text-xs font-black tracking-wider text-rose-300">
-            {{ matchData.minute }}'
-          </span>
-        </div>
-
-        <div class="relative hidden items-center gap-2 sm:flex">
-          <div
-            class="weather-chip"
-            :class="(store.telemetry.wbgtTemperature ?? 29) > 32
-              ? 'weather-chip-hot'
-              : 'weather-chip-normal'"
-          >
-            <span>{{ (store.telemetry.wbgtTemperature ?? 29) > 32 ? '🌡' : '☀' }}</span>
-            <span>{{ Math.round(store.telemetry.wbgtTemperature ?? 29) }}°C</span>
-          </div>
-
-          <div
-            class="network-chip"
-            :class="store.isOfflineMode ? 'network-offline' : 'network-online'"
-          >
-            <span>{{ store.isOfflineMode ? '◌' : '●' }}</span>
-            <span>{{ store.isOfflineMode ? 'OFFLINE' : 'LIVE' }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <MatchScoreboard
+      :match-data="matchData"
+      :wbgt-temperature="store.telemetry.wbgtTemperature ?? WBGT_HEAT_DEFAULT_C"
+      :is-offline-mode="store.isOfflineMode"
+    />
 
     <!-- Crowd Density -->
-    <aside class="pointer-events-none absolute bottom-6 left-6 z-30 w-72 transition-all duration-500" aria-label="Crowd density summary">
-      <div class="density-panel overflow-hidden rounded-2xl p-4 bg-[#0a0a1a]/95 border border-white/8 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent"></div>
-
-        <div class="mb-4 flex items-center justify-between">
-          <div>
-            <p class="text-[9px] font-bold uppercase tracking-[0.22em] text-white/35">Venue Analytics</p>
-            <h2 class="mt-1 text-sm font-bold tracking-wide text-white">Crowd Density</h2>
-          </div>
-
-          <div class="flex items-center gap-1.5 rounded-full border border-emerald-400/15 bg-emerald-400/[0.07] px-2 py-1">
-            <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400"></span>
-            <span class="text-[9px] font-black tracking-wider text-emerald-300">LIVE</span>
-          </div>
-        </div>
-
-        <div class="mb-4 grid grid-cols-3 gap-2">
-          <div
-            v-for="stat in densityStats"
-            :key="stat.label"
-            class="density-stat"
-          >
-            <span
-              class="h-1.5 w-1.5 rounded-full"
-              :style="{ backgroundColor: stat.color, boxShadow: `0 0 9px ${stat.color}` }"
-            ></span>
-            <span class="text-[8px] font-bold uppercase tracking-wide text-white/40">{{ stat.label }}</span>
-            <strong class="text-base font-black tabular-nums text-white">{{ stat.value }}%</strong>
-          </div>
-        </div>
-
-        <div class="relative">
-          <div class="absolute inset-x-0 top-1/2 h-px bg-white/[0.055]"></div>
-          <svg
-            viewBox="0 0 200 44"
-            class="relative h-10 w-full"
-            aria-hidden="true"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <linearGradient id="clearGlow" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#5eead4" stop-opacity="0.3" />
-                <stop offset="100%" stop-color="#5eead4" stop-opacity="1" />
-              </linearGradient>
-              <linearGradient id="busyGlow" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.3" />
-                <stop offset="100%" stop-color="#fbbf24" stop-opacity="1" />
-              </linearGradient>
-              <linearGradient id="packedGlow" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#fb7185" stop-opacity="0.3" />
-                <stop offset="100%" stop-color="#fb7185" stop-opacity="1" />
-              </linearGradient>
-            </defs>
-
-            <polyline :points="clearWavePoints"  fill="none" stroke="url(#clearGlow)"  stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-            <polyline :points="busyWavePoints"   fill="none" stroke="url(#busyGlow)"   stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-            <polyline :points="packedWavePoints" fill="none" stroke="url(#packedGlow)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </div>
-
-        <div class="mt-2 flex justify-between border-t border-white/[0.06] pt-2.5">
-          <span
-            v-for="stat in densityStats"
-            :key="`${stat.label}-legend`"
-            class="flex items-center gap-1 text-[9px] text-white/35"
-          >
-            <span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: stat.color }"></span>
-            {{ stat.label }}
-          </span>
-        </div>
-      </div>
-    </aside>
+    <CrowdDensityPanel
+      :density-stats="densityStats"
+      :clear-wave-points="clearWavePoints"
+      :busy-wave-points="busyWavePoints"
+      :packed-wave-points="packedWavePoints"
+    />
 
     <!-- Low Power Toggle -->
     <div class="pointer-events-auto absolute bottom-6 right-24 z-40">
@@ -160,10 +29,10 @@
         :class="isLowPowerMode ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-[#0a0a1a]/60 text-white/50 hover:bg-[#0a0a1a]/80 hover:text-white/80'"
         type="button"
         :aria-pressed="isLowPowerMode"
-        :aria-label="isLowPowerMode ? 'Disable stadium eco mode' : 'Enable stadium eco mode'"
+        :aria-label="isLowPowerMode ? $t('disableEcoMode') : $t('enableEcoMode')"
       >
         <span class="h-1.5 w-1.5 rounded-full" :class="isLowPowerMode ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] animate-pulse' : 'bg-white/30'"></span>
-        Eco Mode
+        {{ $t('ecoMode') }}
       </button>
     </div>
 
@@ -191,9 +60,9 @@
               <div class="absolute inset-[25px] animate-pulse rounded-full bg-cyan-300 shadow-[0_0_28px_rgba(103,232,249,0.9)]"></div>
             </div>
 
-            <p class="text-sm font-black tracking-wide text-white">Entering OmniPitch Stadium</p>
+            <p class="text-sm font-black tracking-wide text-white">{{ $t('enteringStadium') }}</p>
             <p class="mt-2 text-[9px] font-bold uppercase tracking-[0.28em] text-cyan-200/45">
-              Synchronizing live environment
+              {{ $t('syncingEnvironment') }}
             </p>
 
             <div class="mt-5 h-1 w-40 overflow-hidden rounded-full bg-white/[0.07]">
@@ -220,6 +89,9 @@ import {
   readCachedMatchFeed,
   type MatchFeedResponse
 } from '../../services/matchFeed';
+import { WBGT_HEAT_DEFAULT_C } from '../../constants';
+import MatchScoreboard from './MatchScoreboard.vue';
+import CrowdDensityPanel from './CrowdDensityPanel.vue';
 
 const canvasContainer = ref<HTMLDivElement | null>(null);
 const isLoading = ref(true);
@@ -229,7 +101,7 @@ const props = withDefaults(defineProps<{ active?: boolean }>(), {
   active: true,
 });
 
-const densityValues = computed(() => Object.values(store.telemetry.crowdDensity ?? {}));
+const densityValues = computed(() => Object.values(store.telemetry.crowdDensity ?? {}) as number[]);
 
 const clearPercent = computed(() => {
   const values = densityValues.value;
@@ -246,9 +118,9 @@ const busyPercent = computed(() => {
 const packedPercent = computed(() => Math.max(0, 100 - clearPercent.value - busyPercent.value));
 
 const densityStats = computed(() => [
-  { label: 'Clear',  value: clearPercent.value,  color: '#5eead4' },
-  { label: 'Busy',   value: busyPercent.value,   color: '#fbbf24' },
-  { label: 'Packed', value: packedPercent.value, color: '#fb7185' },
+  { label: 'clear',  value: clearPercent.value,  color: '#5eead4' },
+  { label: 'busy',   value: busyPercent.value,   color: '#fbbf24' },
+  { label: 'packed', value: packedPercent.value, color: '#fb7185' },
 ]);
 
 const densityHistory = shallowRef<number[][]>([]);
@@ -427,7 +299,7 @@ watch(
     () => store.telemetry.gateThroughput,
   ],
   () => setStandTargetColors?.(),
-  { deep: true, flush: 'post' }
+  { flush: 'post' }
 );
 
 watch(isLowPowerMode, (enabled) => {
@@ -449,7 +321,6 @@ const onVisibilityChange = () => {
 onMounted(() => {
   loadMatchData();
 
-  // Listen for storage events (from LiveMatchFeed writing cache) instead of polling
   window.addEventListener('storage', onStorageChange);
   window.addEventListener(MATCH_FEED_UPDATED_EVENT, onMatchFeedUpdated);
   document.addEventListener('visibilitychange', onVisibilityChange);
@@ -485,105 +356,6 @@ onBeforeUnmount(() => {
     #030712;
 }
 
-.scoreboard-shell,
-.loader-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background:
-    linear-gradient(135deg, rgba(20, 35, 67, 0.96), rgba(4, 9, 24, 0.96));
-  box-shadow:
-    0 18px 42px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.scoreboard-glow {
-  position: absolute;
-  inset: -50%;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.1), transparent 43%);
-  pointer-events: none;
-}
-
-.score-team-name {
-  max-width: 62px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.team-color-mark {
-  height: 17px;
-  width: 5px;
-  border-radius: 999px;
-}
-
-.score-number {
-  font-size: 1.55rem;
-  font-weight: 950;
-  line-height: 1;
-  color: white;
-  font-variant-numeric: tabular-nums;
-}
-
-.score-separator {
-  font-size: 1.35rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.25);
-}
-
-.weather-chip,
-.network-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  border-radius: 0.5rem;
-  padding: 0.35rem 0.48rem;
-  font-size: 0.62rem;
-  font-weight: 800;
-}
-
-.weather-chip-normal {
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: rgba(255, 255, 255, 0.055);
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.weather-chip-hot {
-  border: 1px solid rgba(251, 191, 36, 0.24);
-  background: rgba(245, 158, 11, 0.12);
-  color: #fde68a;
-}
-
-.network-online {
-  border: 1px solid rgba(52, 211, 153, 0.18);
-  background: rgba(16, 185, 129, 0.09);
-  color: #86efac;
-}
-
-.network-offline {
-  border: 1px solid rgba(251, 191, 36, 0.2);
-  background: rgba(245, 158, 11, 0.1);
-  color: #fde68a;
-}
-
-.density-panel {
-  position: relative;
-}
-
-.density-stat {
-  display: flex;
-  min-height: 60px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.22rem;
-  border: 1px solid rgba(255, 255, 255, 0.045);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.025);
-}
-
 .stadium-vignette {
   background:
     radial-gradient(ellipse at center, transparent 38%, rgba(1, 4, 13, 0.45) 73%, rgba(1, 3, 10, 0.88) 100%);
@@ -599,6 +371,15 @@ onBeforeUnmount(() => {
     transparent 61%
   );
   animation: light-sweep 10s ease-in-out infinite;
+}
+
+.loader-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(135deg, rgba(20, 35, 67, 0.96), rgba(4, 9, 24, 0.96));
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .loader-progress {
@@ -625,21 +406,5 @@ onBeforeUnmount(() => {
 @keyframes loader-progress {
   0%, 100% { width: 25%; transform: translateX(0); }
   50% { width: 75%; transform: translateX(25%); }
-}
-
-@media (max-width: 640px) {
-  .scoreboard-shell {
-    gap: 0.65rem;
-    padding: 0.65rem 0.8rem;
-  }
-
-  .score-team-name {
-    max-width: 38px;
-    font-size: 0.67rem;
-  }
-
-  .score-number {
-    font-size: 1.25rem;
-  }
 }
 </style>

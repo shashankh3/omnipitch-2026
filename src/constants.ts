@@ -1,0 +1,6 @@
+export const WBGT_HEAT_THRESHOLD_C = 32;
+export const WBGT_HEAT_DEFAULT_C = 29;
+export const HEALTH_POLL_INTERVAL_MS = 30000;
+export const MATCH_FEED_TTL_MS = 60000;
+export const CLIENT_MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
+export const SERVER_MAX_UPLOAD_BYTES = 4 * 1024 * 1024;

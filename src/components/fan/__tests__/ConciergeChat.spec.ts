@@ -36,4 +36,22 @@ describe('ConciergeChat.vue', () => {
     expect(wrapper.text()).toContain('Where is gate A?');
     expect(getFanAssistanceMock).toHaveBeenCalled();
   });
+  it('sends a message and handles API error bubble', async () => {
+    setActivePinia(createPinia());
+    const getFanAssistanceMock = vi.mocked(geminiService.getFanAssistance);
+    getFanAssistanceMock.mockRejectedValueOnce(new Error('Network error'));
+
+    const wrapper = mount(ConciergeChat, {
+      global: { plugins: [i18n] }
+    });
+    
+    await wrapper.find('input[type="text"]').setValue('Where is gate A?');
+    await wrapper.find('form').trigger('submit');
+    
+    // allow promises to resolve
+    await new Promise(r => setTimeout(r, 0));
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.text()).toContain('Network error');
+  });
 });

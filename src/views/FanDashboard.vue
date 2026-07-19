@@ -80,7 +80,7 @@
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <!-- MAIN: 3-D stadium canvas fills remaining space                  -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <main id="main-content" class="flex-1 relative">
+    <main class="flex-1 relative">
       <FanMap
         :active="!isScreenReaderMode"
         :aria-hidden="isScreenReaderMode"
@@ -194,7 +194,7 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <!-- BOTTOM-RIGHT CORNER: FAB column (quiet zone + copilot)        -->
+    <!-- BOTTOM-RIGHT CORNER: FAB column (quiet zone)                  -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <div class="absolute bottom-6 right-6 z-40 flex flex-col items-center gap-3">
       <!-- Quiet Zone FAB -->
@@ -206,18 +206,6 @@
         :aria-label="$t('findQuietZone')"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
-      </button>
-
-      <!-- Copilot FAB -->
-      <button
-        type="button"
-        class="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-[0_8px_24px_rgba(251,191,36,0.35)] hover:shadow-[0_12px_32px_rgba(251,191,36,0.5)] outline-none focus:ring-4 focus:ring-amber-400/30 ea-button transition-all"
-        @click="isChatOpen = !isChatOpen"
-        aria-label="Ask Stadium Copilot"
-        :aria-pressed="isChatOpen"
-      >
-        <div class="absolute inset-0 rounded-2xl motion-safe:animate-ping opacity-15 bg-amber-300"></div>
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
       </button>
     </div>
 
@@ -269,46 +257,39 @@
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <!-- SIDE PANEL: Copilot chat                                       -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <div
-      class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-[#0a0a1a]/98 shadow-[0_0_60px_rgba(0,0,0,0.8)] transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-[100] flex flex-col border-l border-white/5"
-      :class="isChatOpen ? 'translate-x-0' : 'translate-x-full'"
-      @keydown.escape="isChatOpen = false"
+    <SlidePanel
+      :is-open="isChatOpen"
+      :show-fab="!isChatOpen"
+      :panel-title="$t('concierge')"
+      :panel-subtitle="$t('poweredByGemini')"
+      :fab-label="'Ask Stadium Copilot'"
+      @open="isChatOpen = true"
+      @close="isChatOpen = false"
     >
-      <header class="px-5 py-4 flex justify-between items-center border-b border-white/5 flex-shrink-0">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
-            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <div>
-            <p class="font-bold text-sm text-white tracking-tight leading-tight">{{ $t('concierge') }}</p>
-            <p class="text-[10px] text-white/30 font-medium">{{ $t('poweredByGemini') }}</p>
-          </div>
+      <template #fab-icon>
+        <div class="absolute inset-0 rounded-2xl motion-safe:animate-ping opacity-15 bg-amber-300"></div>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      </template>
+
+      <template #header-icon>
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-        <button
-          type="button"
-          class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all focus:outline-none flex-shrink-0"
-          @click="isChatOpen = false"
-          aria-label="Close Chat Panel"
-        >
-          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-      </header>
+      </template>
 
-      <div class="flex-1 overflow-hidden p-4 flex flex-col min-h-0">
-        <ConciergeChat class="flex-1 min-h-0" />
+      <ConciergeChat class="flex-1 min-h-0" />
 
-        <!-- Quiet Zone shortcut -->
-        <button
-          type="button"
-          @click="isModalOpen = true"
-          class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-800/50 transition-all duration-200 text-sm font-medium w-full justify-center mt-3"
-          aria-label="Find nearest quiet zone for sensory sensitivities"
-        >
-          <span aria-hidden="true">🧘</span>
-          <span>{{ $t('quietZoneFinder') }}</span>
-        </button>
-      </div>
-    </div>
+      <!-- Quiet Zone shortcut -->
+      <button
+        type="button"
+        @click="isModalOpen = true"
+        class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-800/50 transition-all duration-200 text-sm font-medium w-full justify-center mt-3"
+        aria-label="Find nearest quiet zone for sensory sensitivities"
+      >
+        <span aria-hidden="true">🧘</span>
+        <span>{{ $t('quietZoneFinder') }}</span>
+      </button>
+    </SlidePanel>
 
   </div>
 </template>
@@ -321,6 +302,7 @@ import FanMap from '../components/fan/FanMap.vue';
 import ConciergeChat from '../components/fan/ConciergeChat.vue';
 import LiveMatchFeed from '../components/fan/LiveMatchFeed.vue';
 import LanguageSelector from '../components/common/LanguageSelector.vue';
+import SlidePanel from '../components/common/SlidePanel.vue';
 import { useStadiumStore } from '../store/useStadiumStore';
 import { useSensoryRoom } from '../composables/useSensoryRoom';
 
