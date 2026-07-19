@@ -25,7 +25,7 @@ describe('OmniPitch i18n and Language Switching', () => {
     cy.get('button[role="option"]').contains(/^es$/i).click({ force: true });
 
     // Click Fan Experience login (force to avoid dropdown overlay interference)
-    cy.get('[aria-label="Enter Fan Experience Portal"]').click({ force: true });
+    cy.get('[data-cy="login-fan"]').click({ force: true });
 
     // Verify we are on fan dashboard and it is still in Spanish
     cy.url().should('include', '/fan');

@@ -47,6 +47,7 @@
         <!-- Hero Tile: Fan Experience -->
         <button
           type="button"
+          data-cy="login-fan"
           @click="handleLogin('fan')"
           class="col-span-2 group relative h-64 rounded-2xl overflow-hidden glass-panel border border-white/10 text-left transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(204,255,0,0.15)] hover:border-[#ccff00]/50 outline-none focus:ring-4 focus:ring-[#ccff00]/30 ea-tile"
         >
@@ -75,6 +76,7 @@
         <!-- Volunteer Tile -->
         <button
           type="button"
+          data-cy="login-volunteer"
           @click="handleLogin('volunteer')"
           class="col-span-1 group relative h-48 rounded-2xl overflow-hidden glass-panel border border-white/10 text-left transition-all duration-500 hover:scale-[1.05] hover:-translate-y-1 hover:shadow-2xl hover:border-white/40 outline-none focus:ring-4 focus:ring-white/20 ea-tile"
         >
@@ -92,6 +94,7 @@
         <!-- Organizer Tile -->
         <button
           type="button"
+          data-cy="login-organizer"
           @click="handleLogin('organizer')"
           class="col-span-1 group relative h-48 rounded-2xl overflow-hidden glass-panel border border-white/10 text-left transition-all duration-500 hover:scale-[1.05] hover:-translate-y-1 hover:shadow-2xl hover:border-white/40 outline-none focus:ring-4 focus:ring-white/20 ea-tile"
         >

@@ -2,12 +2,12 @@ describe('OmniPitch 2026 E2E Tests', () => {
   it('successfully loads the login view', () => {
     cy.visit('/')
     cy.contains('OMNIPITCH')
-    cy.get('[aria-label="Enter Fan Experience Portal"]').should('exist')
+    cy.get('[data-cy="login-fan"]').should('exist')
   })
 
   it('FAN Flow: navigates to Match Feed and opens AI concierge', () => {
     cy.visit('/')
-    cy.get('[aria-label="Enter Fan Experience Portal"]', { timeout: 5000 }).click({ force: true })
+    cy.get('[data-cy="login-fan"]', { timeout: 5000 }).click({ force: true })
     cy.url({ timeout: 15000 }).should('include', '/fan')
     cy.contains('OMNIPITCH')
     
@@ -18,7 +18,7 @@ describe('OmniPitch 2026 E2E Tests', () => {
 
   it('VOLUNTEER Flow: navigates to portal and logs an incident', () => {
     cy.visit('/')
-    cy.get('[aria-label="Enter Volunteer Portal"]', { timeout: 5000 }).click({ force: true })
+    cy.get('[data-cy="login-volunteer"]', { timeout: 5000 }).click({ force: true })
     cy.url({ timeout: 15000 }).should('include', '/volunteer')
     cy.contains('OMNIPITCH')
     
@@ -41,7 +41,7 @@ describe('OmniPitch 2026 E2E Tests', () => {
     }).as('deepseekCall')
 
     cy.visit('/')
-    cy.get('[aria-label="Enter Fan Experience Portal"]', { timeout: 5000 }).click({ force: true })
+    cy.get('[data-cy="login-fan"]', { timeout: 5000 }).click({ force: true })
     cy.contains('AI Concierge', { timeout: 15000 }).click({ force: true })
     
     // Type in chat to trigger AI call

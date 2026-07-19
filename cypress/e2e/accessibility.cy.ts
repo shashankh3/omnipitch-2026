@@ -11,7 +11,7 @@ describe('Accessibility Audit', () => {
 
   it('Fan Portal has no actionable accessibility violations', () => {
     cy.visit('/');
-    cy.get('[aria-label="Enter Fan Experience Portal"]', { timeout: 5000 })
+    cy.get('[data-cy="login-fan"]', { timeout: 5000 })
       .should('exist')
       .click({ force: true });
 
