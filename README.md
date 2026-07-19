@@ -350,7 +350,7 @@ OmniPitch is designed to scale from hackathon to production.
 **Business Model:** B2B SaaS — stadium operators license the AI Command Center
 at $50K/year per venue. 50 FIFA-affiliated stadiums globally = $2.5M ARR potential.
 
-# 🎥 DEMO VIDEO - https://www.linkedin.com/posts/shashankh3_fifa2026-ai-webdevelopment-ugcPost-7484626942583857152-qXDh/?utm_source=share&utm_medium=member_desktop&rcm=ACoAACA3pEQBryaH4QvhQDwB2ucYN34ZhBnHLDA
+#### 🎥 DEMO VIDEO - https://www.linkedin.com/posts/shashankh3_fifa2026-ai-webdevelopment-ugcPost-7484626942583857152-qXDh/?utm_source=share&utm_medium=member_desktop&rcm=ACoAACA3pEQBryaH4QvhQDwB2ucYN34ZhBnHLDA
 
 Try it live: **[omnipitch-2026.vercel.app](https://omnipitch-2026.vercel.app/)**
 
