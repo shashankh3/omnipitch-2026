@@ -111,6 +111,13 @@ export function sanitizeInput(input: string, maxLength = 4000): string {
     .substring(0, maxLength);
 }
 
+const FALLBACK_CHECKLIST = ["Assess the situation immediately.", "Contact Command Center if backup is needed.", "Ensure fan safety above all else."] as const;
+
+// Note: assuming T is not a function type, this narrows safely since all fallbacks are strings/objects
+function resolveFallback<T>(fb: T | (() => T)): T {
+  return typeof fb === 'function' ? (fb as () => T)() : fb;
+}
+
 /**
  * Centralized fallback handler
  */
@@ -123,7 +130,7 @@ async function withAiFallback<T>(opts: {
 
   if (store.isOfflineMode) {
     logger.ai('llm_offline');
-    return typeof opts.fallback === 'function' ? (opts.fallback as any)() : opts.fallback;
+    return resolveFallback(opts.fallback);
   }
 
   try {
@@ -139,10 +146,10 @@ async function withAiFallback<T>(opts: {
 
     if (store.isOfflineMode) {
       logger.ai('llm_fallback');
-      return typeof opts.fallback === 'function' ? (opts.fallback as any)() : opts.fallback;
+      return resolveFallback(opts.fallback);
     }
     
-    return typeof opts.fallback === 'function' ? (opts.fallback as any)() : opts.fallback;
+    return resolveFallback(opts.fallback);
   }
 }
 
@@ -404,7 +411,7 @@ export async function getSentimentAnalysis(telemetry: StadiumTelemetry): Promise
  */
 export async function getTaskChecklist(incidentDesc: string): Promise<string[]> {
   return withAiFallback({
-    fallback: ["Assess the situation immediately.", "Contact Command Center if backup is needed.", "Ensure fan safety above all else."],
+    fallback: [...FALLBACK_CHECKLIST],
     call: async () => {
       const prompt = `
         You are generating a triage protocol for a stadium volunteer.
@@ -415,7 +422,7 @@ export async function getTaskChecklist(incidentDesc: string): Promise<string[]> 
       `;
       const result = await callAIProxy([prompt], true);
       const parsed = JSON.parse(extractJsonPayload(result.response.text())) as unknown;
-      return normalizeChecklist(parsed) ?? ["Assess the situation immediately.", "Contact Command Center if backup is needed.", "Ensure fan safety above all else."];
+      return normalizeChecklist(parsed) ?? [...FALLBACK_CHECKLIST];
     }
   });
 }

@@ -18,7 +18,7 @@ describe('rateLimiter', () => {
   it('First 20 requests from same IP -> all pass (not rate limited)', async () => {
     let passed = 0;
     for (let i = 0; i < 20; i++) {
-      const req = { method: 'POST', headers: { 'x-forwarded-for': '127.0.0.1' }, body: { messages: ['hello'] } };
+      const req = { method: 'POST', headers: { 'x-forwarded-for': '127.0.0.99' }, body: { messages: ['hello'] } };
       const res = { setHeader: vi.fn(), status: vi.fn().mockReturnThis(), json: vi.fn() };
       await handler(req, res);
       if (res.status.mock.calls.length > 0 && res.status.mock.calls[0][0] !== 429) {
@@ -29,7 +29,7 @@ describe('rateLimiter', () => {
   });
 
   it('21st request from same IP -> isRateLimited returns true (429)', async () => {
-    const req = { method: 'POST', headers: { 'x-forwarded-for': '127.0.0.1' }, body: { messages: ['hello'] } };
+    const req = { method: 'POST', headers: { 'x-forwarded-for': '127.0.0.99' }, body: { messages: ['hello'] } };
     const res = { setHeader: vi.fn(), status: vi.fn().mockReturnThis(), json: vi.fn() };
     await handler(req, res);
     expect(res.status).toHaveBeenCalledWith(429);

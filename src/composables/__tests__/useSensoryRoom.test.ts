@@ -38,7 +38,7 @@ describe('useSensoryRoom', () => {
 
   it('falls back to English route for unsupported languages', () => {
     const session = useSessionStore();
-    // @ts-ignore
+    // @ts-expect-error - Mocking an unsupported language 'it' for testing fallback
     session.currentSession = { user: { id: '1' }, language: 'it' };
     
     const { stepFreeRoute } = useSensoryRoom();

@@ -9,7 +9,11 @@ export { useTelemetryStore } from './useTelemetryStore';
 export { useIncidentStore } from './useIncidentStore';
 export { useSystemStore } from './useSystemStore';
 
-export const useStadiumStore = defineStore('stadium_compat', () => {
+/**
+ * This is an intentional aggregating facade over the four domain stores
+ * (session, telemetry, incident, system) so consumers have a single entry point.
+ */
+export const useStadiumStore = defineStore('stadium', () => {
   const sessionStore = useSessionStore();
   const telemetryStore = useTelemetryStore();
   const incidentStore = useIncidentStore();

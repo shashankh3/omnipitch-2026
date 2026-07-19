@@ -5,9 +5,8 @@ import { useSystemStore } from './useSystemStore';
 import { MOCK_TELEMETRY } from '../services/dataLoader';
 import { getSimulatedTelemetry } from '../services/telemetrySimulator';
 
-let telemetryInterval: ReturnType<typeof setInterval> | undefined;
-
 export const useTelemetryStore = defineStore('telemetry', () => {
+  let telemetryInterval: ReturnType<typeof setInterval> | undefined;
   const telemetry = shallowRef<StadiumTelemetry>({
     timestamp: new Date().toISOString(),
     wbgtTemperature: MOCK_TELEMETRY.baseline.wbgtTemperature,

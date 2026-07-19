@@ -10,6 +10,8 @@ describe('useTelemetryStore', () => {
   });
 
   afterEach(() => {
+    const store = useTelemetryStore();
+    store.stopSimulation();
     vi.useRealTimers();
     vi.restoreAllMocks();
   });

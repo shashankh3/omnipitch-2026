@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
@@ -21,6 +20,7 @@ vi.mock('../../services/supabase', () => ({
 describe('useIncidentStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.clearAllMocks();
   });
 
   it('loadSeed() populates incidents from INCIDENT_SEED', () => {
@@ -169,7 +169,7 @@ describe('useIncidentStore', () => {
     };
 
     // override the mock for this test
-    (supabase.channel as Mock).mockReturnValueOnce(mockChannel);
+    (supabase.channel as Mock).mockReturnValue(mockChannel);
 
     store.initRealtime();
 
