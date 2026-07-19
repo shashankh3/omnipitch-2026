@@ -212,7 +212,7 @@
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <!-- BOTTOM CENTER: Hardware watermark                              -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] text-white/20 tracking-widest uppercase z-20 whitespace-nowrap pointer-events-none select-none">
+    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] text-white/20 tracking-widest uppercase z-20 whitespace-nowrap pointer-events-none select-none" aria-hidden="true">
       Data Source: OmniPitch Software Simulation Node (Hardware-Agnostic)
     </div>
 

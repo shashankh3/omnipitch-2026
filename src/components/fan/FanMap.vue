@@ -36,6 +36,11 @@
       </button>
     </div>
 
+    <!-- Keyboard navigation hint for screen readers -->
+    <div id="canvas-controls-hint" class="sr-only">
+      This is a mouse-controlled 3D view. Drag to rotate the camera. A screen-reader accessible data table is available via the accessibility toggle above the map.
+    </div>
+
     <!-- Three.js Canvas -->
     <div
       ref="canvasContainer"
@@ -44,10 +49,6 @@
       aria-label="Interactive 3D stadium map showing live crowd density, gate load, players, and match ball animation"
       aria-describedby="canvas-controls-hint"
     >
-      <!-- Keyboard navigation hint for screen readers -->
-      <div id="canvas-controls-hint" class="sr-only">
-        This is a mouse-controlled 3D view. Drag to rotate the camera. A screen-reader accessible data table is available via the accessibility toggle above the map.
-      </div>
       <div class="pointer-events-none absolute inset-0 z-10 stadium-vignette"></div>
       <div class="pointer-events-none absolute inset-0 z-10 stadium-light-sweep"></div>
 
@@ -66,7 +67,7 @@
             </div>
 
             <p class="text-sm font-black tracking-wide text-white">{{ $t('enteringStadium') }}</p>
-            <p class="mt-2 text-[9px] font-bold uppercase tracking-[0.28em] text-cyan-200/45">
+            <p class="mt-2 text-[9px] font-bold uppercase tracking-[0.28em] text-cyan-200/90">
               {{ $t('syncingEnvironment') }}
             </p>
 

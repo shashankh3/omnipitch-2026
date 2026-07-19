@@ -29,9 +29,9 @@
     </div>
     
     <!-- Loading State -->
-    <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-70" role="status" aria-live="polite">
+    <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center p-6 text-center" role="status" aria-live="polite">
       <div class="w-8 h-8 rounded-full border-2 border-white/10 border-t-[var(--theme-primary)] motion-safe:animate-spin mb-3 shadow-[0_0_15px_var(--theme-primary)]"></div>
-      <p class="text-xs font-bold uppercase tracking-widest text-white/70">Fireworks AI Generating<br/>Match Feed...</p>
+      <p class="text-xs font-bold uppercase tracking-widest text-white/90">Fireworks AI Generating<br/>Match Feed...</p>
     </div>
 
 
