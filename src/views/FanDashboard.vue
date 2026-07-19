@@ -159,7 +159,7 @@
             <button
               type="button"
               @click="throughputView = 'fastest'"
-              :class="throughputView === 'fastest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-500'"
+              :class="throughputView === 'fastest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-400'"
               class="px-2.5 py-1 transition-colors uppercase tracking-widest font-bold"
             >
               {{ $t('fastest') }}
@@ -167,7 +167,7 @@
             <button
               type="button"
               @click="throughputView = 'lowest'"
-              :class="throughputView === 'lowest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-500'"
+              :class="throughputView === 'lowest' ? 'bg-slate-700 text-white' : 'bg-transparent text-slate-400'"
               class="px-2.5 py-1 transition-colors uppercase tracking-widest font-bold"
             >
               {{ $t('lowest') }}
