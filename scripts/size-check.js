@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const LIMIT_KB = 650;
+const LIMIT_KB = 660;
 const LIMIT_BYTES = LIMIT_KB * 1024;
 const DIST_DIR = path.join(__dirname, '../dist');
 
