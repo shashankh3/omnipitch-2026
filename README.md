@@ -14,13 +14,13 @@
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
 <br>
-[![Tests](https://img.shields.io/badge/Tests-170_Passing-brightgreen?style=for-the-badge)]()
+[![Tests](https://img.shields.io/badge/Tests-281_Total-brightgreen?style=for-the-badge)]()
 [![Coverage](https://img.shields.io/badge/Coverage-96%25_Lines_(logic_layer)-brightgreen?style=for-the-badge)]()
 [![Bundle](https://img.shields.io/badge/Bundle-630.56KB-blue?style=for-the-badge)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-0_Errors-blue?style=for-the-badge&logo=typescript)]()
 [![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-brightgreen?style=for-the-badge)]()
 
-*An immersive, real-time, 3D stadium management ecosystem engineered with glassmorphic aesthetics, cyberpunk-inspired data visualization, and cutting-edge Google Generative AI.*
+*An immersive, real-time, 3D stadium management ecosystem engineered with glassmorphic aesthetics, cyberpunk-inspired data visualization, and cutting-edge DeepSeek V4 Flash AI.*
 
 </div>
 
@@ -116,7 +116,7 @@ graph TD
         Realtime[Websocket Broadcasts]
     end
 
-    subgraph "Google Cloud"
+    subgraph "Fireworks AI (Cloud)"
         AI[OmniPitch AI Assistant]
     end
 
@@ -151,7 +151,7 @@ Powered by OmniPitch AI (Fireworks AI), the system intelligently grounds its res
 
 ### 🛡️ API Resilience & Production Readiness
 We built this to survive the real world.
-- **IP Rate Limiting**: The backend proxy enforces strict API rate limiting (10 req/min per IP) to prevent malicious actors from draining the Google AI API limits.
+- **IP Rate Limiting**: The backend proxy enforces strict token-bucket rate limiting (20 req burst / 10 req/min refill per IP) to prevent malicious actors from draining the AI API.
 - **Graceful Degradation**: If the API rate limit is reached, the UI elegantly catches the 429 error and seamlessly injects localized fallback mock data, ensuring the dashboard never crashes.
 - **Serverless Security**: API logic is routed through a Vercel Serverless Function (`api/gemini.js`), completely hiding the AI API keys from the frontend client.
 - **Test Driven**: Powered by `vitest` and `@vitest/coverage-v8`, the UI components and store logic are hardened with component testing.
@@ -160,7 +160,7 @@ We built this to survive the real world.
 
 - **Rules-first AI** — OmniPitch AI only phrases pre-resolved facts, never decides routes or facilities (prevents hallucination)
 - **Deterministic offline engine** — app boots with zero credentials, full functionality preserved
-- **Per-IP rate limiting** — token bucket, 10 req/min, 429 + Retry-After header
+- **Per-IP rate limiting** — token bucket, 20 burst / 10 req/min refill, 429 + Retry-After header
 - **Security headers** — CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy on every response
 - **90%+ line coverage on all logic** — unit tests for every store, service, and the decision engine (UI components exercised via Cypress e2e)
 - **CI enforced** — GitHub Actions runs lint + type check + tests on every push
@@ -223,10 +223,10 @@ All metrics measured on live deployment and codebase.
 |---|---|
 | TypeScript errors | 0 |
 | Lines of code | 5515 |
-| Source files | 65 |
-| Components | 15 |
-| Test files | 20 |
-| Tests passing | 170/170 |
+| Source files | 59 |
+| Components | 24 |
+| Test files | 43 |
+| Tests passing | 279/281 |
 | Line coverage (services, stores, composables) | 96.06% |
 | Branch coverage | 87.29% |
 | npm vulnerabilities | 0 |
@@ -244,8 +244,8 @@ All metrics measured on live deployment and codebase.
 ### Security
 | Measure | Detail |
 |---|---|
-| Rate limiting | 10 requests/min per IP, token bucket |
-| Input cap | 2000 characters max |
+| Rate limiting | 20 req burst / 10 req/min refill per IP, token bucket |
+| Input cap | 4000 characters max (API layer) |
 | Security headers | <ul><li>X-Content-Type-Options: nosniff</li><li>X-Frame-Options: DENY</li><li>Referrer-Policy: no-referrer</li><li>Content-Security-Policy: default-src 'self'; connect-src 'self' https://api.fireworks.ai</li><li>X-XSS-Protection: 0</li><li>CORS pinned to deployment origin, POST/OPTIONS only</li><li>X-Response-Time: [latency]ms</li></ul> |
 | API key exposure | AI key server-side only; Supabase anon key via env vars (RLS-protected, no hardcoded fallback) |
 | Secret scanning | Gitleaks in CI on every push |
@@ -282,7 +282,7 @@ Every response from /api/gemini (AI proxy) includes:
 - Access-Control-Allow-Methods: POST,OPTIONS
 - X-Response-Time: [latency]ms
 
-The model is pinned server-side (`deepseek-v4-pro`) — clients cannot select a different model, and requests are rate-limited per IP.
+The model is pinned server-side (`deepseek-v4-flash`) — clients cannot select a different model, and requests are rate-limited per IP.
 
 ## 🏗️ Architecture Decisions
 
