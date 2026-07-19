@@ -4,7 +4,7 @@
     <button
       v-if="showFab"
       @click="$emit('open')"
-      class="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white shadow-[0_0_20px_rgba(8,145,178,0.6)] transition-transform duration-300 hover:scale-110 active:scale-95 sm:bottom-8 sm:right-8"
+      class="fixed bottom-[5.5rem] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white shadow-[0_0_20px_rgba(8,145,178,0.6)] transition-transform duration-300 hover:scale-110 active:scale-95"
       :aria-label="fabLabel || 'Open panel'"
       :title="fabLabel"
     >
