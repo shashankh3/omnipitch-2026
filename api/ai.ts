@@ -161,7 +161,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const requestBody: any = {
       model,
       messages: openAiMessages,
-      max_tokens: 1024,
+      max_tokens: 4096,
       temperature: 0.6,
     };
 
