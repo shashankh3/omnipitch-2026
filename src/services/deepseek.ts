@@ -200,6 +200,7 @@ export async function getFanAssistance(
         - Accessibility Constraints: User Step-Free Requirement is set to ${needsStepFree}. Keep routes matching this constraint.
         
         Instructions: Provide hyper-localized, safe navigation and support. Do not hallucinate data outside this provided operational payload. Keep answers concise (under 3 sentences).
+        CRITICAL INSTRUCTION: You must NOT output any reasoning trace, thinking process, or inner monologue. Output ONLY the final answer.
       `;
 
       if (resolvedFacts) {
@@ -219,6 +220,7 @@ export async function getFanAssistance(
           Accessibility mode: ${resolvedFacts.accessibilityMode}
           
           Reply in ${userLang} only. Be concise. No markdown.
+          CRITICAL INSTRUCTION: You must NOT output any reasoning trace, thinking process, or inner monologue. Output ONLY the final answer.
         `;
       }
 

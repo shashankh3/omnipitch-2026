@@ -13,7 +13,7 @@ const MAX_STRING_LENGTH = 4_000;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
-const TEXT_MODEL = 'accounts/fireworks/models/llama-v3p1-8b-instruct';
+const TEXT_MODEL = 'accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b';
 const VISION_MODEL = 'accounts/fireworks/models/llama-v3p2-11b-vision-instruct'; // Fallback to a real multimodal model
 
 function setSecurityHeaders(res: VercelResponse) {
@@ -158,12 +158,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const model = hasVision ? VISION_MODEL : TEXT_MODEL;
 
-    const requestBody = {
+    const requestBody: any = {
       model,
       messages: openAiMessages,
       max_tokens: 1024,
       temperature: 0.6,
     };
+    
+    // Explicitly disable reasoning trace for Nemotron-H family
+    if (model === TEXT_MODEL) {
+      requestBody.reasoning = { type: 'none' };
+      // Fallback flags some Fireworks integrations use for reasoning budgets
+      requestBody.extra_body = { reasoning_budget: 0 };
+    }
 
     if (expectJson) {
       requestBody.response_format = { type: 'json_object' };
@@ -202,6 +209,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('X-Response-Time', `${latency}ms`);
 
     let responseText = data.choices?.[0]?.message?.content || '';
+    
+    // Fallback: Strip the "Here's a thinking process:" block manually if the API flag is ignored
+    if (responseText.includes("Here's a thinking process:")) {
+      const parts = responseText.split(/Here's a thinking process:.*?\n\s*Output:(?:\s*I'll do \d+ sentences as planned\.)?/s);
+      if (parts.length > 1) {
+        responseText = parts[parts.length - 1].trim();
+      } else {
+        // Generic fallback for any unexpected thinking output format
+        const outputIndex = responseText.lastIndexOf("Output:");
+        if (outputIndex !== -1) {
+          responseText = responseText.substring(outputIndex + 7).trim();
+        } else {
+          // Just remove everything up to the first double newline
+          responseText = responseText.replace(/^Here's a thinking process:.*?(\n\n|$)/s, "").trim();
+        }
+      }
+    }
     
     if (!responseText) {
       return res.status(200).json({ text: "I can't help with that request." });
