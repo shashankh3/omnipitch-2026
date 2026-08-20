@@ -83,7 +83,7 @@ class AIHttpError extends Error {
  * Helper to call our local AI proxy instead of hitting the model directly from the client.
  */
 async function callAIProxy(messages: (string | AIMessage)[], expectJson: boolean = false) {
-  const res = await fetch('/api/deepseek', {
+  const res = await fetch('/api/ai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages, expectJson })
