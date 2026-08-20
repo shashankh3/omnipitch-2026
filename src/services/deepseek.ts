@@ -202,7 +202,7 @@ export async function getFanAssistance(
         - Accessibility Constraints: User Step-Free Requirement is set to ${needsStepFree}. Keep routes matching this constraint.
         
         Instructions: Provide hyper-localized, safe navigation and support. Do not hallucinate data outside this provided operational payload. Keep answers concise (under 3 sentences).
-        CRITICAL INSTRUCTION: You must NOT output any reasoning trace, thinking process, or inner monologue. Output ONLY the final answer.
+        CRITICAL INSTRUCTION: You MUST wrap your final user-facing response in <final_answer> tags. Do not put any thinking or reasoning inside the tags.
       `;
 
       if (resolvedFacts) {
@@ -222,7 +222,7 @@ export async function getFanAssistance(
           Accessibility mode: ${resolvedFacts.accessibilityMode}
           
           Reply in ${userLang} only. Be concise. No markdown.
-          CRITICAL INSTRUCTION: You must NOT output any reasoning trace, thinking process, or inner monologue. Output ONLY the final answer.
+          CRITICAL INSTRUCTION: You MUST wrap your final user-facing response in <final_answer> tags. Do not put any thinking or reasoning inside the tags.
         `;
       }
 
@@ -230,7 +230,23 @@ export async function getFanAssistance(
       const userMessage = `<user_question>${safeQuery}</user_question>`;
       const messages = [systemContext, userMessage];
       const result = await callAIProxy(messages, false);
-      return result.response.text();
+      let rawText = result.response.text();
+      
+      // Extract the final answer to forcefully strip unstructured reasoning traces
+      const match = rawText.match(/<final_answer>([\s\S]*?)<\/final_answer>/i);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+      
+      // Fallback if tag is missing: try to split by 'Output:'
+      const outputIdx = rawText.lastIndexOf('Output:');
+      if (outputIdx !== -1) {
+        return rawText.substring(outputIdx + 7).trim();
+      }
+      
+      // Ultimate fallback: split by double newlines and take the last block
+      const parts = rawText.split(/\n\s*\n/);
+      return parts[parts.length - 1].trim();
     }
   });
 }
