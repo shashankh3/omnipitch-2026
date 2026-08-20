@@ -164,13 +164,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       max_tokens: 1024,
       temperature: 0.6,
     };
-    
-    // Explicitly disable reasoning trace for Nemotron-H family
-    if (model === TEXT_MODEL) {
-      requestBody.reasoning = { type: 'none' };
-      // Fallback flags some Fireworks integrations use for reasoning budgets
-      requestBody.extra_body = { reasoning_budget: 0 };
-    }
 
     if (expectJson) {
       requestBody.response_format = { type: 'json_object' };
