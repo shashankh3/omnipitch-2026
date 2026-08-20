@@ -160,7 +160,9 @@ async function withAiFallback<T>(opts: {
     }
     
     // Instead of silently falling back to mock on unexpected errors, surface the error for debugging
-    return `DEBUG ERROR: status=${status}, message=${error.message}, name=${error.name}` as any;
+    const errMsg = error instanceof Error ? error.message : String(error);
+    const errName = error instanceof Error ? error.name : 'Unknown';
+    return `DEBUG ERROR: status=${status}, message=${errMsg}, name=${errName}` as any;
   }
 }
 
