@@ -159,7 +159,8 @@ async function withAiFallback<T>(opts: {
       return resolveFallback(opts.fallback);
     }
     
-    return resolveFallback(opts.fallback);
+    // Instead of silently falling back to mock on unexpected errors, surface the error for debugging
+    return `DEBUG ERROR: status=${status}, message=${error.message}, name=${error.name}` as any;
   }
 }
 
